@@ -9,7 +9,7 @@ import frc.robot.Constants.ArmConstants;
 import frc.robot.math.Math555;
 
 import java.util.function.Consumer;
-import org.littletonrobotics.junction.AutoLogOutput;
+// import org.littletonrobotics.junction.AutoLogOutput;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -112,7 +112,7 @@ public class Sprocket extends SubsystemBase {
         return pid.active();
     }
 
-    @AutoLogOutput
+    // @AutoLogOutput
     /**
      * If the angle is less than 0 then 0.0 is returned, if the angle is greater than 90 it return 90.0, else it will return the actual angle
      */

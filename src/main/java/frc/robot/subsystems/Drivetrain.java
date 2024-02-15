@@ -3,8 +3,8 @@ package frc.robot.subsystems;
 import java.io.File;
 
 
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
+// import org.littletonrobotics.junction.AutoLogOutput;
+// import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.util.PathPlannerLogging;
 
@@ -13,11 +13,16 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.MutableMeasure;
+import edu.wpi.first.units.Voltage;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.DriveConstants;
 import swervelib.SwerveDrive;
+import swervelib.SwerveModule;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
@@ -26,7 +31,7 @@ public class Drivetrain extends SubsystemBase {
     
     public final SwerveDrive swerveDrive;
 
-    @AutoLogOutput
+    // @AutoLogOutput
     private boolean isFieldRelative;
     // private AHRS navX;
     
@@ -42,15 +47,15 @@ public class Drivetrain extends SubsystemBase {
             throw new RuntimeException(e);
         }
 
-        PathPlannerLogging.setLogActivePathCallback(
-            (activePath) -> {
-              Logger.recordOutput(
-                  "Odometry/Trajectory", activePath.toArray(new Pose2d[activePath.size()]));
-            });
-        PathPlannerLogging.setLogTargetPoseCallback(
-            (targetPose) -> {
-              Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
-            });
+        // PathPlannerLogging.setLogActivePathCallback(
+        //     (activePath) -> {
+        //       Logger.recordOutput(
+        //           "Odometry/Trajectory", activePath.toArray(new Pose2d[activePath.size()]));
+        //     });
+        // PathPlannerLogging.setLogTargetPoseCallback(
+        //     (targetPose) -> {
+        //       Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
+        //     });
         
 
     }
@@ -74,11 +79,28 @@ public class Drivetrain extends SubsystemBase {
      */
     @Override
     public void periodic() {
-        Logger.recordOutput("Drivetrain/Module-Positions",getSwerveDrive().getModulePositions());
-        Logger.recordOutput("Drivetrain/Gyro-Rotation",getSwerveDrive().getGyroRotation3d());
-        Logger.recordOutput("Drivetrain/Pose",getSwerveDrive().getPose());        
+        // Logger.recordOutput("Drivetrain/Module-Positions",getSwerveDrive().getModulePositions());
+        // Logger.recordOutput("Drivetrain/Gyro-Rotation",getSwerveDrive().getGyroRotation3d());
+        // Logger.recordOutput("Drivetrain/Pose",getSwerveDrive().getPose());        
         RobotContainer.field.setRobotPose(swerveDrive.getPose());
     }
+
+
+    public Command runSysId() {
+        MutableMeasure<Voltage> appliedVoltage = MutableMeasure.mutable(Volts.of(0));
+        SysIdRoutine routine = new SysIdRoutine(
+            new SysIdRoutine.Config(),
+            new SysIdRoutine.Mechanism(this::setDriveVoltage, )
+        );
+    }
+
+    public void setDriveVoltage(double voltage) {
+        SwerveModule[] modules = swerveDrive.getModules();
+        for (SwerveModule module : modules) {
+            module.getDriveMotor().setVoltage(voltage);
+        }
+    }
+
     /**
      * sets isFieldRelative to either true or false, used for getIsFieldRelative
      */
@@ -105,7 +127,7 @@ public class Drivetrain extends SubsystemBase {
     public void resetOdometry() {
         this.swerveDrive.resetOdometry(new Pose2d(0.0,0.0, new Rotation2d(0.0)));
     }
-    @AutoLogOutput
+    // @AutoLogOutput
     /**
      * returns direction
      */
@@ -123,8 +145,8 @@ public class Drivetrain extends SubsystemBase {
         double ySpeed = MathUtil.applyDeadband(controller.getLeftY(), 0.05) * DriveConstants.MAX_SPEED;
         
         Translation2d targetTranslation = new Translation2d(ySpeed,xSpeed);
-        Logger.recordOutput("Drivetrain/Controller-Translation", targetTranslation);
-        Logger.recordOutput("Drivetrain/Controller-Theta", thetaSpeed);
+        // Logger.recordOutput("Drivetrain/Controller-Translation", targetTranslation);
+        // Logger.recordOutput("Drivetrain/Controller-Theta", thetaSpeed);
 
         this.drive(targetTranslation, thetaSpeed);
     }

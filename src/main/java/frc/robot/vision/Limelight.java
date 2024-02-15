@@ -1,6 +1,6 @@
 package frc.robot.vision;
 
-import org.littletonrobotics.junction.AutoLogOutput;
+// import org.littletonrobotics.junction.AutoLogOutput;
 
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
@@ -20,13 +20,13 @@ public class Limelight extends SubsystemBase {
 
         this.cameraName = cameraName;
     }
-    @AutoLogOutput
+    // @AutoLogOutput
     public double getTimestampSeconds() {
         double latency = (LimelightHelpers.getLimelightNTDouble(cameraName, "cl") + LimelightHelpers.getLimelightNTDouble(cameraName, "tl")) / 1000.0;
         
         return Timer.getFPGATimestamp() - latency;
     }
-    @AutoLogOutput
+    // @AutoLogOutput
     public boolean hasValidTarget() {
         boolean hasMatch = (LimelightHelpers.getLimelightNTDouble(cameraName, "tv") == 1.0);
         return targetDebouncer.calculate(hasMatch);
@@ -48,11 +48,11 @@ public class Limelight extends SubsystemBase {
         
         LimelightHelpers.setPipelineIndex(cameraName, type.getPipe());
     }
-    @AutoLogOutput
+    // @AutoLogOutput
     public double getObjectTX() {
         return LimelightHelpers.getLimelightNTDouble(cameraName, "tx");
     }
-    @AutoLogOutput
+    // @AutoLogOutput
     public double getObjectTY() {
         return LimelightHelpers.getLimelightNTDouble(cameraName, "ty");
     }
