@@ -42,12 +42,12 @@ public class RobotContainer {
   
   // Subsystems
   public static Intake intake = new Intake();
-  public static Shooter shooter = new Shooter();
-  public static Sprocket sprocket = new Sprocket();
-  public static Limelight intakeLimelight = new Limelight("intakeLimelight");
-  public static Limelight shooterLimelight = new Limelight("shooterLimelight");
-  public static Auto auto = new Auto();
-  public static LED led = new LED(new ConditionalAnimation(getTeleopDefaultAnim()).addCase(DriverStation::isDisabled, getDisabledAnimation()), new WipeTransition());
+  // public static Shooter shooter = new Shooter();
+  // public static Sprocket sprocket = new Sprocket();
+  // public static Limelight intakeLimelight = new Limelight("intakeLimelight");
+  // public static Limelight shooterLimelight = new Limelight("shooterLimelight");
+  // public static Auto auto = new Auto();
+  // public static LED led = new LED(new ConditionalAnimation(getTeleopDefaultAnim()).addCase(DriverStation::isDisabled, getDisabledAnimation()), new WipeTransition());
 
   public static final Field2d field = new Field2d();
 
@@ -57,18 +57,18 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     
-    auto.setupPathPlanner();
-    setupAutoTab();
+    // auto.setupPathPlanner();
+    // setupAutoTab();
     
     drivetrain.setDefaultCommand(Commands.run(() -> {
       drivetrain.setInputFromController(driverController); 
     }, drivetrain));
 
-    sprocket.setDefaultCommand(Commands.run(() -> {
-      sprocket.setSpeed(
-        MathUtil.applyDeadband(operatorController.getLeftY(), 0.05) * ArmConstants.MAX_SPEED
-      );
-    }, sprocket));
+    // sprocket.setDefaultCommand(Commands.run(() -> {
+    //   sprocket.setSpeed(
+    //     MathUtil.applyDeadband(operatorController.getLeftY(), 0.05) * ArmConstants.MAX_SPEED
+    //   );
+    // }, sprocket));
 
     configureBindings();
   }
@@ -81,26 +81,26 @@ public class RobotContainer {
     }));
     
     // TODO: probably wrong
-    driverController.cross().onTrue(Commands555.scoreSpeaker()).onFalse(Commands555.stopShooter());
+    // driverController.cross().onTrue(Commands555.scoreSpeaker()).onFalse(Commands555.stopShooter());
     driverController.circle().onTrue(Commands555.intake()).onFalse(Commands555.stopIntake());
 
-    operatorController.circle().onTrue(Commands.runOnce(() -> {
-      shooter.shootVelocity(ShooterConstants.MAX_RPM);
-    }));
+    // operatorController.circle().onTrue(Commands.runOnce(() -> {
+    //   shooter.shootVelocity(ShooterConstants.MAX_RPM);
+    // }));
 
     
 
-    operatorController.L1().onTrue(Commands555.signalAmp());
-    operatorController.R1().onTrue(Commands555.signalCoop());
+    // operatorController.L1().onTrue(Commands555.signalAmp());
+    // operatorController.R1().onTrue(Commands555.signalCoop());
 
 
     //////////////////////////////
     ///// OPERATOR BINDINGS /////
     ////////////////////////////
 
-    operatorController.circle().onTrue(Commands.run(() -> {
-      sprocket.goToAngle(45);
-    }));
+    // operatorController.circle().onTrue(Commands.run(() -> {
+    //   sprocket.goToAngle(45);
+    // }));
 
 
     
@@ -119,7 +119,7 @@ public class RobotContainer {
     //TODO make it the same string that was entered last time? I think i can mark nt key as persistent
     autoTab.add("Enter Command", "").withSize(3,1).withPosition(0,0);
     autoTab.add(field).withSize(6,4).withPosition(3,0);
-    autoTab.addString("Feedback", () -> auto.getFeedback()).withSize(3,1).withPosition(0, 1);
+    // autoTab.addString("Feedback", () -> auto.getFeedback()).withSize(3,1).withPosition(0, 1);
     
     autoTab.add("Ignore Safety", false).withWidget(BuiltInWidgets.kToggleSwitch).withSize(2, 1).withPosition(0,2);
 
