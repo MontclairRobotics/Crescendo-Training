@@ -26,20 +26,20 @@ public class Auto extends SubsystemBase {
     private ArrayList<PathPlannerTrajectory> trajectories = new ArrayList<PathPlannerTrajectory>();
     private String feedbackValue = "Enter a command!";
 
-    public void setupPathPlanner() {
-        AutoBuilder.configureHolonomic(
-            RobotContainer.drivetrain.getSwerveDrive()::getPose, // Robot pose supplier
-            RobotContainer.drivetrain.getSwerveDrive()::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
-            RobotContainer.drivetrain.getSwerveDrive()::getRobotVelocity, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            RobotContainer.drivetrain.getSwerveDrive()::setChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-            Constants.AutoConstants.PATH_FOLLOWER_CONFIG,
-            () -> {
-                Optional<Alliance> alliance = DriverStation.getAlliance();
-                return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
-            },
-            RobotContainer.drivetrain 
-        );
-    } 
+    // public void setupPathPlanner() {
+    //     AutoBuilder.configureHolonomic(
+    //         RobotContainer.drivetrain.getSwerveDrive()::getPose, // Robot pose supplier
+    //         RobotContainer.drivetrain.getSwerveDrive()::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
+    //         RobotContainer.drivetrain.getSwerveDrive()::getRobotVelocity, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+    //         RobotContainer.drivetrain.getSwerveDrive()::setChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+    //         Constants.AutoConstants.PATH_FOLLOWER_CONFIG,
+    //         () -> {
+    //             Optional<Alliance> alliance = DriverStation.getAlliance();
+    //             return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
+    //         },
+            
+    //     );
+    // } 
     //1A2
     public boolean isValidPathSequence(String autoString) {
         //Checks if the first point in the string is a starting point
@@ -125,36 +125,36 @@ public class Auto extends SubsystemBase {
 
     }
 
-    public Command getPathSequence(String autoString) {
+    // public Command getPathSequence(String autoString) {
 
-        SequentialCommandGroup finalPath = new SequentialCommandGroup();
+    //     SequentialCommandGroup finalPath = new SequentialCommandGroup();
         
-        for (int i = 0; i < autoString.length()-1; i++) {
+    //     for (int i = 0; i < autoString.length()-1; i++) {
 
-            char current = autoString.charAt(i);
-            char next = autoString.charAt(i+1);
-            try {
+    //         char current = autoString.charAt(i);
+    //         char next = autoString.charAt(i+1);
+    //         try {
 
-                PathPlannerPath path = PathPlannerPath.fromPathFile("" + current + next);
-                finalPath.addCommands(AutoBuilder.followPath(path));
-                trajectories.add(path.getTrajectory(RobotContainer.drivetrain.getSwerveDrive().getRobotVelocity(), RobotContainer.drivetrain.getRotation()));
+    //             PathPlannerPath path = PathPlannerPath.fromPathFile("" + current + next);
+    //             finalPath.addCommands(AutoBuilder.followPath(path));
+    //             trajectories.add(path.getTrajectory(RobotContainer.drivetrain.getSwerveDrive().getRobotVelocity(), RobotContainer.drivetrain.getRotation()));
 
-            } catch(Exception e) {
-                // TODO: amazing error handling
-            }
+    //         } catch(Exception e) {
+    //             // TODO: amazing error handling
+    //         }
         
-            if (Character.isDigit(next)) {
-                if (next == '4') {
-                    finalPath.addCommands(Commands555.scoreAmp());
-                } else {
-                    finalPath.addCommands(Commands555.scoreSpeaker());
-                }
+    //         if (Character.isDigit(next)) {
+    //             if (next == '4') {
+    //                 finalPath.addCommands(Commands555.scoreAmp());
+    //             } else {
+    //                 finalPath.addCommands(Commands555.scoreSpeaker());
+    //             }
                 
-            } else {
-                finalPath.addCommands(Commands555.alignToLimelightTarget(RobotContainer.intakeLimelight),Commands555.intake());
-            }
-        }
-        return Commands.sequence(finalPath);
-    }
+    //         } else {
+    //             finalPath.addCommands(Commands555.alignToLimelightTarget(RobotContainer.intakeLimelight),Commands555.intake());
+    //         }
+    //     }
+    //     return Commands.sequence(finalPath);
+    // }
 
 }

@@ -71,9 +71,9 @@ public final class Constants {
     public static final int INTAKE_TOP_MOTOR = 21;
     public static final int INTAKE_BOTTOM_MOTOR = 20;
 
-    public static final int SHOOTER_MOTOR_BOTTOM_PORT = 1;
-    public static final int SHOOTER_MOTOR_TOP_PORT = 2;
-    public static final int SHOOTER_MOTOR_TRANSPORT_PORT = 3;
+    public static final int SHOOTER_MOTOR_BOTTOM_PORT = 40;
+    public static final int SHOOTER_MOTOR_TOP_PORT = 41;
+    public static final int SHOOTER_MOTOR_TRANSPORT_PORT = 42;
 
     //Sprocket motors
     public static final int LEFT_ANGLE_MOTOR_PORT = 30;
@@ -91,15 +91,15 @@ public final class Constants {
 
   public static class SubsystemConstants {
     // Intake
-    public static final double INTAKE_SPEED = 0.5;
+    public static final double INTAKE_SPEED = 1;
     // Fliptop
     public static final double FLIPTOP_SPEED = 0.5;
     // Transport
-    public static final double TRANSPORT_SPEED = 0.6;
+    public static final double TRANSPORT_SPEED = 0.7;
 
     // Shooter
-    public static final double SPEAKER_EJECT_SPEED = 0.5;
-    public static final double AMP_EJECT_SPEED = 0.1;
+    public static final double SPEAKER_EJECT_SPEED = 1;
+    public static final double AMP_EJECT_SPEED = 0.5;
 
     // Sprocket
     // TODO: Validate values
@@ -141,7 +141,7 @@ public final class Constants {
 
     public static final double MAX_SPEED = 0; // TODO ???
 
-    public static final Tunable<Boolean> LEFT_INVERT = Tunable.of(false, "arm.invert.left");
+    public static final Tunable<Boolean> LEFT_INVERT = Tunable.of(true, "arm.invert.left");
     public static final Tunable<Boolean> RIGHT_INVERT = Tunable.of(false, "arm.invert.right");
 
     public static final double ENCODER_DIFFERENCE = 2; // the acceptable difference between encoder values
@@ -149,7 +149,7 @@ public final class Constants {
 
   public static class ShooterConstants {
      // Shooter
-    public static final double SPEAKER_EJECT_SPEED = 0.5;
+    public static final double SPEAKER_EJECT_SPEED = 1;
     public static final double AMP_EJECT_SPEED = 0.1;
 
     public static Tunable<Double> kp = Tunable.of(6e-5, "shooter.kp");

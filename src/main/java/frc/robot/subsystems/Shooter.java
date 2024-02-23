@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import frc.robot.Constants.*;
+import frc.robot.util.Tunable;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -18,6 +19,8 @@ public class Shooter extends SubsystemBase {
     public final CANSparkMax bottomMotor = new CANSparkMax(Ports.SHOOTER_MOTOR_BOTTOM_PORT, MotorType.kBrushless);
     public final CANSparkMax transportMotor = new CANSparkMax(Ports.SHOOTER_MOTOR_TRANSPORT_PORT, MotorType.kBrushless);
 
+    public Tunable<Double> transportSpeed = Tunable.of(1,"Transport speed");
+    public Tunable<Double> speakerShootSpeed = Tunable.of(1, "speaker shoot speed");
     private RelativeEncoder topEncoder = topMotor.getEncoder();
     private RelativeEncoder bottomEncoder = bottomMotor.getEncoder();
 
@@ -68,9 +71,9 @@ public class Shooter extends SubsystemBase {
      * Shoots (used for speaker)
      */
     public void shootSpeaker() {
-        topMotor.set(ShooterConstants.SPEAKER_EJECT_SPEED);
-        bottomMotor.set(ShooterConstants.SPEAKER_EJECT_SPEED);
-        transportMotor.set(SubsystemConstants.TRANSPORT_SPEED);
+        topMotor.set(speakerShootSpeed.get());
+        bottomMotor.set(speakerShootSpeed.get());
+        // transportMotor.set(SubsystemConstants.TRANSPORT_SPEED);
     }
 
     public void shootVelocity(double velocity) {
@@ -85,10 +88,12 @@ public class Shooter extends SubsystemBase {
         Math.abs(bottomEncoder.getVelocity() - setpoint) < ShooterConstants.VELOCITY_DEADBAND;
     }
 
-    public void transportStart() {
-        transportMotor.set(SubsystemConstants.TRANSPORT_SPEED);
+    public void startTransport() {
+        transportMotor.set(transportSpeed.get());
     }
-
+    public void stopTransport() {
+        transportMotor.stopMotor();
+    }
     public double getTopVelocity() {
         return topEncoder.getVelocity();
     }
@@ -100,8 +105,8 @@ public class Shooter extends SubsystemBase {
      * Shoots (used for amp)
      */
     public void shootAmp() {
-        topMotor.set(ShooterConstants.AMP_EJECT_SPEED);
-        bottomMotor.set(ShooterConstants.AMP_EJECT_SPEED);
+        topMotor.set(SubsystemConstants.AMP_EJECT_SPEED);
+        bottomMotor.set(SubsystemConstants.AMP_EJECT_SPEED);
     }
 
     /**

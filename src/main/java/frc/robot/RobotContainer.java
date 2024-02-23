@@ -51,12 +51,12 @@ public class RobotContainer {
   public static Intake intake = new Intake();
   public static Shooter shooter = new Shooter();
   public static Sprocket sprocket = new Sprocket();
-  public static Limelight intakeLimelight = new Limelight("limelight");
-  public static Limelight shooterLimelight = new Limelight("shooterLimelight");
-  public static Auto auto = new Auto();
-  public static LED led = new LED(new ConditionalAnimation(getTeleopDefaultAnim()).addCase(DriverStation::isDisabled, getDisabledAnimation()), new WipeTransition());
-  public static Climbers climber = new Climbers();
-  public static final Field2d field = new Field2d();
+  //public static Limelight intakeLimelight = new Limelight("limelight");
+  //public static Limelight shooterLimelight = new Limelight("shooterLimelight");
+  //public static Auto auto = new Auto();
+  //public static LED led = new LED(new ConditionalAnimation(getTeleopDefaultAnim()).addCase(DriverStation::isDisabled, getDisabledAnimation()), new WipeTransition());
+  //public static Climbers climber = new Climbers();
+  //public static final Field2d field = new Field2d();
 
   
   
@@ -64,49 +64,89 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     
-    auto.setupPathPlanner();
-    setupAutoTab();
+    //auto.setupPathPlanner();
+    //setupAutoTab();
 
     drivetrain.setDefaultCommand(Commands.run(() -> {
       drivetrain.setInputFromController(driverController);
-    }));
+    }, drivetrain));
 
 
 
     configureBindings();
-    intakeLimelight.setPipelineTo(DetectionType.NOTE);
+    
   }
 
   private void configureBindings() {  
 
-    driverController.L1().onTrue(Commands555.disableFieldRelative()).onFalse(Commands555.enableFieldRelative());
-    driverController.R1().whileTrue(Commands555.scoreMode());
-    driverController.triangle().onTrue(Commands555.goToAngleFieldRelative(Rotation2d.fromDegrees(0), false));
-    driverController.circle().onTrue(Commands555.goToAngleFieldRelative(Rotation2d.fromDegrees(90), false));
-    driverController.cross().onTrue(Commands555.goToAngleFieldRelative(Rotation2d.fromDegrees(180), false));
-    driverController.square().onTrue(Commands555.goToAngleFieldRelative(Rotation2d.fromDegrees(270), false));
-    driverController.L2().onTrue(Commands555.alignToLimelightTarget(shooterLimelight));
-    driverController.R2().onTrue(Commands555.alignToLimelightTarget(intakeLimelight));
+    //driverController.L1().onTrue(Commands555.disableFieldRelative()).onFalse(Commands555.enableFieldRelative());
+    //driverController.R1().whileTrue(Commands555.scoreMode());
+    // driverController.triangle().onTrue(Commands555.goToAngleFieldRelative(Rotation2d.fromDegrees(0), false));
+    // driverController.circle().onTrue(Commands555.goToAngleFieldRelative(Rotation2d.fromDegrees(90), false));
+    // driverController.cross().onTrue(Commands555.goToAngleFieldRelative(Rotation2d.fromDegrees(180), false));
+    // driverController.square().onTrue(Commands555.goToAngleFieldRelative(Rotation2d.fromDegrees(270), false));
+    //driverController.L2().onTrue(Commands555.alignToLimelightTarget(shooterLimelight));
+    //driverController.R2().onTrue(Commands555.alignToLimelightTarget(intakeLimelight));
 
     driverController.touchpad().onTrue(Commands.runOnce(() -> {
       drivetrain.getSwerveDrive().zeroGyro();
     }).ignoringDisable(true));
 
+    // driverController.square().onTrue(Commands.runOnce(() -> {
+    //   intake.in();
+    // })).onFalse(Commands555.stopIntake())
+    // ;
+    // driverController.cross().onTrue(Commands555.stopIntake());
+    // driverController.triangle().onTrue(Commands555.stopSprocket());
+    // driverController.circle().onTrue(Commands555.shootSpeaker()).onFalse(Commands555.stopShooter());
+    // //driverController.triangle().onTrue(Commands555.shootAmp()).onFalse(Commands555.stopShooter());
+    // driverController.L1().onTrue(Commands555.goUp()).onFalse(Commands555.stopSprocket());
+    // driverController.R1().onTrue(Commands555.goDown()).onFalse(Commands555.stopSprocket());
+
+    driverController.cross().onTrue(Commands.runOnce(() -> {
+      intake.in();
+    })).onFalse(Commands.runOnce(() -> {
+      intake.stop();
+    }));
+
+    driverController.triangle().onTrue(Commands.runOnce(() -> {
+      intake.out();
+    })).onFalse(Commands.runOnce(() -> {
+      intake.stop();
+    }));
+
+    driverController.square().onTrue(Commands.runOnce(() -> {
+      shooter.startTransport();
+    })).onFalse(Commands.runOnce(() -> {
+      shooter.stopTransport();
+    }));
+
+
+    //driverController.L1().onTrue(Commands555.goUp()).onFalse(Commands555.stopSprocket());
+    //driverController.R1().onTrue(Commands555.goDown()).onFalse(Commands555.stopSprocket());
+    
+    
+    //driverController.circle().onTrue(Commands555.shootSpeaker()).onFalse(Commands555.stopShooter());
+
+    driverController.circle().onTrue(Commands.runOnce(() -> { // I logged the rotations of the motor, moved it up to roughly 45 degrees (maybe a bit higher) then put the number of rotations in here.
+      sprocket.goToAngle(-11.47); // motors are inverted in a weird way, nothing major to worry about just put a negative sign in front
+    }));
+    
     // ************** OPERATOR CONTROLLER BINDINGS ************** //
-    operatorController.R2().onTrue(Commands555.reverseIntake()).onFalse(Commands555.stopIntake());
-    operatorController.L2().onTrue(Commands555.intake()).onFalse(Commands555.stopIntake());
-    operatorController.circle().onTrue(Commands555.scoreAmp());
-    operatorController.square().onTrue(Commands555.scoreSpeaker());
-    operatorController.L1().onTrue(Commands555.celebrate());
-    operatorController.touchpad().onTrue(Commands555.ampItUp());
-    operatorController.PS().onTrue(Commands555.Cooperatition());
+    // operatorController.R2().onTrue(Commands555.reverseIntake()).onFalse(Commands555.stopIntake());
+    // operatorController.L2().onTrue(Commands555.intake()).onFalse(Commands555.stopIntake());
+    // operatorController.circle().onTrue(Commands555.scoreAmp());
+    // operatorController.square().onTrue(Commands555.scoreSpeaker());
+    // operatorController.L1().onTrue(Commands555.celebrate());
+    // operatorController.touchpad().onTrue(Commands555.ampItUp());
+    // operatorController.PS().onTrue(Commands555.Cooperatition());
 
 
-    ControllerTools.getDPad(DPad.UP, operatorController).toggleOnTrue(sprocket.getSysId().quasistatic(Direction.kForward).onlyWhile(sprocket::isSprocketSafe));
-    ControllerTools.getDPad(DPad.DOWN, operatorController).toggleOnTrue(sprocket.getSysId().quasistatic(Direction.kReverse).onlyWhile(sprocket::isSprocketSafe));
+    // ControllerTools.getDPad(DPad.UP, operatorController).toggleOnTrue(sprocket.getSysId().quasistatic(Direction.kForward).onlyWhile(sprocket::isSprocketSafe));
+    // ControllerTools.getDPad(DPad.DOWN, operatorController).toggleOnTrue(sprocket.getSysId().quasistatic(Direction.kReverse).onlyWhile(sprocket::isSprocketSafe));
 
-    ControllerTools.getDPad(DPad.RIGHT, operatorController).toggleOnTrue(sprocket.getSysId().dynamic(Direction.kForward).onlyWhile(sprocket::isSprocketSafe));
-    ControllerTools.getDPad(DPad.LEFT, operatorController).toggleOnTrue(sprocket.getSysId().dynamic(Direction.kReverse).onlyWhile(sprocket::isSprocketSafe));
+    // ControllerTools.getDPad(DPad.RIGHT, operatorController).toggleOnTrue(sprocket.getSysId().dynamic(Direction.kForward).onlyWhile(sprocket::isSprocketSafe));
+    // ControllerTools.getDPad(DPad.LEFT, operatorController).toggleOnTrue(sprocket.getSysId().dynamic(Direction.kReverse).onlyWhile(sprocket::isSprocketSafe));
     }
 
   public static Animation getTeleopDefaultAnim() {
@@ -117,17 +157,17 @@ public class RobotContainer {
     return Constants.LEDConstants.DEMO_REEL;
   }
 
-  public void setupAutoTab() {
-    ShuffleboardTab autoTab = Shuffleboard.getTab("Auto");
-    // TODO make it the same string that was entered last time? I think i can mark nt key as persistent
-    autoTab.add("Enter Command", "").withSize(3,1).withPosition(0,0);
-    autoTab.add(field).withSize(6,4).withPosition(3,0);
-    autoTab.addString("Feedback", () -> auto.getFeedback()).withSize(3,1).withPosition(0, 1);
+  // public void setupAutoTab() {
+  //   ShuffleboardTab autoTab = Shuffleboard.getTab("Auto");
+  //   // TODO make it the same string that was entered last time? I think i can mark nt key as persistent
+  //   autoTab.add("Enter Command", "").withSize(3,1).withPosition(0,0);
+  //   autoTab.add(field).withSize(6,4).withPosition(3,0);
+  //   autoTab.addString("Feedback", () -> auto.getFeedback()).withSize(3,1).withPosition(0, 1);
     
-    autoTab.add("Ignore Safety", false).withWidget(BuiltInWidgets.kToggleSwitch).withSize(2, 1).withPosition(0,2);
+  //   autoTab.add("Ignore Safety", false).withWidget(BuiltInWidgets.kToggleSwitch).withSize(2, 1).withPosition(0,2);
 
 
-  }
+  // }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
