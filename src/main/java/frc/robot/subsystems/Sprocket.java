@@ -50,8 +50,6 @@ public class Sprocket extends SubsystemBase {
 
         rightMotor.getPIDController().setP(sprocketKP.get(),0);
         
-
-
         leftMotor.setInverted(true);
         rightMotor.setInverted(false);
 
@@ -67,7 +65,7 @@ public class Sprocket extends SubsystemBase {
     public double getEncoderPosition() {
         return (leftEncoder.getPosition() + rightEncoder.getPosition()) / 2;
     }
-    
+
     public void goToRotations(double target) {
         leftMotor.getPIDController().setReference(target, CANSparkBase.ControlType.kPosition);
         rightMotor.getPIDController().setReference(target, CANSparkBase.ControlType.kPosition);
