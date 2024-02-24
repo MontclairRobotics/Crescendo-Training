@@ -88,24 +88,19 @@ public final class Constants {
     public static final int CLIMBER_TOP_LIMIT_SWITCH_PORT = 42;
     public static final int CLIMBER_BOTTOM_LIMIT_SWITCH_PORT = 43;
   }
-
-  public static class SubsystemConstants {
-    // Intake
-    public static final double INTAKE_SPEED = 1;
-    // Fliptop
-    public static final double FLIPTOP_SPEED = 0.5;
-    // Transport
-    public static final double TRANSPORT_SPEED = 0.7;
-
-    // Shooter
-    public static final double SPEAKER_EJECT_SPEED = 1;
-    public static final double AMP_EJECT_SPEED = 0.5;
-
-    // Sprocket
-    // TODO: Validate values
-    public static final double SPROCKET_ANGLE_MOVE_SPEED = 0.5;
-    public static final double SPROCKET_ANGLE_DEADBAND = 3;
+  public static class ClimberConstants {
+    // Climbers
+    public static final double CLIMBER_SPEED = 1;
+    public static final double MAX_HEIGHT = 18; // Inches
+    public static final double ROTATIONS_PER_INCH = 12.0672 * Math.PI; //TODO:
+    
   }
+
+  public static class IntakeConstants {
+    // Intake
+    public static final double INTAKE_SPEED = 0.5;
+  }
+
 
   public static class ArmConstants {
 
@@ -131,7 +126,7 @@ public final class Constants {
     // TODO: All of these constants are basically guessed!!
     public static final double ANGLE_SPEED = 0.5; // Speed of the angle changing
     public static final double SPROCKET_ROTATIONS_PER_DEGREE = 1.26984126984;
-    public static final double ENCODER_MIN_ANGLE = 0.0;
+    public static final double ENCODER_MIN_ANGLE = 32;
     public static final double ENCODER_MAX_ANGLE = 75.787;
 
     public static final double SPEAKER_SCORE_ANGLE = -1;
@@ -139,15 +134,20 @@ public final class Constants {
 
     public static final double MAX_SPEED = 0; // TODO ???
 
-    public static final Tunable<Boolean> LEFT_INVERT = Tunable.of(true, "arm.invert.left");
+    public static final Tunable<Boolean> LEFT_INVERT = Tunable.of(false, "arm.invert.left");
     public static final Tunable<Boolean> RIGHT_INVERT = Tunable.of(false, "arm.invert.right");
 
     public static final double ENCODER_DIFFERENCE = 2; // the acceptable difference between encoder values
+
+    // Sprocket
+    // TODO: Validate values
+    public static final double SPROCKET_ANGLE_MOVE_SPEED = 0.5;
+    public static final double SPROCKET_ANGLE_DEADBAND = 3;
   }
 
   public static class ShooterConstants {
      // Shooter
-    public static final double SPEAKER_EJECT_SPEED = 1;
+    public static final double SPEAKER_EJECT_SPEED = 0.5;
     public static final double AMP_EJECT_SPEED = 0.1;
 
     public static Tunable<Double> kp = Tunable.of(6e-5, "shooter.kp");
@@ -158,6 +158,17 @@ public final class Constants {
     public static final double MAX_RPM = 5700;
 
     public static final int VELOCITY_DEADBAND = 10;
+
+    // Transport
+    public static final double TRANSPORT_SPEED = 0.6;
+
+    // // Shooter
+    // public static final double SPEAKER_EJECT_SPEED = 0.5;
+    // public static final double AMP_EJECT_SPEED = 0.1;
+  }
+
+  public static class SprocketConstants {
+    public static final double MAX_SPEED = 0.5;
   }
   
   public static class PidConstants {
@@ -233,5 +244,4 @@ public final class Constants {
 
     );
   }
-
 }
