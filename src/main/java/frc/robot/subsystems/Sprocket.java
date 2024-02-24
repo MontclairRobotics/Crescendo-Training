@@ -33,20 +33,20 @@ public class Sprocket extends SubsystemBase {
     
     private final CANSparkMax leftMotor = new CANSparkMax(Ports.LEFT_ANGLE_MOTOR_PORT, MotorType.kBrushless);
     private final CANSparkMax rightMotor = new CANSparkMax(Ports.RIGHT_ANGLE_MOTOR_PORT, MotorType.kBrushless);
-    public Tunable<Double> sprocketKP = Tunable.of(30, "Sprocket KP");
+    public Tunable<Double> sprocketKP = Tunable.of(3, "Sprocket KP");
     // private ArmFeedforward angleFeedForward;
     
 
     public final SparkPIDController leftController = leftMotor.getPIDController();
     public final SparkPIDController rightController = rightMotor.getPIDController();
     public Sprocket() {
-        leftController.setP(sprocketKP.get(), 1);
-        leftController.setI(0, 1);
-        leftController.setD(0, 1);
+        leftController.setP(sprocketKP.get(), 0);
+        leftController.setI(0, 0);
+        leftController.setD(0, 0);
 
-        rightController.setP(sprocketKP.get(), 1);
-        rightController.setI(0, 1);
-        rightController.setD(0, 1);
+        rightController.setP(sprocketKP.get(),0);
+        rightController.setI(0, 0);
+        rightController.setD(0, 0);
 
         // leftEncoder = leftMotor.getEncoder();
         // leftEncoder.setPositionConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE);
@@ -65,8 +65,8 @@ public class Sprocket extends SubsystemBase {
         rightMotor.getEncoder().setPosition(0);
 
         sprocketKP.whenUpdate((p) -> {
-            leftController.setP(p, 1);
-            rightController.setP(p, 1);
+            leftController.setP(p, 0);
+            rightController.setP(p, 0);
         });
     }
 

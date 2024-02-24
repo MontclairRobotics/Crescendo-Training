@@ -105,8 +105,6 @@ public final class Constants {
     // TODO: Validate values
     public static final double SPROCKET_ANGLE_MOVE_SPEED = 0.5;
     public static final double SPROCKET_ANGLE_DEADBAND = 3;
-
-    
   }
 
   public static class ArmConstants {
