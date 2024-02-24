@@ -77,8 +77,17 @@ public class RobotContainer {
     
   }
 
-  private void configureBindings() {  
+  private void configureBindings() { 
+    
+    ControllerTools.getDPad(DPad.UP, operatorController).toggleOnTrue(sprocket.getSysId().quasistatic(Direction.kForward).onlyWhile(sprocket::isSprocketSafe));
+    ControllerTools.getDPad(DPad.DOWN, operatorController).toggleOnTrue(sprocket.getSysId().quasistatic(Direction.kReverse).onlyWhile(sprocket::isSprocketSafe));
 
+    ControllerTools.getDPad(DPad.RIGHT, operatorController).toggleOnTrue(sprocket.getSysId().dynamic(Direction.kForward).onlyWhile(sprocket::isSprocketSafe));
+    ControllerTools.getDPad(DPad.LEFT, operatorController).toggleOnTrue(sprocket.getSysId().dynamic(Direction.kReverse).onlyWhile(sprocket::isSprocketSafe));
+
+
+    driverController.L2().onTrue(Commands555.goUp()).onFalse(Commands555.stopSprocket());
+    driverController.R2().onTrue(Commands555.goDown()).onFalse(Commands555.stopSprocket());
     //driverController.L1().onTrue(Commands555.disableFieldRelative()).onFalse(Commands555.enableFieldRelative());
     //driverController.R1().whileTrue(Commands555.scoreMode());
     // driverController.triangle().onTrue(Commands555.goToAngleFieldRelative(Rotation2d.fromDegrees(0), false));
