@@ -79,15 +79,15 @@ public class RobotContainer {
 
   private void configureBindings() { 
     
-    ControllerTools.getDPad(DPad.UP, operatorController).toggleOnTrue(sprocket.getSysId().quasistatic(Direction.kForward).onlyWhile(sprocket::isSprocketSafe));
-    ControllerTools.getDPad(DPad.DOWN, operatorController).toggleOnTrue(sprocket.getSysId().quasistatic(Direction.kReverse).onlyWhile(sprocket::isSprocketSafe));
+    // ControllerTools.getDPad(DPad.UP, operatorController).toggleOnTrue(sprocket.getSysId().quasistatic(Direction.kForward).onlyWhile(sprocket::isSprocketSafe));
+    // ControllerTools.getDPad(DPad.DOWN, operatorController).toggleOnTrue(sprocket.getSysId().quasistatic(Direction.kReverse).onlyWhile(sprocket::isSprocketSafe));
 
-    ControllerTools.getDPad(DPad.RIGHT, operatorController).toggleOnTrue(sprocket.getSysId().dynamic(Direction.kForward).onlyWhile(sprocket::isSprocketSafe));
-    ControllerTools.getDPad(DPad.LEFT, operatorController).toggleOnTrue(sprocket.getSysId().dynamic(Direction.kReverse).onlyWhile(sprocket::isSprocketSafe));
+    // ControllerTools.getDPad(DPad.RIGHT, operatorController).toggleOnTrue(sprocket.getSysId().dynamic(Direction.kForward).onlyWhile(sprocket::isSprocketSafe));
+    // ControllerTools.getDPad(DPad.LEFT, operatorController).toggleOnTrue(sprocket.getSysId().dynamic(Direction.kReverse).onlyWhile(sprocket::isSprocketSafe));
 
 
-    driverController.L2().onTrue(Commands555.goUp()).onFalse(Commands555.stopSprocket());
-    driverController.R2().onTrue(Commands555.goDown()).onFalse(Commands555.stopSprocket());
+    // driverController.L2().onTrue(Commands555.goUp()).onFalse(Commands555.stopSprocket());
+    // driverController.R2().onTrue(Commands555.goDown()).onFalse(Commands555.stopSprocket());
     //driverController.L1().onTrue(Commands555.disableFieldRelative()).onFalse(Commands555.enableFieldRelative());
     //driverController.R1().whileTrue(Commands555.scoreMode());
     // driverController.triangle().onTrue(Commands555.goToAngleFieldRelative(Rotation2d.fromDegrees(0), false));
@@ -138,7 +138,7 @@ public class RobotContainer {
     //driverController.circle().onTrue(Commands555.shootSpeaker()).onFalse(Commands555.stopShooter());
 
     driverController.circle().onTrue(Commands.runOnce(() -> { // I logged the rotations of the motor, moved it up to roughly 45 degrees (maybe a bit higher) then put the number of rotations in here.
-      sprocket.goToAngle(-11.47); // motors are inverted in a weird way, nothing major to worry about just put a negative sign in front
+      sprocket.goToRotations(-11.47); // motors are inverted in a weird way, nothing major to worry about just put a negative sign in front
     }));
     
     // ************** OPERATOR CONTROLLER BINDINGS ************** //

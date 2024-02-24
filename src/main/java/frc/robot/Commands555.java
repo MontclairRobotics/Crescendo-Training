@@ -228,26 +228,26 @@ public class Commands555 {
      * Sprocket Commands
      * - - - - - - - - - -
      */
-    public static Command goUp() {
-        return Commands.runOnce(RobotContainer.sprocket::goUp, RobotContainer.sprocket).withName("sprocket up");
-    }
+    // public static Command goUp() {
+    //     return Commands.runOnce(RobotContainer.sprocket::goUp, RobotContainer.sprocket).withName("sprocket up");
+    // }
 
-    public static Command goDown() {
-        return Commands.runOnce(RobotContainer.sprocket::goDown, RobotContainer.sprocket).withName("sprocket down");
-    }
+    // public static Command goDown() {
+    //     return Commands.runOnce(RobotContainer.sprocket::goDown, RobotContainer.sprocket).withName("sprocket down");
+    // }
 
-    public static Command stopSprocket() {
-        return Commands.runOnce(RobotContainer.sprocket::stop, RobotContainer.sprocket).withName("sprocket stop");
-    }
+    // public static Command stopSprocket() {
+    //     return Commands.runOnce(RobotContainer.sprocket::stop, RobotContainer.sprocket).withName("sprocket stop");
+    // }
 
     // /**
     //  * Angle in degrees
     //  * @param angle
     //  * @return
     //  */
-    public static Command setSprocketAngle(double angle) {
-        return Commands.runOnce(() -> RobotContainer.sprocket.goToAngle(angle));
-    }
+    // public static Command setSprocketAngle(double angle) {
+    //     return Commands.runOnce(() -> RobotContainer.sprocket.goToAngle(angle));
+    // }
 
     /*
      * - - - - - - - - - -
