@@ -18,6 +18,9 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.MutableMeasure;
@@ -39,36 +42,45 @@ public class Sprocket extends SubsystemBase {
     private final CANSparkMax leftMotor = new CANSparkMax(Ports.LEFT_ANGLE_MOTOR_PORT, MotorType.kBrushless);
     private final CANSparkMax rightMotor = new CANSparkMax(Ports.RIGHT_ANGLE_MOTOR_PORT, MotorType.kBrushless);
 
-    public Tunable<Double> sprocketKP = Tunable.of(3, "Sprocket KP");
-    
+    // public Tunable<Double> sprocketKP = Tunable.of(3, "Sprocket KP");
+    public PIDController pidController = new PIDController(0.125, 0, 0);
+    public ArmFeedforward sprocketFeedforward = new ArmFeedforward(0, 0.1,8.91,0.01);
+
     private RelativeEncoder leftEncoder = leftMotor.getEncoder();
     private RelativeEncoder rightEncoder = leftMotor.getEncoder();
-    public Sprocket() {
 
-        leftMotor.getPIDController().setP(sprocketKP.get(), 0);
     
-
-        rightMotor.getPIDController().setP(sprocketKP.get(),0);
-        
+ 
+    public Sprocket() { 
         leftMotor.setInverted(true);
         rightMotor.setInverted(false);
 
+        leftEncoder.setPosition(0);
+        rightEncoder.setPosition(0);
 
-        
-        sprocketKP.whenUpdate((p)-> {
-            leftMotor.getPIDController().setP(sprocketKP.get(), 0);
-            rightMotor.getPIDController().setP(sprocketKP.get(),0);
-        });
-        
     }
 
-    public double getEncoderPosition() {
+        public double getEncoderPosition() { // in rotations
         return (leftEncoder.getPosition() + rightEncoder.getPosition()) / 2;
     }
 
-    public void goToRotations(double target) {
-        leftMotor.getPIDController().setReference(target, CANSparkBase.ControlType.kPosition);
-        rightMotor.getPIDController().setReference(target, CANSparkBase.ControlType.kPosition);
+    public void setPosition(double target) { // rotations
+        
+        pidController.setSetpoint(target);
+        
+    }
+    @Override
+    public void periodic() {
+        double pidVoltage = pidController.calculate(getEncoderPosition());
+        double ffVoltage = sprocketFeedforward.calculate(pidController.getSetpoint() * (Math.PI * 2), 0);
+        double voltageOut = pidVoltage + ffVoltage;
+
+        if (voltageOut > 12) {
+            voltageOut = 12;
+        }
+
+        leftMotor.setVoltage(voltageOut);
+        rightMotor.setVoltage(voltageOut);
     }
 
     
