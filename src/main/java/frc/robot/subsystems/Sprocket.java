@@ -65,9 +65,7 @@ public class Sprocket extends SubsystemBase {
     }
 
     public void setPosition(double target) { // rotations
-        
         pidController.setSetpoint(target);
-        
     }
     @Override
     public void periodic() {
