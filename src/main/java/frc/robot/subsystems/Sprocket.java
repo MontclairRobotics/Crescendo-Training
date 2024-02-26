@@ -49,8 +49,6 @@ public class Sprocket extends SubsystemBase {
     private RelativeEncoder leftEncoder = leftMotor.getEncoder();
     private RelativeEncoder rightEncoder = leftMotor.getEncoder();
 
-    
- 
     public Sprocket() { 
         leftMotor.setInverted(true);
         rightMotor.setInverted(false);
@@ -60,7 +58,7 @@ public class Sprocket extends SubsystemBase {
 
     }
 
-        public double getEncoderPosition() { // in rotations
+    public double getEncoderPosition() { // in rotations
         return (leftEncoder.getPosition() + rightEncoder.getPosition()) / 2;
     }
 
@@ -69,11 +67,15 @@ public class Sprocket extends SubsystemBase {
     }
     @Override
     public void periodic() {
+
+        double radianSetpoint = pidController.getSetpoint() * (Math.PI * 2); // convert from rotations to radians.
+
         double pidVoltage = pidController.calculate(getEncoderPosition());
-        double ffVoltage = sprocketFeedforward.calculate(pidController.getSetpoint() * (Math.PI * 2), 0);
+        double ffVoltage = sprocketFeedforward.calculate(radianSetpoint, 0);
+
         double voltageOut = pidVoltage + ffVoltage;
 
-        if (voltageOut > 12) {
+        if (voltageOut > 12) { // amazing code right here.
             voltageOut = 12;
         }
 
