@@ -138,7 +138,7 @@ public class RobotContainer {
     //driverController.circle().onTrue(Commands555.shootSpeaker()).onFalse(Commands555.stopShooter());
 
     driverController.circle().onTrue(Commands.runOnce(() -> { // I logged the rotations of the motor, moved it up to roughly 45 degrees (maybe a bit higher) then put the number of rotations in here.
-      sprocket.setPosition((-11.47)); // possibly does not need to be inverted
+      sprocket.setTargetAngle(45);// possibly does not need to be inverted
     }));
     
     // ************** OPERATOR CONTROLLER BINDINGS ************** //

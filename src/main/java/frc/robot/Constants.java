@@ -127,7 +127,7 @@ public final class Constants {
     public static final double ANGLE_SPEED = 0.5; // Speed of the angle changing
     public static final double SPROCKET_ROTATIONS_PER_DEGREE = 1.26984126984;
     public static final double ENCODER_MIN_ANGLE = 32;
-    public static final double ENCODER_MAX_ANGLE = 75.787;
+    public static final double ENCODER_MAX_ANGLE = 69;
 
     public static final double SPEAKER_SCORE_ANGLE = -1;
     public static final double AMP_SCORE_ANGLE = -1;
