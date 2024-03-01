@@ -63,7 +63,7 @@ public class Sprocket extends SubsystemBase {
     }
 
     public double getEncoderPosition() { 
-        return absEncoder.getDistance(); // Is some offset needed here?
+        return -absEncoder.getDistance() + 100; // TODO: correct offset please
     }
 
     public void setTargetAngle(double target) {
@@ -87,7 +87,7 @@ public class Sprocket extends SubsystemBase {
             voltageOut = 12;
             System.out.println("Combined voltage was greater than 12");
         }
-        if (bottomLimitSwitch.get() || topLimitSwitch.get()) {
+        if ((bottomLimitSwitch.get() || topLimitSwitch.get()) || (getEncoderPosition() > (ENCODER_MAX_ANGLE-2) || getEncoderPosition() < (ENCODER_MIN_ANGLE + 2))) {
           System.out.println("A limit switch was hit!");
           stop();
         } else {
