@@ -82,6 +82,10 @@ public class Sprocket extends SubsystemBase {
     public void setTargetAngle(double target) {
         pidController.setSetpoint(target);
     }
+    public void stop() {
+      leftMotor.set(0);
+      rightMotor.set(0);
+    }
     @Override
     public void periodic() {
 
@@ -98,14 +102,11 @@ public class Sprocket extends SubsystemBase {
         }
         if (bottomLimitSwitch.get() || topLimitSwitch.get()) {
           System.out.println("A limit switch was hit!");
+          stop();
         } else {
           leftMotor.setVoltage(voltageOut);
           rightMotor.setVoltage(voltageOut);
         }
-
-        
-
-        
     }
 
     
