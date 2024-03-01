@@ -79,6 +79,7 @@ public class Sprocket extends SubsystemBase {
 
         leftMotor.setInverted(LEFT_INVERT.get());
         rightMotor.setInverted(RIGHT_INVERT.get());
+        rightMotor.follow(leftMotor);
 
         ArmConstants.LEFT_INVERT.whenUpdate(leftMotor::setInverted);
         ArmConstants.RIGHT_INVERT.whenUpdate(rightMotor::setInverted);
@@ -200,7 +201,7 @@ public class Sprocket extends SubsystemBase {
                 (Measure<Voltage> volts) -> {
                     sysIdOutput = volts.in(Units.Volts);
                     leftMotor.setVoltage(volts.in(Units.Volts));
-                    rightMotor.setVoltage(volts.in(Units.Volts));
+                    // rightMotor.setVoltage(volts.in(Units.Volts));
                 },
                 (SysIdRoutineLog log) -> {
                     log.motor("Left")
@@ -223,7 +224,7 @@ public class Sprocket extends SubsystemBase {
      */
     public void stop() {
         leftMotor.set(0);
-        rightMotor.set(0);
+        // rightMotor.set(0);
     }
 
     /**
