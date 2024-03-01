@@ -29,6 +29,7 @@ import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
@@ -43,31 +44,37 @@ public class Sprocket extends SubsystemBase {
     private final CANSparkMax leftMotor = new CANSparkMax(Ports.LEFT_ANGLE_MOTOR_PORT, MotorType.kBrushless);
     private final CANSparkMax rightMotor = new CANSparkMax(Ports.RIGHT_ANGLE_MOTOR_PORT, MotorType.kBrushless);
 
-    // public Tunable<Double> sprocketKP = Tunable.of(3, "Sprocket KP");
     public PIDController pidController = new PIDController(0.8, 0, 0);
     public ArmFeedforward sprocketFeedforward = new ArmFeedforward(0.125, 0.1,8.91,0.01);
 
-    // private RelativeEncoder leftEncoder = leftMotor.getEncoder();
-    // private RelativeEncoder rightEncoder = rightMotor.getEncoder();
+    private RelativeEncoder leftEncoder = leftMotor.getEncoder();
+    private RelativeEncoder rightEncoder = rightMotor.getEncoder();
 
-    public DutyCycleEncoder absEncoder = new DutyCycleEncoder(1);
-
-    public LimitSwitch bottomLimitSwitch = new LimitSwitch(0, true);
-    public LimitSwitch topLimitSwitch = new LimitSwitch(1, true);
     public Sprocket() { 
 
         leftMotor.setInverted(true);
         rightMotor.setInverted(false);
         
-        absEncoder.setDistancePerRotation(360.0);
+        leftEncoder = leftMotor.getEncoder();
+        leftEncoder.setPositionConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE);
+        leftEncoder.setVelocityConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE*(1/60));
+        leftEncoder.setPosition(ENCODER_MIN_ANGLE);
+
+        rightEncoder = rightMotor.getEncoder();
+        rightEncoder.setPositionConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE);
+        leftEncoder.setVelocityConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE*(1/60));
+        rightEncoder.setPosition(ENCODER_MIN_ANGLE);
+        setTargetAngle(0);
+
+        
     }
 
     public double getEncoderPosition() { 
-        return -absEncoder.getDistance() + 100; // TODO: correct offset please
+        return (leftEncoder.getPosition() + rightEncoder.getPosition()) / 2;
     }
 
     public void setTargetAngle(double target) {
-        pidController.setSetpoint(target);
+        pidController.setSetpoint(target + ENCODER_MIN_ANGLE);
     }
     public void stop() {
       leftMotor.set(0);
@@ -76,24 +83,15 @@ public class Sprocket extends SubsystemBase {
     @Override
     public void periodic() {
 
-        double radianSetpoint = pidController.getSetpoint() * (Math.PI / 180.0); 
-
+        double radianSetpoint = (pidController.getSetpoint()) * (Math.PI / 180.0); 
+        
         double pidVoltage = pidController.calculate(getEncoderPosition());
         double ffVoltage = sprocketFeedforward.calculate(radianSetpoint, 0);
-
-        double voltageOut = pidVoltage + ffVoltage;
-
-        if (voltageOut > 12) { // amazing code right here.
-            voltageOut = 12;
-            System.out.println("Combined voltage was greater than 12");
-        }
-        if ((bottomLimitSwitch.get() || topLimitSwitch.get()) || (getEncoderPosition() > (ENCODER_MAX_ANGLE-2) || getEncoderPosition() < (ENCODER_MIN_ANGLE + 2))) {
-          System.out.println("A limit switch was hit!");
-          stop();
-        } else {
-          leftMotor.setVoltage(voltageOut);
-          rightMotor.setVoltage(voltageOut);
-        }
+        
+        double voltageOut = Math.max(Math.min(pidVoltage + ffVoltage,12),-12);
+          
+        leftMotor.setVoltage(voltageOut);
+        rightMotor.setVoltage(voltageOut);
     }
 
     

@@ -43,7 +43,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 public class RobotContainer {
 
   public static CommandPS5Controller driverController = new CommandPS5Controller(0);
-  public static CommandPS5Controller operatorController = new CommandPS5Controller(1);
+  //public static CommandPS5Controller operatorController = new CommandPS5Controller(1);
   
   public static Drivetrain drivetrain = new Drivetrain(new File(Filesystem.getDeployDirectory(), "swerve/"));
   
@@ -51,6 +51,7 @@ public class RobotContainer {
   public static Intake intake = new Intake();
   public static Shooter shooter = new Shooter();
   public static Sprocket sprocket = new Sprocket();
+  
   //public static Limelight intakeLimelight = new Limelight("limelight");
   //public static Limelight shooterLimelight = new Limelight("shooterLimelight");
   //public static Auto auto = new Auto();

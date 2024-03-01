@@ -92,7 +92,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void teleopPeriodic() {
     //System.out.println(RobotContainer.drivetrain.getSwerveDrive().getOdometryHeading());
-    System.out.println(RobotContainer.sprocket.getEncoderPosition()); 
+    
 
   }
 

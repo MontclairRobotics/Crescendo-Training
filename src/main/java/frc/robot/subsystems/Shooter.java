@@ -17,7 +17,7 @@ public class Shooter extends SubsystemBase {
 
     public final CANSparkMax topMotor = new CANSparkMax(Ports.SHOOTER_MOTOR_TOP_PORT, MotorType.kBrushless);
     public final CANSparkMax bottomMotor = new CANSparkMax(Ports.SHOOTER_MOTOR_BOTTOM_PORT, MotorType.kBrushless);
-    public final CANSparkMax transportMotor = new CANSparkMax(Ports.SHOOTER_MOTOR_TRANSPORT_PORT, MotorType.kBrushless);
+    //public final CANSparkMax transportMotor = new CANSparkMax(Ports.SHOOTER_MOTOR_TRANSPORT_PORT, MotorType.kBrushless);
 
     public Tunable<Double> transportSpeed = Tunable.of(1,"Transport speed");
     public Tunable<Double> speakerShootSpeed = Tunable.of(1, "speaker shoot speed");
@@ -31,7 +31,7 @@ public class Shooter extends SubsystemBase {
     public Shooter() {
         topMotor.setInverted(true);
         bottomMotor.setInverted(true);
-        transportMotor.setInverted(true);
+        //transportMotor.setInverted(true);
 
         topController.setI(ShooterConstants.ki.get());
         topController.setP(ShooterConstants.kp.get());
@@ -89,10 +89,10 @@ public class Shooter extends SubsystemBase {
     }
 
     public void startTransport() {
-        transportMotor.set(transportSpeed.get());
+        //transportMotor.set(transportSpeed.get());
     }
     public void stopTransport() {
-        transportMotor.stopMotor();
+        //transportMotor.stopMotor();
     }
     public double getTopVelocity() {
         return topEncoder.getVelocity();
