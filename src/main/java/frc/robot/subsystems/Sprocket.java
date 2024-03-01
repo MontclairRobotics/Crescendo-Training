@@ -74,8 +74,8 @@ public class Sprocket extends SubsystemBase {
         leftMotor.restoreFactoryDefaults();
         rightMotor.restoreFactoryDefaults();
 
-        leftMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
-        rightMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
+        leftMotor.setIdleMode(CANSparkBase.IdleMode.kCoast);
+        rightMotor.setIdleMode(CANSparkBase.IdleMode.kCoast);
 
         leftMotor.setInverted(LEFT_INVERT.get());
         rightMotor.setInverted(RIGHT_INVERT.get());
@@ -187,6 +187,11 @@ public class Sprocket extends SubsystemBase {
         setPoint = angle.getDegrees();
         // leftController.setReference(angle.getDegrees() * SPROCKET_ROTATIONS_PER_DEGREE, ControlType.kPosition, 1, feedForward);
         // rightController.setReference(angle.getDegrees() * SPROCKET_ROTATIONS_PER_DEGREE, ControlType.kPosition,1,  feedForward);
+    }
+
+    public void setVoltage(double right, double left) {
+        rightMotor.setVoltage(right);
+        leftMotor.setVoltage(left);
     }
 
     public SysIdRoutine getSysId() {

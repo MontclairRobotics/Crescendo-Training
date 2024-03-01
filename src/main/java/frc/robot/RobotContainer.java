@@ -14,6 +14,7 @@ import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Sprocket;
 import frc.robot.util.ControllerTools;
+import frc.robot.util.Tunable;
 import frc.robot.util.ControllerTools.DPad;
 import frc.robot.vision.DetectionType;
 import frc.robot.vision.Limelight;
@@ -118,6 +119,16 @@ public class RobotContainer {
         System.out.println("right: " + sprocket.rightMotor.getEncoder().getPosition() * ArmConstants.SPROCKET_ROTATIONS_PER_DEGREE);
       }
         )
+    );
+
+    Tunable<Double> rightVoltage = Tunable.of(0.0, "Sprocket/Right Voltage");
+    Tunable<Double> leftVoltage = Tunable.of(0.0, "Sprocket/Left Voltage");
+    rightVoltage.whenUpdate((voltage) -> { if (operatorController.cross().getAsBoolean()) sprocket.setVoltage(voltage, leftVoltage.get()); });
+    leftVoltage.whenUpdate((voltage) -> { if (operatorController.cross().getAsBoolean()) sprocket.setVoltage(rightVoltage.get(), voltage); });
+    operatorController.cross().onTrue(
+      Commands.runOnce(() -> { sprocket.setVoltage(rightVoltage.get(), leftVoltage.get()); })
+    ).onFalse(
+      Commands.runOnce(() -> { sprocket.setVoltage(0, 0); })
     );
 
     // operatorController.L1().onTrue(Commands555.celebrate());
