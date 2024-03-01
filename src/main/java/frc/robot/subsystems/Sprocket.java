@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import org.littletonrobotics.junction.AutoLogOutput;
 
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
@@ -28,6 +29,7 @@ import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -61,8 +63,19 @@ public class Sprocket extends SubsystemBase {
     public LimitSwitch bottomLimitSwitch = new LimitSwitch(BOTTOM_LIMIT_SWITCH, true);
     public LimitSwitch topLimitSwitch = new LimitSwitch(TOP_LIMIT_SWITCH, true);
 
+    private double lastAngle = ENCODER_MIN_ANGLE;
+    private double lastTime = Timer.getFPGATimestamp();
+    private double absEncoderVelocity = 0;
+
+    private double sysIdOutput = 0;
+
     public Sprocket() {
 
+        leftMotor.restoreFactoryDefaults();
+        rightMotor.restoreFactoryDefaults();
+
+        leftMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
+        rightMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
 
         leftMotor.setInverted(LEFT_INVERT.get());
         rightMotor.setInverted(RIGHT_INVERT.get());
@@ -115,8 +128,9 @@ public class Sprocket extends SubsystemBase {
 
         rightEncoder = rightMotor.getEncoder();
         rightEncoder.setPositionConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE);
-        leftEncoder.setVelocityConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE*(1/60));
+        rightEncoder.setVelocityConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE*(1/60));
         rightEncoder.setPosition(ENCODER_MIN_ANGLE);
+
         absEncoder = new DutyCycleEncoder(SprocketConstants.ENCODER_PIN);
         absEncoder.setDistancePerRotation(360.0);
 
@@ -124,6 +138,16 @@ public class Sprocket extends SubsystemBase {
         Shuffleboard.getTab("Debug").addDouble("Angle", () -> getAngle());
         Shuffleboard.getTab("Debug").addDouble("Absolute Angle", () -> absEncoder.getDistance());
         Shuffleboard.getTab("Debug").addDouble("ff voltage", () -> angleFeedForward.calculate(getAngle() * (Math.PI/180), targetSpeed * MAX_SPEED));
+        Shuffleboard.getTab("Debug").addDouble("Angle Velocity", () -> absEncoderVelocity);
+        Shuffleboard.getTab("Debug").addDouble("Left Position", () -> leftEncoder.getPosition());
+        Shuffleboard.getTab("Debug").addDouble("Left Velocity", () -> leftEncoder.getVelocity());
+        Shuffleboard.getTab("Debug").addDouble("Left Applied Output", () -> leftMotor.getAppliedOutput());
+        Shuffleboard.getTab("Debug").addDouble("Left Bus Voltage", () -> leftMotor.getBusVoltage());
+        Shuffleboard.getTab("Debug").addDouble("Right Position", () -> rightEncoder.getPosition());
+        Shuffleboard.getTab("Debug").addDouble("Right Velocity", () -> rightEncoder.getVelocity());
+        Shuffleboard.getTab("Debug").addDouble("Right Applied Output", () -> rightMotor.getAppliedOutput());
+        Shuffleboard.getTab("Debug").addDouble("Right Bus Voltage", () -> rightMotor.getBusVoltage());
+        Shuffleboard.getTab("Debug").addDouble("SysId Output", () -> sysIdOutput);
     }
     /**
      * Move sprocket up
@@ -167,26 +191,27 @@ public class Sprocket extends SubsystemBase {
 
     public SysIdRoutine getSysId() {
         MutableMeasure<Voltage> appliedVoltage = MutableMeasure.mutable(Units.Volts.of(0));
-        MutableMeasure<Angle> degrees = MutableMeasure.mutable(Units.Radians.of(0));
-        MutableMeasure<Velocity<Angle>> motorVelocity = MutableMeasure.mutable(Units.RadiansPerSecond.of(0));
+        MutableMeasure<Angle> degrees = MutableMeasure.mutable(Units.Degrees.of(0));
+        MutableMeasure<Velocity<Angle>> motorVelocity = MutableMeasure.mutable(Units.DegreesPerSecond.of(0));
         
         return new SysIdRoutine(
-            new Config(), // Volts.of(1).per(Seconds.of(1)), Volts.of(7), Seconds.of(1)), 
+            new Config(Units.Volts.of(.5).per(Units.Seconds.of(1)), Units.Volts.of(3), Units.Seconds.of(10)), 
             new Mechanism(
                 (Measure<Voltage> volts) -> {
+                    sysIdOutput = volts.in(Units.Volts);
                     leftMotor.setVoltage(volts.in(Units.Volts));
                     rightMotor.setVoltage(volts.in(Units.Volts));
                 },
                 (SysIdRoutineLog log) -> {
                     log.motor("Left")
                     .voltage(appliedVoltage.mut_replace(leftMotor.getAppliedOutput() * leftMotor.getBusVoltage(), Units.Volts))
-                    .angularPosition(degrees.mut_replace(getAngle() * (180/Math.PI), Units.Radians))
-                    .angularVelocity(motorVelocity.mut_replace(leftMotor.getEncoder().getVelocity() * (180/Math.PI), Units.RadiansPerSecond));
+                    .angularPosition(degrees.mut_replace(getAngle(), Units.Degrees))
+                    .angularVelocity(motorVelocity.mut_replace(leftEncoder.getVelocity(), Units.DegreesPerSecond));
 
                     log.motor("Right")
                     .voltage(appliedVoltage.mut_replace(rightMotor.getAppliedOutput() * rightMotor.getBusVoltage(), Units.Volts))
-                    .angularPosition(degrees.mut_replace(getAngle() * (180/Math.PI), Units.Radians))
-                    .angularVelocity(motorVelocity.mut_replace(rightMotor.getEncoder().getVelocity() * (180/Math.PI), Units.RadiansPerSecond));
+                    .angularPosition(degrees.mut_replace(getAngle(), Units.Degrees))
+                    .angularVelocity(motorVelocity.mut_replace(rightEncoder.getVelocity(), Units.DegreesPerSecond));
                 },
                 this,
                 "Sprocket"
@@ -268,52 +293,59 @@ public class Sprocket extends SubsystemBase {
     }
     @Override
     public void periodic() {
-        double feedForwardVoltage = angleFeedForward.calculate(getAngle() * (Math.PI/180), targetSpeed * MAX_SPEED);
+        // Keep track of velocity
+        double currentTime = Timer.getFPGATimestamp();
+        double currentAngle = getAngle();
+        absEncoderVelocity = (currentAngle - lastAngle) / (currentTime - lastTime);
+        lastTime = currentTime;
+        lastAngle = currentAngle;
+
+    //     double feedForwardVoltage = angleFeedForward.calculate(getAngle() * (Math.PI/180), targetSpeed * MAX_SPEED);
         
-        double pidSpeed = pidController.calculate(getEncoderPosition(), setPoint);
-        // Shuffleboard.getTab("Debug").addDouble("PID Value", () -> pidSpeed);
-        // if(Math.abs(setPoint - getEncoderPosition()) < ArmConstants.SPROCKET_ANGLE_DEADBAND){
-        //     usingPID = false;
-        // }
-        boolean goingUp = false;
-        if (usingPID) {
-            goingUp = pidSpeed > 0;
-        } else {
-            goingUp = targetSpeed > 0;
-        }
+    //     double pidSpeed = pidController.calculate(getEncoderPosition(), setPoint);
+    //     // Shuffleboard.getTab("Debug").addDouble("PID Value", () -> pidSpeed);
+    //     // if(Math.abs(setPoint - getEncoderPosition()) < ArmConstants.SPROCKET_ANGLE_DEADBAND){
+    //     //     usingPID = false;
+    //     // }
+    //     boolean goingUp = false;
+    //     if (usingPID) {
+    //         goingUp = pidSpeed > 0;
+    //     } else {
+    //         goingUp = targetSpeed > 0;
+    //     }
 
 
-    //TODO: Also cancel reference
-        if (((topLimitSwitch.get() || getAngle() > ENCODER_MAX_ANGLE) && goingUp)) {
-            leftMotor.setVoltage(feedForwardVoltage);
-            rightMotor.setVoltage(feedForwardVoltage);
-            usingPID = false;
-        }
-        else if ((getAngle() < ENCODER_MIN_ANGLE || bottomLimitSwitch.get()) && !goingUp) {
-            leftMotor.setVoltage(feedForwardVoltage);
-            rightMotor.setVoltage(feedForwardVoltage);
-            usingPID = false;
-        } else if (!usingPID) {
-            double voltageSum = getAdjustedSpeed() * MAX_VOLTAGE_V + feedForwardVoltage;
-            if (voltageSum > MAX_VOLTAGE_V) {
-                voltageSum = MAX_VOLTAGE_V;
-            }
-            leftMotor.setVoltage(voltageSum);
-            rightMotor.setVoltage(voltageSum);
-        } else if (usingPID) {
-            double voltageSum = pidSpeed + angleFeedForward.calculate(setPoint * (180/Math.PI), 0);
+    // //TODO: Also cancel reference
+    //     if (((topLimitSwitch.get() || getAngle() > ENCODER_MAX_ANGLE) && goingUp)) {
+    //         leftMotor.setVoltage(feedForwardVoltage);
+    //         rightMotor.setVoltage(feedForwardVoltage);
+    //         usingPID = false;
+    //     }
+    //     else if ((getAngle() < ENCODER_MIN_ANGLE || bottomLimitSwitch.get()) && !goingUp) {
+    //         leftMotor.setVoltage(feedForwardVoltage);
+    //         rightMotor.setVoltage(feedForwardVoltage);
+    //         usingPID = false;
+    //     } else if (!usingPID) {
+    //         double voltageSum = getAdjustedSpeed() * MAX_VOLTAGE_V + feedForwardVoltage;
+    //         if (voltageSum > MAX_VOLTAGE_V) {
+    //             voltageSum = MAX_VOLTAGE_V;
+    //         }
+    //         leftMotor.setVoltage(voltageSum);
+    //         rightMotor.setVoltage(voltageSum);
+    //     } else if (usingPID) {
+    //         double voltageSum = pidSpeed + angleFeedForward.calculate(setPoint * (180/Math.PI), 0);
 
-            if (voltageSum > MAX_VOLTAGE_V) {
-                voltageSum = MAX_VOLTAGE_V;
-            }
-            else if(voltageSum < -MAX_VOLTAGE_V) {
-                voltageSum = -MAX_VOLTAGE_V;
-            }
+    //         if (voltageSum > MAX_VOLTAGE_V) {
+    //             voltageSum = MAX_VOLTAGE_V;
+    //         }
+    //         else if(voltageSum < -MAX_VOLTAGE_V) {
+    //             voltageSum = -MAX_VOLTAGE_V;
+    //         }
 
-            //System.out.println(voltageSum);
-            leftMotor.setVoltage(voltageSum);
-            rightMotor.setVoltage(voltageSum);
-        }
+    //         //System.out.println(voltageSum);
+    //         leftMotor.setVoltage(voltageSum);
+    //         rightMotor.setVoltage(voltageSum);
+    //     }
 
         // if (topLimitSwitch.get()) {
         //     rightEncoder.setPosition(ENCODER_MAX_ANGLE);
