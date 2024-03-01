@@ -52,25 +52,12 @@ public class Sprocket extends SubsystemBase {
 
     public DutyCycleEncoder absEncoder = new DutyCycleEncoder(1);
 
-    public LimitSwitch bottomLimitSwitch = new LimitSwitch(BOTTOM_LIMIT_SWITCH, true);
-    public LimitSwitch topLimitSwitch = new LimitSwitch(TOP_LIMIT_SWITCH, true);
+    public LimitSwitch bottomLimitSwitch = new LimitSwitch(0, true);
+    public LimitSwitch topLimitSwitch = new LimitSwitch(1, true);
     public Sprocket() { 
+
         leftMotor.setInverted(true);
         rightMotor.setInverted(false);
-
-        // leftEncoder.setPosition(0);
-        // rightEncoder.setPosition(0);
-
-        
-        // leftEncoder.setPositionConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE);
-        // leftEncoder.setVelocityConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE*(1/60));
-        // leftEncoder.setPosition(ENCODER_MIN_ANGLE);
-
-      
-        // rightEncoder.setPositionConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE);
-        // leftEncoder.setVelocityConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE*(1/60));
-        // rightEncoder.setPosition(ENCODER_MIN_ANGLE);
-
         
         absEncoder.setDistancePerRotation(360.0);
     }
