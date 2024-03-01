@@ -81,6 +81,20 @@ public class Shooter extends SubsystemBase {
         transportController.setD(Constants.ShooterConstants.TRANSPORT_PID_KD, 1);
         transportController.setOutputRange(-1, 1);
 
+        // This sets the measurement period and number of measurements for velocity readings on the encoder
+        // to the minimum.  This will get faster measurements (not as much delay) at the expense of some
+        // noise. The default settings basically have so much delay that they are not really useful
+        // for velocity PID
+        // For more info, read this thread on ChiefDelphi: 
+        // https://www.chiefdelphi.com/t/psa-default-neo-sparkmax-velocity-readings-are-still-bad-for-flywheels/454453
+        topEncoder.setAverageDepth(1);
+        topEncoder.setMeasurementPeriod(8);
+
+        bottomEncoder.setAverageDepth(1);
+        bottomEncoder.setMeasurementPeriod(8);
+
+        transportEncoder.setAverageDepth(1);
+        transportEncoder.setMeasurementPeriod(8);
 
         // topController.setI(ShooterConstants.ki.get());
         // topController.setP(ShooterConstants.kp.get());
