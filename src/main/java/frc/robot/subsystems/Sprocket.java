@@ -64,7 +64,7 @@ public class Sprocket extends SubsystemBase {
         rightEncoder.setPositionConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE);
         leftEncoder.setVelocityConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE*(1/60));
         rightEncoder.setPosition(ENCODER_MIN_ANGLE);
-        setTargetAngle(0);
+        
 
         
     }
@@ -74,7 +74,7 @@ public class Sprocket extends SubsystemBase {
     }
 
     public void setTargetAngle(double target) {
-        pidController.setSetpoint(target + ENCODER_MIN_ANGLE);
+        pidController.setSetpoint(target);
     }
     public void stop() {
       leftMotor.set(0);
