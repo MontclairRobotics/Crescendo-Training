@@ -123,8 +123,8 @@ public class RobotContainer {
 
     Tunable<Double> rightVoltage = Tunable.of(0.0, "Sprocket/Right Voltage");
     Tunable<Double> leftVoltage = Tunable.of(0.0, "Sprocket/Left Voltage");
-    rightVoltage.whenUpdate((voltage) -> { if (operatorController.cross().getAsBoolean()) sprocket.setVoltage(voltage, leftVoltage.get()); });
-    leftVoltage.whenUpdate((voltage) -> { if (operatorController.cross().getAsBoolean()) sprocket.setVoltage(rightVoltage.get(), voltage); });
+    // rightVoltage.whenUpdate((voltage) -> { if (operatorController.cross().getAsBoolean()) sprocket.setVoltage(voltage, leftVoltage.get()); });
+    // leftVoltage.whenUpdate((voltage) -> { if (operatorController.cross().getAsBoolean()) sprocket.setVoltage(rightVoltage.get(), voltage); });
     operatorController.cross().onTrue(
       Commands.runOnce(() -> { sprocket.setVoltage(rightVoltage.get(), leftVoltage.get()); })
     ).onFalse(
