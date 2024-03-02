@@ -50,6 +50,8 @@ public class Sprocket extends SubsystemBase {
     private RelativeEncoder leftEncoder = leftMotor.getEncoder();
     private RelativeEncoder rightEncoder = rightMotor.getEncoder();
 
+    DutyCycleEncoder absEncoder;
+
     public Sprocket() { 
 
         leftMotor.setInverted(true);
@@ -65,13 +67,16 @@ public class Sprocket extends SubsystemBase {
         leftEncoder.setVelocityConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE*(1/60));
         rightEncoder.setPosition(ENCODER_MIN_ANGLE);
         
-
-        
+        absEncoder = new DutyCycleEncoder(1);
+        absEncoder.setDistancePerRotation(360.0);
     }
 
-    public double getEncoderPosition() { 
-        return (leftEncoder.getPosition() + rightEncoder.getPosition()) / 2;
+    public double getEncoderPosition() {
+      return -absEncoder.getDistance() + 100;
     }
+    // public double getEncoderPosition() { 
+    //     return (leftEncoder.getPosition() + rightEncoder.getPosition()) / 2;
+    // }
 
     public void setTargetAngle(double target) {
         pidController.setSetpoint(target);
