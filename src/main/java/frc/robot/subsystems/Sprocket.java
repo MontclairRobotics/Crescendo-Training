@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 
 import frc.robot.LimitSwitch;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.*;
 import frc.robot.util.Tunable;
 
@@ -14,6 +15,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
@@ -45,12 +47,14 @@ public class Sprocket extends SubsystemBase {
     private final CANSparkMax rightMotor = new CANSparkMax(Ports.RIGHT_ANGLE_MOTOR_PORT, MotorType.kBrushless);
 
     public PIDController pidController = new PIDController(0.8, 0, 0);
-    // public ArmFeedforward sprocketFeedforward = new ArmFeedforward(0.125, 0.1,8.91,0.01);
-
+    
     private RelativeEncoder leftEncoder = leftMotor.getEncoder();
     private RelativeEncoder rightEncoder = rightMotor.getEncoder();
 
-    DutyCycleEncoder absEncoder;
+
+
+    public Tunable<Double> voltageOut = Tunable.of(6.0, "Sprocket Voltage");
+
 
     public Sprocket() { 
 
@@ -66,13 +70,16 @@ public class Sprocket extends SubsystemBase {
         rightEncoder.setPositionConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE);
         leftEncoder.setVelocityConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE*(1/60));
         rightEncoder.setPosition(ENCODER_MIN_ANGLE);
+        pidController.setTolerance(2);
+
+        leftMotor.setIdleMode(IdleMode.kBrake);
+        rightMotor.setIdleMode(IdleMode.kBrake);
         
-        absEncoder = new DutyCycleEncoder(1);
-        absEncoder.setDistancePerRotation(360.0);
+
     }
 
     public double getEncoderPosition() {
-      return -absEncoder.getDistance() + 100;
+      return (leftEncoder.getPosition() + rightEncoder.getPosition()) / 2;
     }
     // public double getEncoderPosition() { 
     //     return (leftEncoder.getPosition() + rightEncoder.getPosition()) / 2;
@@ -80,6 +87,7 @@ public class Sprocket extends SubsystemBase {
 
     public void setTargetAngle(double target) {
         pidController.setSetpoint(target);
+        
     }
     public void stop() {
       leftMotor.set(0);
@@ -87,14 +95,25 @@ public class Sprocket extends SubsystemBase {
     }
     @Override
     public void periodic() {
-
-        // double radianSetpoint = (pidController.getSetpoint()) * (Math.PI / 180.0); 
+        ///double voltageOut = pidController.calculate(getEncoderPosition());
         
-        double voltageOut = pidController.calculate(getEncoderPosition());
+        // leftMotor.setIdleMode(IdleMode.kBrake);
+        // if (pidController.atSetpoint()) {
+        //     stop();
+        // } else {
+        //     leftMotor.setVoltage(voltageOut);
+        //     rightMotor.setVoltage(voltageOut);
+        // }
+        if (RobotContainer.driverController.cross().getAsBoolean()) {
+            leftMotor.setVoltage(voltageOut.get());
+            rightMotor.setVoltage(voltageOut.get());
+        }
         
-        leftMotor.setVoltage(voltageOut);
-        rightMotor.setVoltage(voltageOut);
+        
+        
+        
     }
+    
 
     
 }
