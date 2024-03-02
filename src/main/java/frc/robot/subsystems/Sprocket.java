@@ -45,7 +45,7 @@ public class Sprocket extends SubsystemBase {
     private final CANSparkMax rightMotor = new CANSparkMax(Ports.RIGHT_ANGLE_MOTOR_PORT, MotorType.kBrushless);
 
     public PIDController pidController = new PIDController(0.8, 0, 0);
-    public ArmFeedforward sprocketFeedforward = new ArmFeedforward(0.125, 0.1,8.91,0.01);
+    // public ArmFeedforward sprocketFeedforward = new ArmFeedforward(0.125, 0.1,8.91,0.01);
 
     private RelativeEncoder leftEncoder = leftMotor.getEncoder();
     private RelativeEncoder rightEncoder = rightMotor.getEncoder();
@@ -83,13 +83,10 @@ public class Sprocket extends SubsystemBase {
     @Override
     public void periodic() {
 
-        double radianSetpoint = (pidController.getSetpoint()) * (Math.PI / 180.0); 
+        // double radianSetpoint = (pidController.getSetpoint()) * (Math.PI / 180.0); 
         
-        double pidVoltage = pidController.calculate(getEncoderPosition());
-        double ffVoltage = sprocketFeedforward.calculate(radianSetpoint, 0);
+        double voltageOut = pidController.calculate(getEncoderPosition());
         
-        double voltageOut = Math.max(Math.min(pidVoltage + ffVoltage,12),-12);
-          
         leftMotor.setVoltage(voltageOut);
         rightMotor.setVoltage(voltageOut);
     }
