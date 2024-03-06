@@ -122,14 +122,14 @@ public class Sprocket extends SubsystemBase {
 
         //TODO check conversion factors
         leftEncoder = leftMotor.getEncoder();
-        leftEncoder.setPositionConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE);
-        leftEncoder.setVelocityConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE*(1/60));
-        leftEncoder.setPosition(ENCODER_MIN_ANGLE);
+        // leftEncoder.setPositionConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE);
+        // leftEncoder.setVelocityConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE*(1/60));
+        leftEncoder.setPosition(ENCODER_MIN_ANGLE / 360);
 
         rightEncoder = rightMotor.getEncoder();
-        rightEncoder.setPositionConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE);
-        rightEncoder.setVelocityConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE*(1/60));
-        rightEncoder.setPosition(ENCODER_MIN_ANGLE);
+        // rightEncoder.setPositionConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE);
+        // rightEncoder.setVelocityConversionFactor(1/SPROCKET_ROTATIONS_PER_DEGREE*(1/60));
+        rightEncoder.setPosition(ENCODER_MIN_ANGLE / 360);
 
         absEncoder = new DutyCycleEncoder(SprocketConstants.ENCODER_PIN);
         absEncoder.setDistancePerRotation(360.0);
@@ -191,11 +191,16 @@ public class Sprocket extends SubsystemBase {
 
     public SysIdRoutine getSysId() {
         MutableMeasure<Voltage> appliedVoltage = MutableMeasure.mutable(Units.Volts.of(0));
-        MutableMeasure<Angle> degrees = MutableMeasure.mutable(Units.Degrees.of(0));
-        MutableMeasure<Velocity<Angle>> motorVelocity = MutableMeasure.mutable(Units.DegreesPerSecond.of(0));
+        MutableMeasure<Angle> position = MutableMeasure.mutable(Units.Rotations.of(0));
+        MutableMeasure<Velocity<Angle>> motorVelocity = MutableMeasure.mutable(Units.RotationsPerSecond.of(0));
         
+        MutableMeasure<Voltage> appliedVoltage2 = MutableMeasure.mutable(Units.Volts.of(0));
+        MutableMeasure<Angle> position2 = MutableMeasure.mutable(Units.Rotations.of(0));
+        MutableMeasure<Velocity<Angle>> motorVelocity2 = MutableMeasure.mutable(Units.RotationsPerSecond.of(0));
+
+
         return new SysIdRoutine(
-            new Config(Units.Volts.of(.5).per(Units.Seconds.of(1)), Units.Volts.of(3), Units.Seconds.of(10)), 
+            new Config(Units.Volts.of(.25).per(Units.Seconds.of(1)), Units.Volts.of(2), Units.Seconds.of(10)), 
             new Mechanism(
                 (Measure<Voltage> volts) -> {
                     sysIdOutput = volts.in(Units.Volts);
@@ -205,13 +210,13 @@ public class Sprocket extends SubsystemBase {
                 (SysIdRoutineLog log) -> {
                     log.motor("Left")
                     .voltage(appliedVoltage.mut_replace(leftMotor.getAppliedOutput() * leftMotor.getBusVoltage(), Units.Volts))
-                    .angularPosition(degrees.mut_replace(getAngle(), Units.Degrees))
-                    .angularVelocity(motorVelocity.mut_replace(leftEncoder.getVelocity(), Units.DegreesPerSecond));
+                    .angularPosition(position.mut_replace(leftEncoder.getPosition(), Units.Rotations))
+                    .angularVelocity(motorVelocity.mut_replace(leftEncoder.getVelocity(), Units.RotationsPerSecond));
 
                     log.motor("Right")
-                    .voltage(appliedVoltage.mut_replace(rightMotor.getAppliedOutput() * rightMotor.getBusVoltage(), Units.Volts))
-                    .angularPosition(degrees.mut_replace(getAngle(), Units.Degrees))
-                    .angularVelocity(motorVelocity.mut_replace(rightEncoder.getVelocity(), Units.DegreesPerSecond));
+                    .voltage(appliedVoltage2.mut_replace(rightMotor.getAppliedOutput() * rightMotor.getBusVoltage(), Units.Volts))
+                    .angularPosition(position2.mut_replace(getAngle(), Units.Rotations))
+                    .angularVelocity(motorVelocity2.mut_replace(rightEncoder.getVelocity(), Units.RotationsPerSecond));
                 },
                 this,
                 "Sprocket"
