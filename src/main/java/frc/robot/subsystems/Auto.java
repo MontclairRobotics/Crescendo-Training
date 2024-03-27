@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Commands555;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
+import frc.robot.command.AutoPoseEstimateToNote;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.util.Array555;
@@ -424,7 +425,18 @@ public class Auto extends SubsystemBase {
                 new ChassisSpeeds(),
                 path.getPreviewStartingHolonomicPose().getRotation()
               ));
-          Command cmd = Commands.sequence(AutoBuilder.followPath(path), Commands555.waitForTime(0.2));
+          Command pathCommand;
+          // If we are heading towards a far note, then run the AutoPoseEstimateToNote in parallel
+          if (false) { // (next == 'D') || (next == 'E') || (next == 'F') || (next == 'G') || (next == 'H')) {
+            pathCommand = Commands.parallel(
+              AutoBuilder.followPath(path),
+              new AutoPoseEstimateToNote(RobotContainer.drivetrain.getSwerveDrive().kinematics, next)
+            );
+          } else {
+            pathCommand = AutoBuilder.followPath(path);
+          }
+          Command cmd = Commands.sequence(pathCommand, Commands555.waitForTime(0.5));
+          // Command cmd = Commands.sequence(AutoBuilder.followPath(path), Commands555.waitForTime(0.2));
           segment = new ParallelRaceGroup(cmd);
         } else {
           setFeedback("Scoring Mode "); // TODO: Better feedback, or none. :D
