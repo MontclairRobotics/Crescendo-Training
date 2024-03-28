@@ -95,7 +95,7 @@ public class Auto extends SubsystemBase {
         RobotContainer.drivetrain.getSwerveDrive()
             ::getRobotVelocity, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
         (ChassisSpeeds x) -> {
-          RobotContainer.drivetrain.getSwerveDrive().drive(new ChassisSpeeds(x.vxMetersPerSecond, x.vyMetersPerSecond, x.omegaRadiansPerSecond), true, new Translation2d());
+          RobotContainer.drivetrain.getSwerveDrive().drive(new ChassisSpeeds(x.vxMetersPerSecond, x.vyMetersPerSecond, x.omegaRadiansPerSecond), false, new Translation2d());
         }, // Method that will drive the robot given ROBOT RELATIVE, // Method that will drive the robot given ROBOT RELATIVE
         // ChassisSpeeds
         Constants.AutoConstants.PATH_FOLLOWER_CONFIG,
@@ -427,7 +427,7 @@ public class Auto extends SubsystemBase {
               ));
           Command pathCommand;
           // If we are heading towards a far note, then run the AutoPoseEstimateToNote in parallel
-          if (false) { // (next == 'D') || (next == 'E') || (next == 'F') || (next == 'G') || (next == 'H')) {
+          if ((next == 'D') || (next == 'E') || (next == 'F') || (next == 'G') || (next == 'H')) {
             pathCommand = Commands.parallel(
               AutoBuilder.followPath(path),
               new AutoPoseEstimateToNote(RobotContainer.drivetrain.getSwerveDrive().kinematics, next)

@@ -81,9 +81,8 @@ public class AutoPoseEstimateToNote extends Command {
    * @param msg
    */
   private void log(String msg) {
-    if (logCount++ >= 10) {
+    if (logCount == 0) {
       System.out.println(msg);
-      logCount = 0;
     }
   }
 
@@ -116,6 +115,9 @@ public class AutoPoseEstimateToNote extends Command {
    * It then uses that location for PoseEstimator
    */
   public void execute() {
+    if (logCount++ > 0) {
+      logCount = 0;
+    }
 
     // KLUDGE
     // This is annoying
@@ -195,7 +197,11 @@ public class AutoPoseEstimateToNote extends Command {
               Pose2d limelightPose = new Pose2d(limelightLocation, robotPose.getRotation());
 
               // Add this new position as a vision measurement
+              Pose2d originalPose = RobotContainer.drivetrain.getSwerveDrive().getPose();
+              log("originalPose: " + originalPose.getX() + ", " + originalPose.getY());
               RobotContainer.drivetrain.getSwerveDrive().addVisionMeasurement(limelightPose, limelightTimestamp);
+              Pose2d newPose = RobotContainer.drivetrain.getSwerveDrive().getPose();
+              log("newPose: " + newPose.getX() + ", " + newPose.getY());
             }
           }
         }
