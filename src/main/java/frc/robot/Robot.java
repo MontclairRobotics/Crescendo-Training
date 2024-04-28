@@ -4,19 +4,10 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.littletonrobotics.junction.LoggedRobot;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.NT4Publisher;
-import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -31,22 +22,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotInit() {
-    // Logger.recordMetadata("ProjectName", "Katherine Tchaikovsky Swift");
-
-    if (isReal()) {
-      Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
-      Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-      new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
-    } else {
-      // setUseTiming(false); // Run as fast as possible
-      // String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope
-      // (or prompt the user)
-      // Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-      // Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); //
-      // Save outputs to a new log
-    }
-
-    // Logger.start();
 
     m_robotContainer = new RobotContainer();
   }
@@ -66,8 +41,6 @@ public class Robot extends LoggedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    RobotContainer.shooterLimelight.setDefaultPipeline();
-    RobotContainer.intakeLimelight.setDefaultPipeline();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
@@ -89,11 +62,6 @@ public class Robot extends LoggedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-
-    RobotContainer.shooter.teleopInit();
-    RobotContainer.intake.teleopInit();
-    // RobotContainer.shooterLimelight.setDefaultPipeline();
-    // RobotContainer.intakeLimelight.setDefaultPipeline();
     
   }
 
@@ -101,9 +69,6 @@ public class Robot extends LoggedRobot {
   @Override
   public void teleopPeriodic() {
     
-    
-    // System.out.println(RobotContainer.shooter.getTopVelocity() + " : " + RobotContainer.shooter.getBottomVelocity());
-    //System.out.println(Rotation2d.fromDegrees(-RobotContainer.shooterLimelight.getObjectTX() + RobotContainer.shooterLimelight.maxIsStupid().getDegrees()));
   }
 
   @Override
@@ -125,13 +90,4 @@ public class Robot extends LoggedRobot {
   @Override
   public void simulationPeriodic() {}
 
-  @Override
-  public void autonomousExit() {
-    //TODO test thouroghly
-    if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
-      Rotation2d rot = Rotation2d.fromDegrees(180).minus(RobotContainer.drivetrain.getSwerveDrive().getOdometryHeading());
-      Pose2d pose = new Pose2d(RobotContainer.drivetrain.getSwerveDrive().getPose().getTranslation(), rot);
-      RobotContainer.drivetrain.getSwerveDrive().resetOdometry(pose);
-    }
-  }
 }
