@@ -112,8 +112,10 @@ public final class Constants {
   }
 
   public static class IntakeConstants {
-    
+    public static final double INTAKE_SPEED = 1.0;
   }
+  
+  public static final double TRANSPORT_SPEED = 1.0;
 
   public static class ArmConstants {
 
