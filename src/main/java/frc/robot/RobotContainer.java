@@ -6,10 +6,17 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 
 public class RobotContainer {
 
+    CommandPS4Controller driverController = new CommandPS4Controller(0);
+    CommandPS4Controller operatorController = new CommandPS4Controller(1);
+    CommandPS4Controller testingController = new CommandPS4Controller(2);
+
   public RobotContainer() {
+
+   
 
     configureBindings();
 
@@ -17,7 +24,10 @@ public class RobotContainer {
 
   //Configure key bindings
   private void configureBindings() {
-
+    
+    testingController.cross().onTrue(Shooter.speaker());
+    testingController.square().onTrue(Shooter.amp());
+    
   }
 
   /**
