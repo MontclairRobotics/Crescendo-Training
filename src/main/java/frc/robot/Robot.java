@@ -4,8 +4,16 @@
 
 package frc.robot;
 
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
+import java.util.function.DoubleSupplier;
+
 import org.littletonrobotics.junction.LoggedRobot;
 
 
@@ -24,6 +32,31 @@ public class Robot extends LoggedRobot {
   public void robotInit() {
 
     m_robotContainer = new RobotContainer();
+
+    DoubleSupplier topVelocitySupplier = () -> Shooter.getVelocity(Shooter.topMotor);
+    DoubleSupplier bottomVelocitySupplier = () -> Shooter.getVelocity(Shooter.bottomMotor);
+
+    SmartDashboard.putNumber("topMotor Velocity", Shooter.getVelocity(Shooter.topMotor));
+    SmartDashboard.putNumber("bottomMotor Velocity", Shooter.getVelocity(Shooter.bottomMotor));
+
+    Shuffleboard.getTab("Debug").addDouble("Top Motor Velocity", topVelocitySupplier).withSize(3,1);
+    Shuffleboard.getTab("Debug").addDouble("Bottom Motor Velocity", bottomVelocitySupplier).withSize(3,1);
+
+    DoubleLogEntry topMotorVelocity;
+    DoubleLogEntry bottomMotorVelocity;
+
+    //Starts recording to data log
+    DataLogManager.start();
+    //creates datalog
+    DataLog log = DataLogManager.getLog();
+
+    //ugh
+    topMotorVelocity = new DoubleLogEntry(log, "topMotorVelocity");
+    bottomMotorVelocity = new DoubleLogEntry(log, "bottomMotorVelocity");
+
+    topMotorVelocity.append(Shooter.getVelocity(Shooter.topMotor));
+    bottomMotorVelocity.append(Shooter.getVelocity(Shooter.bottomMotor));
+  
   }
 
   @Override
@@ -62,6 +95,9 @@ public class Robot extends LoggedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
+
+
     
   }
 

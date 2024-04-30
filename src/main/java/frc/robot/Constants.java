@@ -77,23 +77,23 @@ public final class Constants {
   public static class Ports { // TODO: add correct ports
     public static final int LED_PWM = -1;
 
-    public static final int INTAKE_TOP_MOTOR = -1;
-    public static final int INTAKE_BOTTOM_MOTOR = -1;
+    public static final int INTAKE_TOP_MOTOR = 31;
+    public static final int INTAKE_BOTTOM_MOTOR = -32;
 
     
-    public static final int SHOOTER_BOTTOM_MOTOR = -1;
-    public static final int SHOOTER_TOP_MOTOR = -1;
-    public static final int SHOOTER_MOTOR_TRANSPORT = -1;
+    public static final int SHOOTER_BOTTOM_MOTOR = 29;
+    public static final int SHOOTER_TOP_MOTOR = 28;
+    public static final int SHOOTER_MOTOR_TRANSPORT = 43;
 
     // Sprocket motors
-    public static final int LEFT_ANGLE_MOTOR = -1;
-    public static final int RIGHT_ANGLE_MOTOR = -1;
+    public static final int LEFT_ANGLE_MOTOR = 21;
+    public static final int RIGHT_ANGLE_MOTOR = 22;
 
     public static final int TRANSPORT_BEAM_BREAK = -1;
 
     // Climber ports
-    public static final int CLIMBER_LEFT_MOTOR = -1;
-    public static final int CLIMBER_RIGHT_MOTOR = -1;
+    public static final int CLIMBER_LEFT_MOTOR = 51;
+    public static final int CLIMBER_RIGHT_MOTOR = 52;
 
     
 
@@ -126,5 +126,13 @@ public final class Constants {
     public static final double ENCODER_MAX_ANGLE = 63;
 
     //Both inverts are true, at least in our program (motors are mounted in same direction)
+  }
+  
+
+  //Shooter constants
+  public class ShooterConstants {
+      public static final double SHOOT_SPEAKER_VELOCITY = 4000;
+
+
   }
 }

@@ -6,17 +6,18 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
+import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 
 public class RobotContainer {
 
-    CommandPS4Controller driverController = new CommandPS4Controller(0);
-    CommandPS4Controller operatorController = new CommandPS4Controller(1);
-    CommandPS4Controller testingController = new CommandPS4Controller(2);
+    public static Shooter shooter = new Shooter();
+    CommandPS5Controller driverController = new CommandPS5Controller(0);
+    CommandPS5Controller operatorController = new CommandPS5Controller(1);
+    CommandPS5Controller testingController = new CommandPS5Controller(2);
 
   public RobotContainer() {
 
-   
+    
 
     configureBindings();
 
@@ -25,8 +26,9 @@ public class RobotContainer {
   //Configure key bindings
   private void configureBindings() {
     
-    testingController.cross().onTrue(Shooter.speaker());
-    testingController.square().onTrue(Shooter.amp());
+    testingController.cross().onTrue(Shooter.shootSpeaker());
+    testingController.square().onTrue(Shooter.shootAmp());
+    testingController.circle().onTrue(Shooter.SysIDCommand);
     
   }
 
