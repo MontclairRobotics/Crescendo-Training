@@ -19,8 +19,6 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -49,8 +47,6 @@ public class Shooter extends SubsystemBase {
   public static SimpleMotorFeedforward topFeedforward = new SimpleMotorFeedforward(0,0,0);
   public static SimpleMotorFeedforward bottomFeedforward = new SimpleMotorFeedforward(0,0,0);
 
-  //Booleans
-  private static boolean isAtVelocity = false;
 
   /** Creates a new Shooter. */
   public Shooter() {
@@ -123,7 +119,7 @@ public class Shooter extends SubsystemBase {
               // Tell SysId how to record a frame of data for each motor on the mechanism being
               // characterized.
               log -> {
-                // Record a frame for the shooter motor.
+                // Record a frame for the top shooter motor.
                 log.motor("topMotor")
                     .voltage(
                         m_appliedVoltage.mut_replace(
@@ -131,7 +127,7 @@ public class Shooter extends SubsystemBase {
                     .angularPosition(m_angle.mut_replace(topEncoder.getPosition(), Units.Rotations))
                     .angularVelocity(
                         m_velocity.mut_replace(topEncoder.getVelocity() / 60, Units.RotationsPerSecond));
-
+                        //Record a frame for the bottom shooter motor.
                         log.motor("bottomMotor")
                     .voltage(
                         m_appliedVoltage.mut_replace(
@@ -141,36 +137,39 @@ public class Shooter extends SubsystemBase {
                         m_velocity.mut_replace(bottomEncoder.getVelocity() / 60, Units.RotationsPerSecond));
               },
               // Tell SysId to make generated commands require this subsystem, suffix test state in
-              // WPILog with this subsystem's name ("shooter"
+              // WPILog with this subsystem's name ("shooter")
               this));
 
   return theSysRoutine;
 
   }
+  /** 
+   * Returns a command that will execute a quasistatic test in the given direaction
+   * 
+   * @param direction needs to be SysIdRoutine.Direction.kReverse or SysIdRoutine.Direction.kForward
+   */
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
     return getSysIdRoutine().quasistatic(direction);
   }
   /**
    * Returns a command that will execute a dynamic test in the given direction.
-   *
-   * @param direction The direction (forward or reverse) to run the test in
    */
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
     return getSysIdRoutine().dynamic(direction);
   }
-  static SequentialCommandGroup SysIDCommand = new SequentialCommandGroup(
-      sysIdDynamic(forward),
-      sysIdDynamic(backward),
-      sysIdDynamic(forward),
-      sysIdDynamic(backward),
 
-      sysIdQuasistatic(forward),
-      sysIdQuasistatic(backward),
-      sysIdQuasistatic(forward),
-      sysIdQuasistatic(backward)
 
+  //This is the command group that runs the SysIDRoutine
+  SequentialCommandGroup SysIDCommand = new SequentialCommandGroup(
+      sysIdDynamic(SysIdRoutine.Direction.kForward),
+      sysIdDynamic(SysIdRoutine.Direction.kReverse),
+      sysIdQuasistatic(SysIdRoutine.Direction.kForward),
+      sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
   );
 
+  public SequentialCommandGroup returnSysIDCommand(){
+    return SysIDCommand;
+  }
   public void periodic() {
     // This method will be called once per scheduler run
    

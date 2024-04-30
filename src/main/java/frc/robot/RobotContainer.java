@@ -28,7 +28,7 @@ public class RobotContainer {
     
     testingController.cross().onTrue(Shooter.shootSpeaker());
     testingController.square().onTrue(Shooter.shootAmp());
-    testingController.circle().onTrue(Shooter.SysIDCommand);
+    testingController.circle().onTrue(RobotContainer.shooter.SysIDCommand);
     
   }
 

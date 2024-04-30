@@ -77,23 +77,23 @@ public final class Constants {
   public static class Ports { // TODO: add correct ports
     public static final int LED_PWM = -1;
 
-    public static final int INTAKE_TOP_MOTOR = 31;
-    public static final int INTAKE_BOTTOM_MOTOR = -32;
+    public static final int INTAKE_TOP_MOTOR = -1;
+    public static final int INTAKE_BOTTOM_MOTOR = -1;
 
     
     public static final int SHOOTER_BOTTOM_MOTOR = 29;
     public static final int SHOOTER_TOP_MOTOR = 28;
-    public static final int SHOOTER_MOTOR_TRANSPORT = 43;
+    public static final int SHOOTER_MOTOR_TRANSPORT = -1;
 
     // Sprocket motors
-    public static final int LEFT_ANGLE_MOTOR = 21;
-    public static final int RIGHT_ANGLE_MOTOR = 22;
+    public static final int LEFT_ANGLE_MOTOR = -1;
+    public static final int RIGHT_ANGLE_MOTOR = -1;
 
     public static final int TRANSPORT_BEAM_BREAK = -1;
 
     // Climber ports
-    public static final int CLIMBER_LEFT_MOTOR = 51;
-    public static final int CLIMBER_RIGHT_MOTOR = 52;
+    public static final int CLIMBER_LEFT_MOTOR = -1;
+    public static final int CLIMBER_RIGHT_MOTOR = -1;
 
     
 
