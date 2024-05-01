@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot;
+package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.Ports;
 
 
@@ -160,7 +161,7 @@ public class Shooter extends SubsystemBase {
 
 
   //This is the command group that runs the SysIDRoutine
-  SequentialCommandGroup SysIDCommand = new SequentialCommandGroup(
+  public SequentialCommandGroup SysIDCommand = new SequentialCommandGroup(
       sysIdDynamic(SysIdRoutine.Direction.kForward),
       sysIdDynamic(SysIdRoutine.Direction.kReverse),
       sysIdQuasistatic(SysIdRoutine.Direction.kForward),

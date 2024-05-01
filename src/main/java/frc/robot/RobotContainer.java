@@ -7,9 +7,11 @@ package frc.robot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
 
 public class RobotContainer {
-
+    public static Intake intake = new Intake();
     public static Shooter shooter = new Shooter();
     CommandPS5Controller driverController = new CommandPS5Controller(0);
     CommandPS5Controller operatorController = new CommandPS5Controller(1);
@@ -26,9 +28,11 @@ public class RobotContainer {
   //Configure key bindings
   private void configureBindings() {
     
-    testingController.cross().onTrue(Shooter.shootSpeaker());
-    testingController.square().onTrue(Shooter.shootAmp());
-    testingController.circle().onTrue(RobotContainer.shooter.SysIDCommand);
+    operatorController.cross().onTrue(Shooter.shootSpeaker());
+    operatorController.square().onTrue(Shooter.shootAmp());
+    operatorController.circle().onTrue(RobotContainer.shooter.SysIDCommand);
+    operatorController.L1().onTrue(RobotContainer.intake.inhaleCommand());
+    operatorController.R1().onTrue(RobotContainer.intake.exhaleCommand());
     
   }
 

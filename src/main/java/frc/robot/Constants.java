@@ -89,7 +89,7 @@ public final class Constants {
     public static final int LEFT_ANGLE_MOTOR = -1;
     public static final int RIGHT_ANGLE_MOTOR = -1;
 
-    public static final int TRANSPORT_BEAM_BREAK = -1;
+    public static final int TRANSPORT_BEAM_BREAK = 9;
 
     // Climber ports
     public static final int CLIMBER_LEFT_MOTOR = -1;
@@ -112,7 +112,7 @@ public final class Constants {
   }
 
   public static class IntakeConstants {
-    public static final double INTAKE_SPEED = 1.0;
+  public static final double INTAKE_SPEED = 1.0;
   }
   
   public static final double TRANSPORT_SPEED = 1.0;
