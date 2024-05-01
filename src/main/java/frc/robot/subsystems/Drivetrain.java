@@ -53,6 +53,18 @@ public class Drivetrain extends SubsystemBase {
     double rightX = RobotContainer.driverController.getRightX();
     double leftY = RobotContainer.driverController.getLeftY();
 
+    leftX = Math.signum(leftX) * leftX * leftX;
+    leftY = Math.signum(leftY) * leftY * leftY;
+    leftX = Math.signum(rightX) * rightX * rightX;
+    if(Math.abs(leftX)<.04){
+      leftX = 0;
+    }
+    if(Math.abs(rightX)<.04){
+      rightX = 0;
+    }
+    if(Math.abs(leftY)<.04){
+      leftY = 0;
+    }
     double leftXV = leftX * maximumSpeed;
     double leftXY = leftY * maximumSpeed;
     Translation2d translation = new Translation2d(leftXV, leftXY);
