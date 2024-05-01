@@ -22,16 +22,19 @@ public class Intake {
     public BooleanSupplier getBB(){
         return () -> beambreak.get();
     }
+    // Starts intake motors
     public void inhale(){
         topIntakeMotor.set(Constants.IntakeConstants.INTAKE_SPEED);
         bottomIntakeMotor.set(Constants.IntakeConstants.INTAKE_SPEED);
         Transport.start();
     }
+    // Reverses intake motors
     public void exhale(){
         topIntakeMotor.set(-Constants.IntakeConstants.INTAKE_SPEED);
         bottomIntakeMotor.set(-Constants.IntakeConstants.INTAKE_SPEED);
-        Transport.start();
+        Transport.reverse();
     }
+    // Stops intake motors
     public void holdBreath(){
         topIntakeMotor.set(0);
         bottomIntakeMotor.set(0);

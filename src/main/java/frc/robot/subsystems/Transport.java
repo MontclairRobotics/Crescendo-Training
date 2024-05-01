@@ -11,6 +11,9 @@ public class Transport {
     public static void start(){
         transportMotor.set(Constants.TRANSPORT_SPEED);
     }
+    public static void reverse(){
+        transportMotor.set(-Constants.TRANSPORT_SPEED);
+    }
     public void stop(){
         transportMotor.set(0);
     }
