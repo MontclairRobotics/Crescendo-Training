@@ -77,13 +77,13 @@ public final class Constants {
   public static class Ports { // TODO: add correct ports
     public static final int LED_PWM = -1;
 
-    public static final int INTAKE_TOP_MOTOR = -1;
-    public static final int INTAKE_BOTTOM_MOTOR = -1;
+    public static final int INTAKE_TOP_MOTOR = 21;
+    public static final int INTAKE_BOTTOM_MOTOR = 20;
 
     
     public static final int SHOOTER_BOTTOM_MOTOR = 29;
     public static final int SHOOTER_TOP_MOTOR = 28;
-    public static final int SHOOTER_MOTOR_TRANSPORT = -1;
+    public static final int SHOOTER_MOTOR_TRANSPORT = 27;
 
     // Sprocket motors
     public static final int LEFT_ANGLE_MOTOR = -1;

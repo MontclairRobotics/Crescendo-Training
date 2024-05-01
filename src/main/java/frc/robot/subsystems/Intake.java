@@ -8,9 +8,10 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-public class Intake {
+public class Intake extends SubsystemBase {
     CANSparkMax topIntakeMotor = new CANSparkMax(Constants.Ports.INTAKE_TOP_MOTOR,MotorType.kBrushless);
     CANSparkMax bottomIntakeMotor = new CANSparkMax(Constants.Ports.INTAKE_BOTTOM_MOTOR, MotorType.kBrushless);
     
@@ -40,12 +41,12 @@ public class Intake {
         bottomIntakeMotor.set(0);
     }
     public Command inhaleCommand (){
-        return Commands.run(() -> {inhale();}).onlyWhile(getBB());
+        return Commands.runOnce(() -> {inhale();}, this).onlyWhile(getBB());
     }
     public Command exhaleCommand (){
-        return Commands.run(() -> {exhale();});
+        return Commands.runOnce(() -> {exhale();}, this);
     }
     public Command holdBreathCommand (){
-        return Commands.run(() -> {holdBreath();});
+        return Commands.runOnce(() -> {holdBreath();}, this);
     }
 }
