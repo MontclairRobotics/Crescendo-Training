@@ -88,12 +88,12 @@ public class Shooter extends SubsystemBase {
   public static double getVelocity(CANSparkMax motor){
       return motor.getEncoder().getVelocity();
   }
-  public static Command shootSpeaker () {
-    return Commands.run(() -> {RobotContainer.shooter.setVelocity(4000);});
+  public Command shootSpeaker () {
+    return Commands.runOnce(() -> {RobotContainer.shooter.setVelocity(4000);});
   }
 
-  public static Command shootAmp () {
-    return Commands.run(() -> {RobotContainer.shooter.setVelocity(2000,1500);});
+  public Command shootAmp () {
+    return Commands.runOnce(() -> {RobotContainer.shooter.setVelocity(2000,1500);});
   }
 
   public SysIdRoutine getSysIdRoutine () {
