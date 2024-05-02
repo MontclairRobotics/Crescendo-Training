@@ -65,13 +65,13 @@ public class Drivetrain extends SubsystemBase {
   }
   public void basicDrive () {
     
-    double leftX = RobotContainer.driverController.getLeftX();
-    double rightX = RobotContainer.driverController.getRightX();
-    double leftY = RobotContainer.driverController.getLeftY();
+    double leftX = -1*RobotContainer.driverController.getLeftX();
+    double rightX = -1 *RobotContainer.driverController.getRightX();
+    double leftY = -1 *RobotContainer.driverController.getLeftY();
 
     leftX = Math.signum(leftX) * leftX * leftX;
     leftY = Math.signum(leftY) * leftY * leftY;
-    leftX = Math.signum(rightX) * rightX * rightX;
+    rightX = Math.signum(rightX) * rightX * rightX;
     if(Math.abs(leftX)<.04){
       leftX = 0;
     }
@@ -82,8 +82,8 @@ public class Drivetrain extends SubsystemBase {
       leftY = 0;
     }
     double leftXV = leftX * maximumSpeed;
-    double leftXY = leftY * maximumSpeed;
-    Translation2d translation = new Translation2d(leftXV, leftXY);
+    double leftYV = leftY * maximumSpeed;
+    Translation2d translation = new Translation2d(leftYV, leftXV);
     double rotationF = rightX * rotationSpeed;
   
     swerveDrive.drive(translation, rotationF, FieldRelative, true); 
