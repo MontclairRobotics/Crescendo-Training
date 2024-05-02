@@ -37,6 +37,8 @@ public class RobotContainer {
     operatorController.circle().onTrue(RobotContainer.shooter.SysIDCommand);
     operatorController.L1().onTrue(RobotContainer.intake.inhaleCommand());
     operatorController.R1().onTrue(RobotContainer.intake.exhaleCommand());
+    driverController.L1().onTrue(drivetrain.toRobotRelativeCommand()).onFalse(drivetrain.toFieldRelativeCommand());
+    driverController.touchpad().onTrue(drivetrain.zeroGyro());
     ControllerTools.getDPad(DPad.UP, driverController).onTrue(RobotContainer.sprocket.setAngleCommand(63));
     ControllerTools.getDPad(DPad.DOWN, driverController).onTrue(RobotContainer.sprocket.setAngleCommand(26));
   }
