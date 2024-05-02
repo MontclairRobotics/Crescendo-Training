@@ -5,7 +5,10 @@
 package frc.robot.subsystems;
 
   import java.io.File;
-  import edu.wpi.first.wpilibj.Filesystem;
+
+import com.ctre.phoenix6.hardware.Pigeon2;
+
+import edu.wpi.first.wpilibj.Filesystem;
   import swervelib.parser.SwerveParser;
   import swervelib.SwerveDrive;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -17,7 +20,7 @@ import frc.robot.RobotContainer;
 
 public class Drivetrain extends SubsystemBase {
   /** Creates a new SwerveDrive. */
-
+  Pigeon2 gyro;
   boolean FieldRelative;
   double rotationSpeed;
   double maximumSpeed;
@@ -32,7 +35,6 @@ public class Drivetrain extends SubsystemBase {
 
   //so basically this tells java to ignore the error so the code works!
   //dw about it
-
   try {
      swerveDrive = new SwerveParser(swerveJsonDirectory).createSwerveDrive(maximumSpeed);
   }
@@ -42,7 +44,21 @@ public class Drivetrain extends SubsystemBase {
  
   } //end of constructor btw
 
-  
+  public void toRobotRelative() {
+    FieldRelative = false;
+  }
+  public Command zeroGyro (){
+    return Commands.runOnce(() -> swerveDrive.zeroGyro(), this);
+  }
+  public Command toRobotRelativeCommand() {
+    return Commands.runOnce(() -> toRobotRelative(), this);
+  }
+  public void toFieldRelative() {
+    FieldRelative = true;
+  }
+  public Command toFieldRelativeCommand (){
+    return Commands.runOnce(() -> toFieldRelative(), this);
+  }
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
