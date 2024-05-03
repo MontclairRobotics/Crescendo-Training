@@ -41,10 +41,13 @@ public class Intake extends SubsystemBase {
         bottomIntakeMotor.set(0);
     }
     public Command inhaleCommand (){
-        return Commands.runOnce(() -> {inhale();}, this).onlyWhile(getBB());
+        return Commands.run(() -> {inhale();}, this).onlyWhile(getBB()).finallyDo(() -> {holdBreath();
+        Transport.stop();});
     }
     public Command exhaleCommand (){
-        return Commands.runOnce(() -> {exhale();}, this);
+        return Commands.run(() -> {exhale();}, this).finallyDo(() -> {holdBreath();
+        Transport.stop();});
+    
     }
     public Command holdBreathCommand (){
         return Commands.runOnce(() -> {holdBreath();}, this);

@@ -33,14 +33,14 @@ public class Shooter extends SubsystemBase {
    //Creates the motors involved in the shooter mechanism
   public static CANSparkMax topMotor = new CANSparkMax(Ports.SHOOTER_TOP_MOTOR, MotorType.kBrushless);
   public static CANSparkMax bottomMotor = new CANSparkMax(Ports.SHOOTER_BOTTOM_MOTOR, MotorType.kBrushless);
-  public static CANSparkMax transport = new CANSparkMax(Ports.SHOOTER_MOTOR_TRANSPORT, MotorType.kBrushless);
+ 
  
   //Creates velocity PID controllers for shooter
-  static SparkPIDController topController = topMotor.getPIDController();
-  static SparkPIDController bottomController = bottomMotor.getPIDController();
+   SparkPIDController topController = topMotor.getPIDController();
+   SparkPIDController bottomController = bottomMotor.getPIDController();
  
   //Creates the encoders for shooter
-  static RelativeEncoder topEncoder = topMotor.getEncoder();
+  RelativeEncoder topEncoder = topMotor.getEncoder();
   RelativeEncoder bottomEncoder = bottomMotor.getEncoder();
    
   //Create 
