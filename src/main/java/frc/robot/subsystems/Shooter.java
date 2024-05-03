@@ -41,7 +41,7 @@ public class Shooter extends SubsystemBase {
  
   //Creates the encoders for shooter
   static RelativeEncoder topEncoder = topMotor.getEncoder();
-  RelativeEncoder bottomEncoder = bottomMotor.getEncoder();
+  static RelativeEncoder bottomEncoder = bottomMotor.getEncoder();
    
   //Create 
   //TODO: Tune feedforward

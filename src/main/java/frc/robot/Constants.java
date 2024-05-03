@@ -122,7 +122,6 @@ public final class Constants {
     public static final double MAX_VOLTAGE_V = 12.0;
   
 
-    public static double SPROCKET_SPEED = 1;
     public static final double SPROCKET_ROTATIONS_PER_DEGREE = 1.26984126984;
     public static final double ENCODER_MIN_ANGLE = 26;
     public static final double ENCODER_MAX_ANGLE = 63;
