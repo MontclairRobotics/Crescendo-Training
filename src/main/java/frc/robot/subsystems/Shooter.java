@@ -40,8 +40,8 @@ public class Shooter extends SubsystemBase {
    SparkPIDController bottomController = bottomMotor.getPIDController();
  
   //Creates the encoders for shooter
-  RelativeEncoder topEncoder = topMotor.getEncoder();
-  RelativeEncoder bottomEncoder = bottomMotor.getEncoder();
+  static RelativeEncoder topEncoder = topMotor.getEncoder();
+  static RelativeEncoder bottomEncoder = bottomMotor.getEncoder();
    
   //Create 
   //TODO: Tune feedforward
