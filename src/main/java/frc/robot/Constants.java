@@ -38,7 +38,6 @@ public final class Constants {
     //The poses we determined to be best for scoring using odometry. These were not used in our program, feel free to change them.
     public static final double SPEAKER_SCORE_X_OFFSET = 6.0;
     
-    
     public static final Pose2d RED_SPEAKER_POSE = new Pose2d(Units.inchesToMeters(652.3 - SPEAKER_SCORE_X_OFFSET), Units.inchesToMeters(218.42), new Rotation2d());
     public static final Pose2d BLUE_SPEAKER_POSE = new Pose2d(Units.inchesToMeters(-1.5 + SPEAKER_SCORE_X_OFFSET), Units.inchesToMeters(218.42), new Rotation2d());
     
@@ -46,25 +45,35 @@ public final class Constants {
 
   public static class DriveConstants {
 
-    public static final double BUMPER_WIDTH = Units.inchesToMeters(3); // TODO get real width
+    //todo: get real width
+    public static final double BUMPER_WIDTH = Units.inchesToMeters(3); 
 
-
+    //max voltage of the battery
     public static final double MAX_VOLTAGE_V = 12.0;
+
+    //max speed of the robot
     public static final double MAX_SPEED = Units.feetToMeters(13);
 
+    //this is in radians. for those who don't know, 2pi radians = 360 degrees
+    //our max rotation speed is therefore 360degrees/s or 2pi radians/second
     public static final double MAX_ROT_SPEED = 2 * Math.PI;
+
     // Max Acceleration in M/s^2
     public static final double MAX_ACCELERATION = 3.0;
+
     // Max angular acceleration in Rad/S^2
     public static final double MAX_ANGULAR_ACCELERATION = 1.5;
 
+    //distance from the center of the robot to the pivot point on the swerve modules in METERS
+    //used in autoBuilder
     public static final double DRIVE_BASE_RADIUS = 0.43;
 
-    public static final Pose2d EDGE_OF_DRIVEBASE =
-        new Pose2d(0, DRIVE_BASE_RADIUS + BUMPER_WIDTH, new Rotation2d());
+    public static final Pose2d EDGE_OF_DRIVEBASE = new Pose2d(0, DRIVE_BASE_RADIUS + BUMPER_WIDTH, new Rotation2d());
+  
   }
 
   public static class VisionConstants {
+
     public static final double SHOOTER_LIMELIGHT_HEIGHT = 7.5; //10.375;
     public static final double INTAKE_LIMELIGHT_HEIGHT = 10.227995;
     public static final double SPEAKER_APRILTAG_HEIGHT = 57.125; //57.875;
@@ -74,13 +83,16 @@ public final class Constants {
 
   }
 
-  public static class Ports { // TODO: add correct ports
+  public static class Ports { // todo: add correct ports (NEGATIVE PORTS CRASH THE CODE SO CHANGE BEFORE USING PLS)
+
+    //don't know what this is
     public static final int LED_PWM = -1;
 
+    //intake motors
     public static final int INTAKE_TOP_MOTOR = 21;
     public static final int INTAKE_BOTTOM_MOTOR = 20;
-
     
+    // shooter motors
     public static final int SHOOTER_BOTTOM_MOTOR = 29;
     public static final int SHOOTER_TOP_MOTOR = 28;
     public static final int SHOOTER_MOTOR_TRANSPORT = 27;
@@ -89,51 +101,55 @@ public final class Constants {
     public static final int LEFT_ANGLE_MOTOR = -1;
     public static final int RIGHT_ANGLE_MOTOR = -1;
 
+    //where the beambreak plugs into the roboRIO (this is how you access it)
     public static final int TRANSPORT_BEAM_BREAK = 9;
 
     // Climber ports
     public static final int CLIMBER_LEFT_MOTOR = -1;
     public static final int CLIMBER_RIGHT_MOTOR = -1;
-
-    
-
-    public static final int SPROCKET_ABS_ENCODER = 3; //9
-
     public static final int CLIMBER_LEFT_LIMIT_SWITCH_PORT = 5;
-
     public static final int CLIMBER_RIGHT_LIMIT_SWITCH_PORT = 4;
+
+    // where arm encoder plugs in
+    public static final int SPROCKET_ABS_ENCODER = 3; //9
   } 
 
   public static class ClimberConstants {
+
     // Climbers
     public static final double CLIMBER_SPEED = 0.3;
     public static final double MAX_HEIGHT = 18; // Inches
-    public static final double ROTATIONS_PER_INCH = Math.PI/30; //12.0672 * Math.PI; // TODO:
+    public static final double ROTATIONS_PER_INCH = Math.PI/30; //12.0672 * Math.PI;
+
   }
 
   public static class IntakeConstants {
+
+  //self-explanatory guys...
   public static final double INTAKE_SPEED = -.7;
+
   }
-  
+
+  //transport speed
   public static final double TRANSPORT_SPEED = -.7;
 
+  //arm stuff
   public static class ArmConstants {
-
-    public static final double MAX_VOLTAGE_V = 12.0;
   
-
     public static final double SPROCKET_ROTATIONS_PER_DEGREE = 1.26984126984;
     public static final double ENCODER_MIN_ANGLE = 26;
     public static final double ENCODER_MAX_ANGLE = 63;
-
     //Both inverts are true, at least in our program (motors are mounted in same direction)
+    
   }
   
 
   //Shooter constants
   public class ShooterConstants {
-      public static final double SHOOT_SPEAKER_VELOCITY = 4000;
 
+      
+      public static final double SPEAKER_SPEED_RPS = 4000.0/60;
+      public static final double SHOOT_SPEAKER_VELOCITY = 4000;
 
   }
 }
