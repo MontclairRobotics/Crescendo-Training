@@ -18,8 +18,7 @@ public class Intake extends SubsystemBase {
     //creates the beambreak as a digitalinput
     DigitalInput beambreak = new DigitalInput(9);
 
- 
-    //True means BB is not broken; false means BB is broken (NOT HOW MOST THINGS WORK OUR THING IS WEIRD - JAMES RECHS)
+    //True means BB is not broken; false means BB is broken
     public BooleanSupplier getBB(){
         return () -> beambreak.get();
     }
@@ -40,15 +39,17 @@ public class Intake extends SubsystemBase {
         topIntakeMotor.set(0);
         bottomIntakeMotor.set(0);
     }
+    //command for intaking
     public Command inhaleCommand (){
         return Commands.run(() -> {inhale();}, this).onlyWhile(getBB()).finallyDo(() -> {holdBreath();
         Transport.stop();});
     }
+    //command for reverse intaking
     public Command exhaleCommand (){
         return Commands.run(() -> {exhale();}, this).finallyDo(() -> {holdBreath();
         Transport.stop();});
-    
     }
+    //command to stop the intake motors
     public Command holdBreathCommand (){
         return Commands.runOnce(() -> {holdBreath();}, this);
     }
