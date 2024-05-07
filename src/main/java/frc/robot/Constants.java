@@ -105,8 +105,8 @@ public final class Constants {
     public static final int TRANSPORT_BEAM_BREAK = 9;
 
     // Climber ports
-    public static final int CLIMBER_LEFT_MOTOR = -1;
-    public static final int CLIMBER_RIGHT_MOTOR = -1;
+    public static final int CLIMBER_LEFT_MOTOR = 48;
+    public static final int CLIMBER_RIGHT_MOTOR = 49;
     public static final int CLIMBER_LEFT_LIMIT_SWITCH_PORT = 5;
     public static final int CLIMBER_RIGHT_LIMIT_SWITCH_PORT = 4;
 
@@ -139,6 +139,7 @@ public final class Constants {
     public static final double SPROCKET_ROTATIONS_PER_DEGREE = 1.26984126984;
     public static final double ENCODER_MIN_ANGLE = 26;
     public static final double ENCODER_MAX_ANGLE = 63;
+    public static final double SPROCKET_SPEED = .5;
     //Both inverts are true, at least in our program (motors are mounted in same direction)
     
   }
@@ -147,9 +148,9 @@ public final class Constants {
   //Shooter constants
   public class ShooterConstants {
 
-      
-      public static final double SPEAKER_SPEED_RPS = 800.0/60;
+      public static final double SPEAKER_SPEED_RPM = 25;
       public static final double SHOOT_SPEAKER_VELOCITY = 4000;
 
   }
+  
 }

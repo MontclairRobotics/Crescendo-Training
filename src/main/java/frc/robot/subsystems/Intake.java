@@ -5,11 +5,14 @@ import java.util.function.BooleanSupplier;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 
 public class Intake extends SubsystemBase {
     CANSparkMax topIntakeMotor = new CANSparkMax(Constants.Ports.INTAKE_TOP_MOTOR,MotorType.kBrushless);
@@ -24,9 +27,17 @@ public class Intake extends SubsystemBase {
     }
     // Starts intake motors
     public void inhale(){
+        
         topIntakeMotor.set(Constants.IntakeConstants.INTAKE_SPEED);
         bottomIntakeMotor.set(Constants.IntakeConstants.INTAKE_SPEED);
         Transport.start();
+       
+    }
+    public Command inhaleCommand(){
+        return Commands.run(()-> inhale(), this).onlyWhile(getBB()).finallyDo(() ->holdBreath());
+    }
+    public Command inhaleSetAngle(){
+       return Commands.run(() -> RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(52)), RobotContainer.sprocket);
     }
     // Reverses intake motors
     public void exhale(){
@@ -40,9 +51,13 @@ public class Intake extends SubsystemBase {
         bottomIntakeMotor.set(0);
     }
     //command for intaking
-    public Command inhaleCommand (){
-        return Commands.run(() -> {inhale();}, this).onlyWhile(getBB()).finallyDo(() -> {holdBreath();
-        Transport.stop();});
+    public SequentialCommandGroup inhaleCommandGroup = new SequentialCommandGroup(
+        inhaleSetAngle(),
+        inhaleCommand()
+    );
+
+    public SequentialCommandGroup returnInhaleCommandGroup(){
+        return inhaleCommandGroup;
     }
     //command for reverse intaking
     public Command exhaleCommand (){

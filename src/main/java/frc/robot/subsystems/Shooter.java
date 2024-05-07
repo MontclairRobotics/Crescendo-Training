@@ -63,8 +63,8 @@ public class Shooter extends SubsystemBase {
     bottomController.setP(2.8688E-05, 1);
     bottomController.setD(0, 1);
 
-    topEncoder.setVelocityConversionFactor(1.0/60);
-    bottomEncoder.setVelocityConversionFactor(1.0/60);
+    topEncoder.setVelocityConversionFactor(1/60.0);
+    bottomEncoder.setVelocityConversionFactor(1/60.0);
 
     Shuffleboard.getTab("Debug").addDouble("Top velocity", velocitySupplier(topMotor));
     Shuffleboard.getTab("Debug").addDouble("Bottom velocity", velocitySupplier(bottomMotor));
@@ -97,11 +97,11 @@ public class Shooter extends SubsystemBase {
         bottomController.setReference(bottomVelocity, ControlType.kVelocity, 1, bottomFeedforwardValue );
     }
     //TODO: write this properly
-    public boolean isAtVelocity (double velocityRPS) {
-      if(getVelocity(topMotor) > (velocityRPS - 4) && 
-         getVelocity(topMotor) < (velocityRPS + 4) &&
-         getVelocity(bottomMotor) > (velocityRPS - 4) && 
-         getVelocity(bottomMotor) < (velocityRPS + 4)
+    public boolean isAtVelocity (double velocityRPM) {
+      if(getVelocity(topMotor) > (velocityRPM - 1.4) && 
+         getVelocity(topMotor) < (velocityRPM + 1.4) &&
+         getVelocity(bottomMotor) > (velocityRPM - 1.4) && 
+         getVelocity(bottomMotor) < (velocityRPM + 1.4)
       ) {
         return true;
       }
@@ -110,19 +110,22 @@ public class Shooter extends SubsystemBase {
 
   //Shooter Commands
   public void shootSpeaker(){
-    setVelocity(ShooterConstants.SPEAKER_SPEED_RPS);
-    if(isAtVelocity(ShooterConstants.SPEAKER_SPEED_RPS)){
+    setVelocity(ShooterConstants.SPEAKER_SPEED_RPM);
+    if(isAtVelocity(ShooterConstants.SPEAKER_SPEED_RPM)){
       Transport.start();
     }
+    System.out.println("hiiiii");
   }
+
   public static double getVelocity(CANSparkMax motor){
       return motor.getEncoder().getVelocity();
   }
+
   //TODO: create constants for amp speeds and speaker speeds.
   //TODO: test and get real amp speeds.
-
   public Command shootSpeakerCommand () {
-    return Commands.runOnce(() -> {RobotContainer.shooter.shootSpeaker();});
+    return Commands.run(() -> {RobotContainer.shooter.shootSpeaker();});
+  
   }
   
   public Command shootAmpCommand () {
@@ -228,5 +231,6 @@ public class Shooter extends SubsystemBase {
 
   public void periodic() {
     // This method will be called once per scheduler run
+    
   }
 }

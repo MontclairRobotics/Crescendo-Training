@@ -52,7 +52,7 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(drivetrain.driveCommand());
 
     //sets the default command for the sprocket to be in brake mode.
-    sprocket.setDefaultCommand(sprocket.brakeModeCommand());
+    sprocket.setDefaultCommand(sprocket.moveSprocketCommand());
 
     //calls the configureBindings method which binds the buttons to certain commands
     configureBindings();
@@ -63,16 +63,21 @@ public class RobotContainer {
   private void configureBindings() {
     
     //Operator bindings
-    operatorController.cross().onTrue(RobotContainer.shooter.shootSpeakerCommand()).onFalse(RobotContainer.shooter.stopCommand());
-    operatorController.square().onTrue(RobotContainer.shooter.shootAmpCommand());
-    operatorController.circle().onTrue(RobotContainer.shooter.SysIDCommand);
-    operatorController.L1().whileTrue(RobotContainer.intake.inhaleCommand());
-    operatorController.R1().whileTrue(RobotContainer.intake.exhaleCommand());
+    operatorController.cross().whileTrue(shooter.shootSpeakerCommand()).onFalse(shooter.stopCommand());
+    operatorController.square().onTrue(shooter.shootAmpCommand()).onFalse(shooter.stopCommand());
+
+    //intakes
+    operatorController.L1().whileTrue(intake.returnInhaleCommandGroup());
+    operatorController.R1().whileTrue(intake.exhaleCommand());
+
+    operatorController.circle().onTrue(sprocket.setAngleCommand(35));
+    operatorController.triangle().onTrue(sprocket.setAngleCommand(50));
     ControllerTools.getDPad(DPad.DOWN, operatorController).onTrue(sprocket.downCommand()).onFalse(sprocket.stopCommand());
     ControllerTools.getDPad(DPad.UP, operatorController).onTrue(sprocket.upCommand()).onFalse(sprocket.stopCommand());
     //driver bindings
     driverController.L1().onTrue(drivetrain.toRobotRelativeCommand()).onFalse(drivetrain.toFieldRelativeCommand());
     driverController.R2().onTrue(drivetrain.zeroGyro());
+
     // ControllerTools.getDPad(DPad.UP, driverController).onTrue(RobotContainer.sprocket.setAngleCommand(63));
     // ControllerTools.getDPad(DPad.DOWN, driverController).onTrue(RobotContainer.sprocket.setAngleCommand(26));
 
