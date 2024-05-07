@@ -21,7 +21,7 @@
 * [WPILIB PID Controller Docs](https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/pidcontroller.html)
 * [WPILIB PID Controller JavaDocs](https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/controller/PIDController.html)
 * [WPILIB Command Javadocs (.andThen(), .alongWith(), etc)](https://first.wpi.edu/wpilib/allwpilib/docs/release/java/edu/wpi/first/wpilibj2/command/Command.html)
-    * Also just the general WPILIBdocs in case none of these are what you're looking for [here](https://docs.wpilib.org/en/stable/docs/zero-to-robot/introduction.html)
+    * Also just the general WPILIB docs in case none of these are what you're looking for [here](https://docs.wpilib.org/en/stable/docs/zero-to-robot/introduction.html)
 
 ### Gyroscope
 * [NavX JavaDocs](https://www.kauailabs.com/public_files/navx-mxp/apidocs/java/com/kauailabs/navx/frc/AHRS.html)
