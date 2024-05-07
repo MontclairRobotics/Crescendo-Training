@@ -97,20 +97,30 @@ public class Shooter extends SubsystemBase {
         bottomController.setReference(bottomVelocity, ControlType.kVelocity, 1, bottomFeedforwardValue );
     }
     //TODO: write this properly
-    public void isAtVelocity (double velocity) {
-
+    public boolean isAtVelocity (double velocityRPS) {
+      if(getVelocity(topMotor) > (velocityRPS - 4) && 
+         getVelocity(topMotor) < (velocityRPS + 4) &&
+         getVelocity(bottomMotor) > (velocityRPS - 4) && 
+         getVelocity(bottomMotor) < (velocityRPS + 4)
+      ) {
+        return true;
+      }
+      else return false;
     }
 
   //Shooter Commands
   public void shootSpeaker(){
-    Transport.start();
     setVelocity(ShooterConstants.SPEAKER_SPEED_RPS);
+    if(isAtVelocity(ShooterConstants.SPEAKER_SPEED_RPS)){
+      Transport.start();
+    }
   }
   public static double getVelocity(CANSparkMax motor){
       return motor.getEncoder().getVelocity();
   }
   //TODO: create constants for amp speeds and speaker speeds.
   //TODO: test and get real amp speeds.
+
   public Command shootSpeakerCommand () {
     return Commands.runOnce(() -> {RobotContainer.shooter.shootSpeaker();});
   }
@@ -122,6 +132,7 @@ public class Shooter extends SubsystemBase {
   public void stop(){
     topMotor.set(0);
     bottomMotor.set(0);
+    Transport.stop();
   }
 
   public Command stopCommand(){

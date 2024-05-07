@@ -21,11 +21,12 @@ public class Sprocket extends SubsystemBase {
     static CANSparkMax leftSprocketMotor = new CANSparkMax(Constants.Ports.LEFT_ANGLE_MOTOR, MotorType.kBrushless);
     static CANSparkMax rightSprocketMotor = new CANSparkMax(Constants.Ports.RIGHT_ANGLE_MOTOR, MotorType.kBrushless);
     
-    
+    boolean canGoUp;
+    boolean canGoDown;
     static DutyCycleEncoder absoluteEncoder = new DutyCycleEncoder(3); 
 
-    static PIDController pidController = new PIDController(0,0,0); 
-    static boolean isUsingPID;
+    // static PIDController pidController = new PIDController(0,0,0); 
+    // static boolean isUsingPID;
     static boolean isSprocketSafe = getRawPosition() < Constants.ArmConstants.ENCODER_MAX_ANGLE-5 || absoluteEncoder.getAbsolutePosition() > Constants.ArmConstants.ENCODER_MIN_ANGLE+5;
 
     public Sprocket() {
@@ -35,10 +36,10 @@ public class Sprocket extends SubsystemBase {
     public static double getRawPosition(){
         return absoluteEncoder.getDistance()-281.6;
     }
-    public static void setAngle(Rotation2d angle){
-        pidController.setSetpoint(angle.getDegrees());
-        isUsingPID = true;
-    }
+    // public static void setAngle(Rotation2d angle){
+    //     pidController.setSetpoint(angle.getDegrees());
+    //     isUsingPID = true;
+    // }
     public DoubleSupplier getRawPositionSupplier(){
         return () -> getRawPosition();
     }
@@ -49,28 +50,25 @@ public class Sprocket extends SubsystemBase {
     public Command stopCommand(){
         return Commands.runOnce(()-> stop());
     }
-    public Command setAngleCommand(double angle) {
-        return Commands.runOnce(() -> Sprocket.setAngle(Rotation2d.fromDegrees(angle)), this);
-    }
+    // public Command setAngleCommand(double angle) {
+    //     return Commands.runOnce(() -> Sprocket.setAngle(Rotation2d.fromDegrees(angle)), this);
+    // }
     public Command stopSprocket() {
         return Commands.runOnce(() -> Sprocket.stop(), this);
     }
-
-    boolean canGoUp = getRawPosition() < (ArmConstants.ENCODER_MAX_ANGLE - 5);
-    boolean canGoDown = getRawPosition() < (ArmConstants.ENCODER_MIN_ANGLE + 5);
 
     public void setBrakeMode(){
         leftSprocketMotor.setIdleMode(IdleMode.kBrake);
         rightSprocketMotor.setIdleMode(IdleMode.kBrake);
     }
     public Command brakeModeCommand(){
-        return Commands.runOnce(()-> setBrakeMode());
+        return Commands.runOnce(()-> setBrakeMode(), this);
     }
     
     public void up (){
         if(isSprocketSafe && canGoUp){
-        leftSprocketMotor.set(-.2);
-        rightSprocketMotor.set(-.2);
+        leftSprocketMotor.set(-.1);
+        rightSprocketMotor.set(-.1);
         } else {
         leftSprocketMotor.set(0);
         rightSprocketMotor.set(0);
@@ -78,8 +76,8 @@ public class Sprocket extends SubsystemBase {
     }
     public void down(){
         if(isSprocketSafe && canGoDown){
-        leftSprocketMotor.set(.2);
-        rightSprocketMotor.set(.2);
+        leftSprocketMotor.set(.1);
+        rightSprocketMotor.set(.1);
         } else {
         leftSprocketMotor.set(0);
         rightSprocketMotor.set(0);
@@ -102,7 +100,11 @@ public class Sprocket extends SubsystemBase {
         //     Sprocket.stop();
         //     isUsingPID = false;
         // }
+
+     canGoUp = getRawPosition() < (ArmConstants.ENCODER_MAX_ANGLE - 5);
+     canGoDown = getRawPosition() > (ArmConstants.ENCODER_MIN_ANGLE + 5);
         
+    
 
     }
 }

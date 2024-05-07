@@ -98,8 +98,8 @@ public final class Constants {
     public static final int SHOOTER_MOTOR_TRANSPORT = 27;
 
     // Sprocket motors
-    public static final int LEFT_ANGLE_MOTOR = -1;
-    public static final int RIGHT_ANGLE_MOTOR = -1;
+    public static final int LEFT_ANGLE_MOTOR = 30;
+    public static final int RIGHT_ANGLE_MOTOR = 31;
 
     //where the beambreak plugs into the roboRIO (this is how you access it)
     public static final int TRANSPORT_BEAM_BREAK = 9;
@@ -148,7 +148,7 @@ public final class Constants {
   public class ShooterConstants {
 
       
-      public static final double SPEAKER_SPEED_RPS = 4000.0/60;
+      public static final double SPEAKER_SPEED_RPS = 800.0/60;
       public static final double SHOOT_SPEAKER_VELOCITY = 4000;
 
   }
