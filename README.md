@@ -1,4 +1,4 @@
-## Crescendo-Training, A Rewrite Of Our Codebase By Different People!
+# Crescendo-Training, A Rewrite Of Our Codebase By Different People!
 
 
 # Documentation For Poor Souls!
@@ -24,5 +24,6 @@
     * Also just the general WPILIB docs in case none of these are what you're looking for [here](https://docs.wpilib.org/en/stable/docs/zero-to-robot/introduction.html)
 
 ### Gyroscope
-* [NavX JavaDocs](https://www.kauailabs.com/public_files/navx-mxp/apidocs/java/com/kauailabs/navx/frc/AHRS.html)
-    * Our Gyro is within the SwerveDrive object in Drivetrain.java, call .getGyro() to get the gyro object
+* [Pigeon JavaDocs](https://store.ctr-electronics.com/content/api/java/html/classcom_1_1ctre_1_1phoenix_1_1sensors_1_1_pigeon_i_m_u.html) (Our Current Gyro)
+* [NavX JavaDocs](https://www.kauailabs.com/public_files/navx-mxp/apidocs/java/com/kauailabs/navx/frc/AHRS.html) (Our Old Gyro)
+* Our Gyro is within the SwerveDrive object in Drivetrain.java, call .getGyro() to get the gyro object
