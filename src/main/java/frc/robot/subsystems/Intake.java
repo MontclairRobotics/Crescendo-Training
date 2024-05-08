@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 
 public class Intake extends SubsystemBase {
@@ -28,6 +29,7 @@ public class Intake extends SubsystemBase {
     // Starts intake motors
     public void inhale(){
         
+        RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(52));
         topIntakeMotor.set(Constants.IntakeConstants.INTAKE_SPEED);
         bottomIntakeMotor.set(Constants.IntakeConstants.INTAKE_SPEED);
         Transport.start();
@@ -35,9 +37,6 @@ public class Intake extends SubsystemBase {
     }
     public Command inhaleCommand(){
         return Commands.run(()-> inhale(), this).onlyWhile(getBB()).finallyDo(() ->holdBreath());
-    }
-    public Command inhaleSetAngle(){
-       return Commands.run(() -> RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(52)), RobotContainer.sprocket);
     }
     // Reverses intake motors
     public void exhale(){
@@ -49,15 +48,7 @@ public class Intake extends SubsystemBase {
     public void holdBreath(){
         topIntakeMotor.set(0);
         bottomIntakeMotor.set(0);
-    }
-    //command for intaking
-    public SequentialCommandGroup inhaleCommandGroup = new SequentialCommandGroup(
-        inhaleSetAngle(),
-        inhaleCommand()
-    );
-
-    public SequentialCommandGroup returnInhaleCommandGroup(){
-        return inhaleCommandGroup;
+    
     }
     //command for reverse intaking
     public Command exhaleCommand (){

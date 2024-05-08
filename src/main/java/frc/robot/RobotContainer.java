@@ -52,7 +52,7 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(drivetrain.driveCommand());
 
     //sets the default command for the sprocket to be in manual control
-    sprocket.setDefaultCommand(sprocket.moveSprocketCommand());
+    // sprocket.setDefaultCommand(sprocket.moveSprocketCommand());
 
     //calls the configureBindings method which binds the buttons to certain commands
     configureBindings();
@@ -67,7 +67,7 @@ public class RobotContainer {
     operatorController.square().onTrue(shooter.shootAmpCommand()).onFalse(shooter.stopCommand());
 
     //intakes
-    operatorController.L1().whileTrue(intake.returnInhaleCommandGroup());
+    operatorController.L1().whileTrue(intake.inhaleCommand());
     operatorController.R1().whileTrue(intake.exhaleCommand());
 
     //sprocket temporary setAngleCommand
