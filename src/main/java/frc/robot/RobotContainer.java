@@ -51,7 +51,7 @@ public class RobotContainer {
     //in teleoperated mode
     drivetrain.setDefaultCommand(drivetrain.driveCommand());
 
-    //sets the default command for the sprocket to be in brake mode.
+    //sets the default command for the sprocket to be in manual control
     sprocket.setDefaultCommand(sprocket.moveSprocketCommand());
 
     //calls the configureBindings method which binds the buttons to certain commands
@@ -70,11 +70,14 @@ public class RobotContainer {
     operatorController.L1().whileTrue(intake.returnInhaleCommandGroup());
     operatorController.R1().whileTrue(intake.exhaleCommand());
 
+    //sprocket temporary setAngleCommand
     operatorController.circle().onTrue(sprocket.setAngleCommand(35));
     operatorController.triangle().onTrue(sprocket.setAngleCommand(50));
-    ControllerTools.getDPad(DPad.DOWN, operatorController).onTrue(sprocket.downCommand()).onFalse(sprocket.stopCommand());
-    ControllerTools.getDPad(DPad.UP, operatorController).onTrue(sprocket.upCommand()).onFalse(sprocket.stopCommand());
-    //driver bindings
+    //brake mode
+    operatorController.touchpad().whileFalse(sprocket.brakeModeCommand()).whileTrue(sprocket.setCoastModeCommand());
+    // ControllerTools.getDPad(DPad.DOWN, operatorController).onTrue(sprocket.downCommand()).onFalse(sprocket.stopCommand());
+    // ControllerTools.getDPad(DPad.UP, operatorController).onTrue(sprocket.upCommand()).onFalse(sprocket.stopCommand());
+    // //driver bindings
     driverController.L1().onTrue(drivetrain.toRobotRelativeCommand()).onFalse(drivetrain.toFieldRelativeCommand());
     driverController.R2().onTrue(drivetrain.zeroGyro());
 

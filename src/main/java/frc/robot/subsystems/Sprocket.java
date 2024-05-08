@@ -66,6 +66,7 @@ public class Sprocket extends SubsystemBase {
 
     //command for setting the angle using PID
     public Command setAngleCommand(double angle) {
+        isUsingPID = true;
         return Commands.runOnce(() -> RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(angle)), this);
     }
     public static void stop() {
@@ -88,72 +89,64 @@ public class Sprocket extends SubsystemBase {
     public Command brakeModeCommand(){
         return Commands.runOnce(()-> setBrakeMode(), this);
     }
-    
+    public void setCoastMode (){
+        leftSprocketMotor.setIdleMode(IdleMode.kCoast);
+        rightSprocketMotor.setIdleMode(IdleMode.kCoast);
+    }
+    public Command setCoastModeCommand(){
+        return Commands.runOnce(()-> setCoastMode(), this);
+    }
 
     //moves the sprocket up using the DPAD at a constant speed
-    public void up (){
-        if(isSprocketSafe && canGoUp){
-        isUsingPID = false;
-        leftSprocketMotor.set(ArmConstants.SPROCKET_SPEED);
-        rightSprocketMotor.set(ArmConstants.SPROCKET_SPEED);
-        } else {
-        leftSprocketMotor.set(0);
-        rightSprocketMotor.set(0);
-        }
+    // public void up (){
+    //     if(isSprocketSafe && canGoUp){
+    //     isUsingPID = false;
+    //     leftSprocketMotor.set(ArmConstants.SPROCKET_SPEED);
+    //     rightSprocketMotor.set(ArmConstants.SPROCKET_SPEED);
+    //     } else {
+    //     leftSprocketMotor.set(0);
+    //     rightSprocketMotor.set(0);
+    //     }
 
-    }
+    // }
 
-    //command for moving sprocket up using DPAD
-    public Command upCommand(){
-        return Commands.runOnce(() -> up());
-    }
+    // //command for moving sprocket up using DPAD
+    // public Command upCommand(){
+    //     return Commands.runOnce(() -> up());
+    // }
     
     //move the sprocket down using the DPAD at a constant speed
-    public void down(){
-        if(isSprocketSafe && canGoDown){
-        isUsingPID = false;
-        leftSprocketMotor.set(-ArmConstants.SPROCKET_SPEED);
-        rightSprocketMotor.set(-ArmConstants.SPROCKET_SPEED);
-        } else {
-        leftSprocketMotor.set(0);
-        rightSprocketMotor.set(0);
-        }
+    // public void down(){
+    //     if(isSprocketSafe && canGoDown){
+    //     isUsingPID = false;
+    //     leftSprocketMotor.set(-ArmConstants.SPROCKET_SPEED);
+    //     rightSprocketMotor.set(-ArmConstants.SPROCKET_SPEED);
+    //     } else {
+    //     leftSprocketMotor.set(0);
+    //     rightSprocketMotor.set(0);
+    //     }
             
 
-    }
+    // }
 
     //commmand for manually moving the sprocket using the DPAD
-    public Command downCommand(){
-        return Commands.runOnce(() -> down());
-    }
+    // public Command downCommand(){
+    //     return Commands.runOnce(() -> down());
+    // }
 
     //moves the sprocket based off of joystick input
     //this is the default command
 
     public void moveSprocket(){
-        if(isSprocketSafe){
+        //checks for safeties and if it is safe, it will then set the motors to that speed
+        if((!canGoUp && inputForSprocket > 0 ) || (!canGoDown && inputForSprocket < 0)) {
+        leftSprocketMotor.set(0);
+        rightSprocketMotor.set(0);
+        } else {
+        isUsingPID = false;
         leftSprocketMotor.set(inputForSprocket);
         rightSprocketMotor.set(inputForSprocket);
         }
-        else if(canGoUp){
-        leftSprocketMotor.set(Math.abs(inputForSprocket));
-        rightSprocketMotor.set(Math.abs(inputForSprocket));
-        } else if(canGoDown) {
-        leftSprocketMotor.set(-Math.abs(inputForSprocket));
-        rightSprocketMotor.set(-Math.abs(inputForSprocket));
-        }
-            
-        else {
-        leftSprocketMotor.set(0);
-        rightSprocketMotor.set(0);
-        }
-
-        if(Math.abs(inputForSprocket) < .04){
-            isUsingPID = true;
-        } else isUsingPID = false;
-
-                
-
     }
 
     //command for the moveSprocket method
@@ -162,28 +155,47 @@ public class Sprocket extends SubsystemBase {
     }
   
     public void periodic() {
-        if (isUsingPID && isSprocketSafe) {
+
+        //if the sprocket cant go up and its trying to go up (by either setting the setpoint to something above
+        //the safety or by supplying it with a positive voltage, it will immediately set PID to false and stop 
+        //the sprocket(vice versa for the bottom limit)
+        
+        if ((!canGoUp 
+        && (pidController.getSetpoint() > 61 
+        || pidController.calculate(getRawPosition()) > 0.5))
+
+        || (!canGoDown 
+        && (pidController.getSetpoint() < 23) 
+        || pidController.calculate(getRawPosition()) < -0.5) ){
+
+            isUsingPID = false;
+            stop();
+
+        }
+        //if the following statement did not trigger and we are using pid and it is fully safe,
+        //or it is at the top limit and trying to go down, or if it as the bottomLimit and trying to go up,
+        //it will set the motors to the voltage calculated by PID.
+        else if (isUsingPID && ((!canGoUp && pidController.getSetpoint() < 61) || (!canGoDown && inputForSprocket < 0) || isSprocketSafe)) {
             leftSprocketMotor.setVoltage(pidController.calculate(getRawPosition()));
             rightSprocketMotor.setVoltage(pidController.calculate(getRawPosition()));
-            System.out.println(pidController.calculate(getRawPosition()));
         }
+
         if (!isSprocketSafe) {
             Sprocket.stop();
             isUsingPID = false;
-        }
-        // System.out.println("isUSINGPID" + isUsingPID +"  issafe" + isSprocketSafe);
-        
-     canGoUp = getRawPosition() < (ArmConstants.ENCODER_MAX_ANGLE - 5);
-     canGoDown = getRawPosition() > (ArmConstants.ENCODER_MIN_ANGLE + 5);
-     isSprocketSafe = getRawPosition() < Constants.ArmConstants.ENCODER_MAX_ANGLE-2 || absoluteEncoder.getAbsolutePosition() > Constants.ArmConstants.ENCODER_MIN_ANGLE+2;
+        }        
+        //safety booleans
+        canGoUp = getRawPosition() < (ArmConstants.ENCODER_MAX_ANGLE - 2);
+        canGoDown = getRawPosition() > (ArmConstants.ENCODER_MIN_ANGLE + 2);
+        isSprocketSafe = getRawPosition() < Constants.ArmConstants.ENCODER_MAX_ANGLE-2 || absoluteEncoder.getAbsolutePosition() > Constants.ArmConstants.ENCODER_MIN_ANGLE+2;
     
-    inputForSprocket = RobotContainer.operatorController.getLeftY();
-    inputForSprocket = inputForSprocket * inputForSprocket * inputForSprocket;
+        //calculates the input for the sprocket     
+        inputForSprocket = RobotContainer.operatorController.getLeftY();
+        inputForSprocket = inputForSprocket * inputForSprocket * inputForSprocket;
     
         if(Math.abs(inputForSprocket)<.04){
             inputForSprocket = 0;
             isUsingPID = true;
         } else isUsingPID = false;
-
     }
 }
