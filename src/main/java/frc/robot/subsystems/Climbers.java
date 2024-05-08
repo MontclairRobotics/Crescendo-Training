@@ -27,13 +27,11 @@ public class Climbers extends SubsystemBase{
         leftClimberMotor.set(Constants.ClimberConstants.CLIMBER_SPEED);
         rightClimberMotor.set(Constants.ClimberConstants.CLIMBER_SPEED);
     }
-
     //stop the climber motors
     public void stop(){
         leftClimberMotor.set(0);
         rightClimberMotor.set(0);
     }
-
     //start in the reverse direction
     public void reverse(){
         leftClimberMotor.set(-Constants.ClimberConstants.CLIMBER_SPEED);
@@ -42,5 +40,13 @@ public class Climbers extends SubsystemBase{
     //Start Command
     public Command startCommand(){
         return Commands.runOnce(() -> {start();}, this);
+    }
+    //stop Command
+    public Command stopCommand(){
+        return Commands.runOnce(() -> {stop();}, this);
+    }
+    //reverse Command
+    public Command reverseCommand(){
+        return Commands.runOnce(() -> {reverse();}, this);
     }
 }
