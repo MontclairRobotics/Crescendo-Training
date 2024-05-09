@@ -52,7 +52,7 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(drivetrain.driveCommand());
 
     //sets the default command for the sprocket to be in manual control
-    // sprocket.setDefaultCommand(sprocket.moveSprocketCommand());
+    sprocket.setDefaultCommand(sprocket.moveSprocketCommand());
 
     //calls the configureBindings method which binds the buttons to certain commands
     configureBindings();
@@ -74,7 +74,7 @@ public class RobotContainer {
     operatorController.circle().onTrue(sprocket.setAngleCommand(35));
     operatorController.triangle().onTrue(sprocket.setAngleCommand(50));
     //brake mode
-    operatorController.touchpad().whileFalse(sprocket.brakeModeCommand()).whileTrue(sprocket.setCoastModeCommand());
+    operatorController.touchpad().onTrue(sprocket.setCoastModeCommand().ignoringDisable(true)).onFalse(sprocket.brakeModeCommand().ignoringDisable(true));
     // ControllerTools.getDPad(DPad.DOWN, operatorController).onTrue(sprocket.downCommand()).onFalse(sprocket.stopCommand());
     // ControllerTools.getDPad(DPad.UP, operatorController).onTrue(sprocket.upCommand()).onFalse(sprocket.stopCommand());
     // //driver bindings
