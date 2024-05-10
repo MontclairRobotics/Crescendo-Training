@@ -135,22 +135,17 @@ public final class Constants {
 
   //arm stuff
   public static class ArmConstants {
-  
     public static final double SPROCKET_ROTATIONS_PER_DEGREE = 1.26984126984;
     public static final double ENCODER_MIN_ANGLE = 26;
     public static final double ENCODER_MAX_ANGLE = 63;
     public static final double SPROCKET_SPEED = .5;
+    public static final double SPROCKET_ANGLE_DEADBAND = 2;
     //Both inverts are true, at least in our program (motors are mounted in same direction)
-    
   }
-  
-
   //Shooter constants
   public class ShooterConstants {
-
-      public static final double SPEAKER_SPEED_RPM = 25;
+      public static final double SPEAKER_SPEED_RPS = 25;
       public static final double SHOOT_SPEAKER_VELOCITY = 4000;
-
   }
   
 }

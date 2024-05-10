@@ -36,7 +36,7 @@ public class Intake extends SubsystemBase {
        
     }
     public Command inhaleCommand(){
-        return Commands.run(()-> inhale(), this).onlyWhile(getBB()).finallyDo(() ->holdBreath());
+        return Commands.runOnce(()-> inhale(), this).onlyWhile(getBB()).finallyDo(() ->holdBreath());
     }
     // Reverses intake motors
     public void exhale(){
@@ -52,7 +52,7 @@ public class Intake extends SubsystemBase {
     }
     //command for reverse intaking
     public Command exhaleCommand (){
-        return Commands.run(() -> {exhale();}, this).finallyDo(() -> {holdBreath();
+        return Commands.runOnce(() -> {exhale();}, this).finallyDo(() -> {holdBreath();
         Transport.stop();});
     }
     //command to stop the intake motors

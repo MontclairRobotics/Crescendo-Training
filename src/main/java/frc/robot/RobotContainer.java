@@ -29,7 +29,7 @@ public class RobotContainer {
     public static Sprocket sprocket = new Sprocket();
 
     //new auto object
-    // public Auto auto = new Auto();
+    public Auto auto = new Auto();
 
     //new autoBuilder object
     public static AutoBuilder autoBuilder = new AutoBuilder();
@@ -52,7 +52,7 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(drivetrain.driveCommand());
 
     //sets the default command for the sprocket to be in manual control
-    sprocket.setDefaultCommand(sprocket.moveSprocketCommand());
+    sprocket.setDefaultCommand(sprocket.sprocketDefaultCommand());
 
     //calls the configureBindings method which binds the buttons to certain commands
     configureBindings();
@@ -74,7 +74,7 @@ public class RobotContainer {
     operatorController.circle().onTrue(sprocket.setAngleCommand(35));
     operatorController.triangle().onTrue(sprocket.setAngleCommand(50));
     //brake mode
-    operatorController.touchpad().onTrue(sprocket.setCoastModeCommand().ignoringDisable(true)).onFalse(sprocket.brakeModeCommand().ignoringDisable(true));
+    operatorController.touchpad().onTrue(sprocket.setCoastModeCommand().ignoringDisable(true)).onFalse(sprocket.setBrakeModeCommand().ignoringDisable(true));
     // ControllerTools.getDPad(DPad.DOWN, operatorController).onTrue(sprocket.downCommand()).onFalse(sprocket.stopCommand());
     // ControllerTools.getDPad(DPad.UP, operatorController).onTrue(sprocket.upCommand()).onFalse(sprocket.stopCommand());
     // //driver bindings
@@ -83,8 +83,6 @@ public class RobotContainer {
 
     // ControllerTools.getDPad(DPad.UP, driverController).onTrue(RobotContainer.sprocket.setAngleCommand(63));
     // ControllerTools.getDPad(DPad.DOWN, driverController).onTrue(RobotContainer.sprocket.setAngleCommand(26));
-
-    //testing bindings. most likely will not use.
   }
 
   /**
@@ -93,6 +91,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return Commands.runOnce(() -> {});
+    return Commands.runOnce(() -> auto.runAutoSequentialCommandGroup());
   }
 }

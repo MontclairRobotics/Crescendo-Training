@@ -38,25 +38,18 @@ public class Shooter extends SubsystemBase {
    //Creates the motors involved in the shooter mechanism
   public static CANSparkMax topMotor = new CANSparkMax(Ports.SHOOTER_TOP_MOTOR, MotorType.kBrushless);
   public static CANSparkMax bottomMotor = new CANSparkMax(Ports.SHOOTER_BOTTOM_MOTOR, MotorType.kBrushless);
- 
   //Creates velocity PID controllers for shooter
    SparkPIDController topController = topMotor.getPIDController();
    SparkPIDController bottomController = bottomMotor.getPIDController();
- 
   //Creates the encoders for shooter
   static RelativeEncoder topEncoder = topMotor.getEncoder();
   static RelativeEncoder bottomEncoder = bottomMotor.getEncoder();
-  
-  
-  //Create 
-  //TODO: Tune feedforward
+  //Creates feedforward
   public static SimpleMotorFeedforward topFeedforward = new SimpleMotorFeedforward(0.1639,0.13481,0.025138);
   public static SimpleMotorFeedforward bottomFeedforward = new SimpleMotorFeedforward(0.20548,0.13256,0.020699);
-
-
+ 
   /** Creates a new Shooter. */
   public Shooter() {
-    //TODO: Tune PID
     topController.setP(6.6337E-06, 1);
     topController.setD(0, 1);
 
@@ -73,75 +66,51 @@ public class Shooter extends SubsystemBase {
   public DoubleSupplier velocitySupplier(CANSparkMax motor){
     return () -> getVelocity(motor);
   }
-    //Shooter methods
-
     //sets both shooter motors to the same velocity, meaning the motors will spin to that velocity
     public void setVelocity (double velocity) {
-        //calculates the feedforward value using the .calculate method and sets it to 
-        //a double to be used in the .setReference, which will automaitcally spin the motors
         double topFeedforwardValue = topFeedforward.calculate(velocity);
         double bottomFeedforwardValue = bottomFeedforward.calculate(velocity);
-
-        //sets the reference using the target velocity, the control type, the pidslot, and the calculated
-        //feedforward value above
         topController.setReference(velocity, ControlType.kVelocity, 1, topFeedforwardValue );
         bottomController.setReference(velocity, ControlType.kVelocity, 1, bottomFeedforwardValue );
     }
-    //sets the top and bottom motors to different velocities
-    //method overloading
     public void setVelocity (double topVelocity, double bottomVelocity) {
         double topFeedforwardValue = topFeedforward.calculate(topVelocity);
         double bottomFeedforwardValue = bottomFeedforward.calculate(bottomVelocity);
-
         topController.setReference(topVelocity, ControlType.kVelocity, 1, topFeedforwardValue );
         bottomController.setReference(bottomVelocity, ControlType.kVelocity, 1, bottomFeedforwardValue );
     }
-    //TODO: write this properly
-    public boolean isAtVelocity (double velocityRPM) {
-      if(getVelocity(topMotor) > (velocityRPM - 1.4) && 
-         getVelocity(topMotor) < (velocityRPM + 1.4) &&
-         getVelocity(bottomMotor) > (velocityRPM - 1.4) && 
-         getVelocity(bottomMotor) < (velocityRPM + 1.4)
-      ) {
-        return true;
-      }
+    public boolean isAtVelocity (double velocityRPS) {
+      if(getVelocity(topMotor) > (velocityRPS - 1.4) && 
+         getVelocity(topMotor) < (velocityRPS + 1.4) &&
+         getVelocity(bottomMotor) > (velocityRPS - 1.4) && 
+         getVelocity(bottomMotor) < (velocityRPS + 1.4)) return true;
       else return false;
     }
-
   //Shooter Commands
   public void shootSpeaker(){
-    setVelocity(ShooterConstants.SPEAKER_SPEED_RPM);
-    if(isAtVelocity(ShooterConstants.SPEAKER_SPEED_RPM)){
+    setVelocity(ShooterConstants.SPEAKER_SPEED_RPS);
+    if(isAtVelocity(ShooterConstants.SPEAKER_SPEED_RPS)){
       Transport.start();
     }
-    System.out.println("hiiiii");
   }
 
   public static double getVelocity(CANSparkMax motor){
       return motor.getEncoder().getVelocity();
   }
-
-  //TODO: create constants for amp speeds and speaker speeds.
-  //TODO: test and get real amp speeds.
   public Command shootSpeakerCommand () {
-    return Commands.run(() -> {RobotContainer.shooter.shootSpeaker();});
-  
+    return Commands.runOnce(() -> {RobotContainer.shooter.shootSpeaker();});
   }
-  
   public Command shootAmpCommand () {
     return Commands.runOnce(() -> {RobotContainer.shooter.setVelocity(2000,1500);});
   }
-
   public void stop(){
     topMotor.set(0);
     bottomMotor.set(0);
     Transport.stop();
   }
-
   public Command stopCommand(){
     return Commands.runOnce(() -> stop());
   }
-
   //Start of SysID
   public SysIdRoutine getSysIdRoutine () {
 
@@ -214,8 +183,6 @@ public class Shooter extends SubsystemBase {
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
     return getSysIdRoutine().dynamic(direction);
   }
-  
-
   //This is the command group that runs the SysIDRoutine
   public SequentialCommandGroup SysIDCommand = new SequentialCommandGroup(
       sysIdDynamic(SysIdRoutine.Direction.kForward),
