@@ -28,15 +28,39 @@ import frc.robot.Constants.DriveConstants;
 public class Auto extends SubsystemBase {
 
   //the string that is inputed to the driverstation by the user
-  String autoString;
 
+  public static String autoString;
+  public String testAutoString;
+
+  public boolean isFromNoteScoringLocation;
+    public boolean isFromScoringLocation;
+    public boolean isFromCloseNote;
+    public boolean isFromNote;
+    // boolean isFromFarNote;
+
+    public boolean isGoingToNoteScoringLocation;
+    public boolean isGoingToScoringLocation;
+    public boolean isGoingToCloseNote;
+    public boolean isGoingToNote;
+    // boolean isGoingToFarNote;
+    
+    boolean shouldIntake;
+    boolean shouldShoot;
+
+    char previous = 'X';
+    char current;
+    char next;
+    String pathName;
+
+
+  public boolean isAutoStringValid;
   //the string that is sent to the driver as their feedback
   String feedback; 
 
   //instance variables of the arrays used in the autoSequencer
   private char[] allNotes;
   private char[] closeNotes;
-  private char[] scoringLocations;
+  public char[] scoringLocations;
   private char[] startingLocations;
   private char[] farNotes;
 
@@ -72,11 +96,14 @@ public class Auto extends SubsystemBase {
   /** Creates a new Auto. */
   public Auto() {
 
+     testAutoString = "111";
+     autoString = "2BBAAC5";
+
     //creates the array of all STARTING locations
     startingLocations = new char[]{'1','2','3'};
 
     //creates the array of all SCORING locations
-    scoringLocations = new char[]{'A','B','C','4','5','1','2','3'};
+    scoringLocations = new char[]{'4','5','1','2','3'};
 
     //creates the array of all the notes
     allNotes = new char[]{'A','B','C','D','E','F','G','H'};
@@ -89,11 +116,13 @@ public class Auto extends SubsystemBase {
 
     //creates the input for the autoString; i already tried but i gave up
     //TOdO: figure out how to recieve a text entry
-    autoString = "";
 
-    boolean isAutoStringValid = true;
+    feedback = "f";
 
-    feedback = "Looks good!";
+    boolean isAutoValid = autoSequencer();
+    Shuffleboard.getTab("Driver Station").add("Is auto valid:", isAutoValid).withPosition(1,2);
+    Shuffleboard.getTab("Driver Station").add("Feedback:", feedback).withSize(5,1);
+
 
     //sets the value of the offset (again, since our drivetrain is square, this is zero)
     centerOfRotationMeters = new Translation2d(0,0);
@@ -105,7 +134,7 @@ public class Auto extends SubsystemBase {
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
                     new PIDConstants(8.12, 0.0, 0.0), // Translation PID constants
                     new PIDConstants(.01, 0.0, 0.07), // Rotation PID constants
-                    RobotContainer.drivetrain.maximumSpeed, // Max module speed, in m/s
+                    Drivetrain.maximumSpeed, // Max module speed, in m/s
                     DriveConstants.DRIVE_BASE_RADIUS, // Drive base radius in meters. Distance from robot center to furthest module.
                     new ReplanningConfig() // Default path replanning config. See the API for the options here
             ),
@@ -146,8 +175,6 @@ public class Auto extends SubsystemBase {
   //creates the command group for the auto
   public static SequentialCommandGroup autoCommandGroup = new SequentialCommandGroup();
 
-  private static boolean isAutoStringValid;
-
   //method to easily add paths to a sequential command group
   public void addPathToGroup (String pathString){
     autoCommandGroup.addCommands(AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathString)));
@@ -157,7 +184,8 @@ public class Auto extends SubsystemBase {
     RobotContainer.intake.inhaleCommand();
   }
   public Command followPathCommand(String pathString) {
-      return Commands.runOnce(() -> {AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathString));}, this, RobotContainer.drivetrain);
+      PathPlannerPath path = PathPlannerPath.fromPathFile(pathString);
+      return Commands.runOnce(() -> {AutoBuilder.followPath(path);}, this, RobotContainer.drivetrain);
   }
   public Command followPathAndIntakeCommand(String pathString){
       return Commands.runOnce(() -> followPathAndIntakeMethod(pathString), this, RobotContainer.intake, RobotContainer.drivetrain);
@@ -169,55 +197,46 @@ public class Auto extends SubsystemBase {
       return Commands.runOnce(() -> followPathCommand(pathString), this, RobotContainer.drivetrain).andThen(() -> RobotContainer.shooter.shootAmpCommand(), this, RobotContainer.shooter);
     }
   }
-  
+  //TODO: load path file when building sequence 
+  //add .follow path to sequence instread of .followpath command
+  //add try catch bllock.
 
-  public void setFeedback(String theFeedbackInput, boolean isTheAutoStringVaild) {
+  public void setFeedback(String theFeedbackInput) {
     feedback = theFeedbackInput;
-    isAutoStringValid = isTheAutoStringVaild;
   }
 
   //AUTOSEQUENCER
-  public boolean autoSequencerAndValidator() {
+  public boolean autoSequencer() {
     
+    //TODO: figure out why this isnt working
     if(isIn(autoString.charAt(0), startingLocations)) autoCommandGroup.addCommands(RobotContainer.shooter.shootSpeakerCommand());
-    else setFeedback("That's not a real starting location", false);
+    else {
+      setFeedback("That's not a real starting location");
+      isAutoStringValid = false;
+    }
 
-    boolean isFromNoteScoringLocation;
-    boolean isFromScoringLocation;
-    boolean isFromCloseNote;
-    boolean isFromNote;
-    boolean isFromFarNote;
-
-    boolean isGoingToNoteScoringLocation;
-    boolean isGoingToScoringLocation;
-    boolean isGoingToCloseNote;
-    boolean isGoingToNote;
-    boolean isGoingToFarNote;
-    
-    boolean shouldIntake;
-    boolean shouldShoot;
-
-    char previous = 'X';
-    char current;
-    char next;
-    String pathName;
+    isAutoStringValid = true;
 
     for(int i=0; i<autoString.length(); i++){
  
-      if(i != 0) previous = autoString.charAt(i-1);
       current = autoString.charAt(i);
-      next = autoString.charAt(i+1);
+      System.out.println(i + " " + current );
+      if(i != 0) previous = autoString.charAt(i-1);
+      
+      if(i < autoString.length() -1) next = autoString.charAt(i+1);
+      else next = 'X';
+    
       pathName = current + "-" + next;
 
       isFromScoringLocation = isIn(current, scoringLocations);
       isFromCloseNote = isIn(current, closeNotes);
       isFromNote = isIn(current, allNotes);
-      isFromFarNote = isIn(current, farNotes);
+      // isFromFarNote = isIn(current, farNotes);
 
       isGoingToScoringLocation = isIn(next, scoringLocations);
       isGoingToCloseNote = isIn(next, closeNotes);
       isGoingToNote = isIn(next, allNotes);
-      isGoingToFarNote = isIn(next, farNotes);
+      // isGoingToFarNote = isIn(next, farNotes);
 
       isGoingToNoteScoringLocation = isGoingToCloseNote && isFromNote;
       isFromNoteScoringLocation = isFromCloseNote && isIn(previous, allNotes);
@@ -225,16 +244,24 @@ public class Auto extends SubsystemBase {
       shouldIntake = isGoingToNote && (isFromScoringLocation || isFromNoteScoringLocation);
       shouldShoot = isFromNote && (isGoingToScoringLocation || isGoingToNoteScoringLocation);
 
+      System.out.println("From: " + isFromScoringLocation);
+      System.out.println("Going to: " + isGoingToScoringLocation);
       //auto string validator part
       if(isFromNote && isGoingToNote){
-        if(!isGoingToNoteScoringLocation) setFeedback("Don't go between two notes when you are not scoring at one of them", false);
+        if(!isGoingToNoteScoringLocation) {
+          isAutoStringValid = false;
+          setFeedback("Don't go between two notes when you are not scoring at one of them.");
+      } 
       }
-      if((isFromScoringLocation || isFromNoteScoringLocation) && (isGoingToScoringLocation || isGoingToNoteScoringLocation)){
-        setFeedback("Don't go between two scoring locations", false);
+
+      if(isFromScoringLocation   &&  isGoingToScoringLocation ){
+        isAutoStringValid = false;
+        setFeedback("Don't go between two scoring locations");      
       }
       
       //builds the sequential command group
       if(isAutoStringValid){
+        feedback = "looks good";
         if(shouldIntake){
           autoCommandGroup.addCommands(followPathAndIntakeCommand(pathName));
         } 
@@ -243,13 +270,20 @@ public class Auto extends SubsystemBase {
           else if(next == '4') autoCommandGroup.addCommands(followPathAndShootCommand(pathName, true));
           else autoCommandGroup.addCommands(followPathAndShootCommand(pathName, false));
         }
+        // setFeedback("Looks Good!", true);
       }
-    }
-
-    //return statement
-    return isAutoStringValid;
     
+
+    // System.out.println("the auto sequencer finished");
+    //return statement
+   } 
+   
+  System.out.println("feedback: "+ feedback);
+  System.out.println("is the string valid:" + isAutoStringValid);
+   return isAutoStringValid; 
+  
   } //end of is AutoStringValid
+  
 
   public SequentialCommandGroup runAutoSequentialCommandGroup(){
     return autoCommandGroup;
@@ -257,6 +291,7 @@ public class Auto extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    // System.out.println("hi")
   }
 
 }

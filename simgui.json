@@ -13,6 +13,7 @@
       "/FMSInfo": "FMSInfo",
       "/Shuffleboard/Auto/Field": "Field2d",
       "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/Pigeon 2 (v6) [25]": "Gyro",
       "/SmartDashboard/Pigeon 2 (v6) [50]": "Gyro",
       "/SmartDashboard/navX-Sensor[4]": "Gyro"
     }

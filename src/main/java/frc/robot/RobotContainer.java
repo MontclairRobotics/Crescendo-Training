@@ -28,21 +28,23 @@ public class RobotContainer {
     //the method.
     public static Sprocket sprocket = new Sprocket();
 
+    public static Shooter shooter = new Shooter();
+    public static Drivetrain drivetrain = new Drivetrain();
+
     //new auto object
-    public Auto auto = new Auto();
+    public static Auto auto = new Auto();
 
     //new autoBuilder object
     public static AutoBuilder autoBuilder = new AutoBuilder();
 
     //new Shooter object
-    public static Shooter shooter = new Shooter();
+
 
     //all the different controllers used to configure button bindings
     public static CommandPS5Controller driverController = new CommandPS5Controller(0);
     public static CommandPS5Controller operatorController = new CommandPS5Controller(1);
     public static CommandPS5Controller testingController = new CommandPS5Controller(2);
-    public static Drivetrain drivetrain = new Drivetrain();
-  
+
     //Constructor...these comments are killing me...
     public RobotContainer() {
 

@@ -31,7 +31,7 @@ public class Drivetrain extends SubsystemBase {
   public Pigeon2 gyro;
   public boolean FieldRelative;
   public double rotationSpeed;
-  public double maximumSpeed;
+  public static double maximumSpeed;
   public File swerveJsonDirectory;
   public SwerveDrive swerveDrive;
   public Translation2d centerOfRotationMeters;

@@ -5,6 +5,8 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.subsystems.Auto;
+import frc.robot.RobotContainer;
 
 /**
  * Do NOT add any static variables to this class, or any initialization at all. Unless you know what
@@ -21,5 +23,10 @@ public final class Main {
    */
   public static void main(String... args) {
     RobotBase.startRobot(Robot::new);
+
+    // Auto autoo = new Auto();
+    // boolean fd = autoo.autoSequencer();
+
+    // System.out.println(fd + "");
   }
 }
