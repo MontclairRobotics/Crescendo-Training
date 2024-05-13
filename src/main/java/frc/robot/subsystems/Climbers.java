@@ -16,8 +16,11 @@ public class Climbers extends SubsystemBase{
     DigitalInput leftlimitSwitch = new DigitalInput(Constants.Ports.CLIMBER_LEFT_LIMIT_SWITCH_PORT);
     DigitalInput rightlimitSwitch = new DigitalInput(Constants.Ports.CLIMBER_RIGHT_LIMIT_SWITCH_PORT);
 
+    boolean canRightClimberGo = true;
+    boolean canLeftClimberGoOther = false;
+
     public Climbers(){
-        leftClimberMotor.setInverted(true);
+        leftClimberMotor.setInverted(true); //Do we need this?
         rightClimberMotor.setInverted(true);
         leftClimberMotor.setIdleMode(IdleMode.kBrake);
         rightClimberMotor.setIdleMode(IdleMode.kBrake);
@@ -48,5 +51,19 @@ public class Climbers extends SubsystemBase{
     //reverse Command
     public Command reverseCommand(){
         return Commands.runOnce(() -> {reverse();}, this);
+    }
+
+    public void periodic(){
+        if (rightlimitSwitch.get()) {
+            canRightClimberGo = false;
+        } else {
+            canRightClimberGo = true;
+        }
+        if (leftlimitSwitch.get()) {
+            canLeftClimberGoOther = false;
+        } else {
+            canLeftClimberGoOther = false;
+        }
+
     }
 }
