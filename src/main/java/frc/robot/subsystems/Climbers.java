@@ -16,8 +16,8 @@ public class Climbers extends SubsystemBase{
     DigitalInput leftlimitSwitch = new DigitalInput(Constants.Ports.CLIMBER_LEFT_LIMIT_SWITCH_PORT);
     DigitalInput rightlimitSwitch = new DigitalInput(Constants.Ports.CLIMBER_RIGHT_LIMIT_SWITCH_PORT);
 
-    boolean canRightClimberGo = true;
-    boolean canLeftClimberGoOther = false;
+    boolean canRightClimberGoDown = true;
+    boolean canLeftClimberGoDown = true;
 
     public Climbers(){
         leftClimberMotor.setInverted(true); //Do we need this?
@@ -26,7 +26,7 @@ public class Climbers extends SubsystemBase{
         rightClimberMotor.setIdleMode(IdleMode.kBrake);
     }
     //start climber motors
-    public void start(){
+    public void goUp(){
         leftClimberMotor.set(Constants.ClimberConstants.CLIMBER_SPEED);
         rightClimberMotor.set(Constants.ClimberConstants.CLIMBER_SPEED);
     }
@@ -36,33 +36,41 @@ public class Climbers extends SubsystemBase{
         rightClimberMotor.set(0);
     }
     //start in the reverse direction
-    public void reverse(){
-        leftClimberMotor.set(-Constants.ClimberConstants.CLIMBER_SPEED);
-        rightClimberMotor.set(-Constants.ClimberConstants.CLIMBER_SPEED);
+    public void goDown(){
+        if(canLeftClimberGoDown){
+            leftClimberMotor.set(-Constants.ClimberConstants.CLIMBER_SPEED);
+        } else {
+            leftClimberMotor.set(0);
+        }
+        if(canRightClimberGoDown){
+            rightClimberMotor.set(-Constants.ClimberConstants.CLIMBER_SPEED);
+        } else {
+            rightClimberMotor.set(0);
+        }
     }
     //Start Command
-    public Command startCommand(){
-        return Commands.runOnce(() -> {start();}, this);
+    public Command goUpCommand(){
+        return Commands.runOnce(() -> {goUp();}, this);
     }
     //stop Command
     public Command stopCommand(){
         return Commands.runOnce(() -> {stop();}, this);
     }
     //reverse Command
-    public Command reverseCommand(){
-        return Commands.runOnce(() -> {reverse();}, this);
+    public Command goDownCommand(){
+        return Commands.runOnce(() -> {goDown();}, this);
     }
 
     public void periodic(){
         if (rightlimitSwitch.get()) {
-            canRightClimberGo = false;
+            canRightClimberGoDown = false;
         } else {
-            canRightClimberGo = true;
+            canRightClimberGoDown = true;
         }
         if (leftlimitSwitch.get()) {
-            canLeftClimberGoOther = false;
+            canLeftClimberGoDown = false;
         } else {
-            canLeftClimberGoOther = false;
+            canLeftClimberGoDown = true;
         }
 
     }
