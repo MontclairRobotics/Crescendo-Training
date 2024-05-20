@@ -72,8 +72,8 @@ public class RobotContainer {
     operatorController.square().onTrue(shooter.shootAmpCommand()).onFalse(shooter.stopCommand());
 
     //Climber
-    ControllerTools.getDPad(DPad.DOWN, operatorController).onTrue(Climbers.downCommand()).onFalse(Climbers.stopCommand());
-    ControllerTools.getDPad(DPad.UP, operatorController).onTrue(Climbers.upCommand()).onFalse(Climbers.stopCommand());
+    ControllerTools.getDPad(DPad.DOWN, operatorController).onTrue(climbers.downCommand()).onFalse(climbers.stopCommand());
+    ControllerTools.getDPad(DPad.UP, operatorController).onTrue(climbers.upCommand()).onFalse(climbers.stopCommand());
 
     //intakes
     operatorController.L1().whileTrue(intake.inhaleCommand());
