@@ -10,13 +10,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import frc.robot.subsystems.Auto;
+import frc.robot.subsystems.Climbers;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Sprocket;
 import frc.robot.util.ControllerTools;
 import frc.robot.util.ControllerTools.DPad;
-import swervelib.SwerveDrive;
 
 
 public class RobotContainer {
@@ -30,6 +30,9 @@ public class RobotContainer {
 
     public static Shooter shooter = new Shooter();
     public static Drivetrain drivetrain = new Drivetrain();
+
+    //Creates new Climbers object
+    public static Climbers climbers = new Climbers();
 
     //new auto object
     public static Auto auto = new Auto();
@@ -68,6 +71,10 @@ public class RobotContainer {
     operatorController.cross().whileTrue(shooter.shootSpeakerCommand()).onFalse(shooter.stopCommand());
     operatorController.square().onTrue(shooter.shootAmpCommand()).onFalse(shooter.stopCommand());
 
+    //Climber
+    ControllerTools.getDPad(DPad.DOWN, operatorController).onTrue(Climbers.downCommand()).onFalse(Climbers.stopCommand());
+    ControllerTools.getDPad(DPad.UP, operatorController).onTrue(Climbers.upCommand()).onFalse(Climbers.stopCommand());
+
     //intakes
     operatorController.L1().whileTrue(intake.inhaleCommand());
     operatorController.R1().whileTrue(intake.exhaleCommand());
@@ -77,10 +84,10 @@ public class RobotContainer {
     operatorController.triangle().onTrue(sprocket.setAngleCommand(50));
     //brake mode
     operatorController.touchpad().onTrue(sprocket.setCoastModeCommand().ignoringDisable(true)).onFalse(sprocket.setBrakeModeCommand().ignoringDisable(true));
-    // ControllerTools.getDPad(DPad.DOWN, operatorController).onTrue(sprocket.downCommand()).onFalse(sprocket.stopCommand());
-    // ControllerTools.getDPad(DPad.UP, operatorController).onTrue(sprocket.upCommand()).onFalse(sprocket.stopCommand());
+    
     // //driver bindings
-    driverController.L1().onTrue(drivetrain.toRobotRelativeCommand()).onFalse(drivetrain.toFieldRelativeCommand());
+    driverController.L1().onTrue(drivetrain.
+    toRobotRelativeCommand()).onFalse(drivetrain.toFieldRelativeCommand());
     driverController.R2().onTrue(drivetrain.zeroGyro());
 
     // ControllerTools.getDPad(DPad.UP, driverController).onTrue(RobotContainer.sprocket.setAngleCommand(63));

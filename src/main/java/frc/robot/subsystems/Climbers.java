@@ -20,13 +20,13 @@ public class Climbers extends SubsystemBase{
     boolean canLeftClimberGoDown = true;
 
     public Climbers(){
-        leftClimberMotor.setInverted(true); //Do we need this?
+        leftClimberMotor.setInverted(true); //we might not need this
         rightClimberMotor.setInverted(true);
         leftClimberMotor.setIdleMode(IdleMode.kBrake);
         rightClimberMotor.setIdleMode(IdleMode.kBrake);
     }
     //start climber motors
-    public void goUp(){
+    public void up(){
         leftClimberMotor.set(Constants.ClimberConstants.CLIMBER_SPEED);
         rightClimberMotor.set(Constants.ClimberConstants.CLIMBER_SPEED);
     }
@@ -36,8 +36,8 @@ public class Climbers extends SubsystemBase{
         rightClimberMotor.set(0);
     }
     //start in the reverse direction
-    public void goDown(){
-        if(canLeftClimberGoDown){
+    public void down(){
+        if(canLeftClimberGoDown){ //this stuff checks the limit switch to make sure it can go down further first
             leftClimberMotor.set(-Constants.ClimberConstants.CLIMBER_SPEED);
         } else {
             leftClimberMotor.set(0);
@@ -49,16 +49,16 @@ public class Climbers extends SubsystemBase{
         }
     }
     //Start Command
-    public Command goUpCommand(){
-        return Commands.runOnce(() -> {goUp();}, this);
+    public Command upCommand(){
+        return Commands.runOnce(()-> up());
     }
     //stop Command
     public Command stopCommand(){
-        return Commands.runOnce(() -> {stop();}, this);
+        return Commands.runOnce(()-> stop());
     }
     //reverse Command
-    public Command goDownCommand(){
-        return Commands.runOnce(() -> {goDown();}, this);
+    public Command downCommand(){
+        return Commands.runOnce(()-> down());
     }
 
     public void periodic(){
@@ -72,6 +72,5 @@ public class Climbers extends SubsystemBase{
         } else {
             canLeftClimberGoDown = true;
         }
-
     }
 }
