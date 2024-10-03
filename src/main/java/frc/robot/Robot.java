@@ -43,21 +43,22 @@ public class Robot extends LoggedRobot {
 
     Shuffleboard.getTab("Debug").addDouble("Top Motor Velocity", topVelocitySupplier).withSize(3,1);
     Shuffleboard.getTab("Debug").addDouble("Bottom Motor Velocity", bottomVelocitySupplier).withSize(3,1);
+    Shuffleboard.getTab("Debug").addDouble("Sprocket angle", RobotContainer.sprocket.sprocketRawPositionVariable);
+    
+    // DoubleLogEntry topMotorVelocity;
+    // DoubleLogEntry bottomMotorVelocity;
 
-    DoubleLogEntry topMotorVelocity;
-    DoubleLogEntry bottomMotorVelocity;
+    // //Starts recording to data log
+    // DataLogManager.start();
+    // //creates datalog
+    // DataLog log = DataLogManager.getLog();
 
-    //Starts recording to data log
-    DataLogManager.start();
-    //creates datalog
-    DataLog log = DataLogManager.getLog();
+    // //ugh
+    // topMotorVelocity = new DoubleLogEntry(log, "topMotorVelocity");
+    // bottomMotorVelocity = new DoubleLogEntry(log, "bottomMotorVelocity");
 
-    //ugh
-    topMotorVelocity = new DoubleLogEntry(log, "topMotorVelocity");
-    bottomMotorVelocity = new DoubleLogEntry(log, "bottomMotorVelocity");
-
-    topMotorVelocity.append(Shooter.getVelocity(Shooter.topMotor));
-    bottomMotorVelocity.append(Shooter.getVelocity(Shooter.bottomMotor));
+    // topMotorVelocity.append(Shooter.getVelocity(Shooter.topMotor));
+    // bottomMotorVelocity.append(Shooter.getVelocity(Shooter.bottomMotor));
   
   }
 
@@ -106,6 +107,7 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    System.out.println("Sprocket: "+ RobotContainer.sprocket.getRawPositionSupplier());
     // System.out.println("From:" + RobotContainer.auto.isFromScoringLocation);
     // System.out.println("Going to:" + RobotContainer.auto.isGoingToScoringLocation);
     // System.out.println(RobotContainer.auto.isIn(Auto.autoString.charAt(0), RobotContainer.auto.scoringLocations));

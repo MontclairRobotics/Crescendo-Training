@@ -54,6 +54,7 @@ public class Auto extends SubsystemBase {
 
 
   public boolean isAutoStringValid;
+  
   //the string that is sent to the driver as their feedback
   String feedback; 
 

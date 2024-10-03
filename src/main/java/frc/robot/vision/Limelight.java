@@ -9,7 +9,7 @@ import frc.robot.Constants;
 import frc.robot.RobotContainer;
 
 public class Limelight {
-    static String camera;
+    static String cameraName = "shooter Limelight";
     NetworkTable Limetable = NetworkTableInstance.getDefault().getTable("limelight");
     NetworkTableEntry ty = Limetable.getEntry("ty");
     double targetOffsetAngle_Vertical = ty.getDouble(0.0);
@@ -19,28 +19,28 @@ public double getDistanceFromLimetoGoal() {
  return distanceFromLimelightToGoalInches;
 }
 public double getTX(){
-    return LimelightHelpers.getLimelightNTDouble(camera, "tx");
+    return LimelightHelpers.getLimelightNTDouble(cameraName, "tx");
 } 
 public double getTY() {
-    return LimelightHelpers.getLimelightNTDouble(camera, "ty");
+    return LimelightHelpers.getLimelightNTDouble(cameraName, "ty");
 } 
 public double getBotPose(){
-    return LimelightHelpers.getLimelightNTDouble(camera, "botpose");
+    return LimelightHelpers.getLimelightNTDouble(cameraName, "botpose");
 }  
 public static void takeSnapshot() {
-        LimelightHelpers.takeSnapshot("","Limelight Snapshot");
+    LimelightHelpers.takeSnapshot("","Limelight Snapshot");
 }
 
 public void setPipeline(Pipetype pipe) {
     if(pipe == Pipetype.DRIVER){ 
-        LimelightHelpers.setCameraMode_Driver(camera);
+        LimelightHelpers.setCameraMode_Driver(cameraName);
     }
     if(pipe == Pipetype.NOTE){
-        LimelightHelpers.setCameraMode_Processor(camera);
+        LimelightHelpers.setCameraMode_Processor(cameraName);
     }
 }
-public void setDefualtPipe() {
-    LimelightHelpers.setCameraMode_Driver(camera);
+public void setDefaultPipe() {
+    LimelightHelpers.setCameraMode_Driver(cameraName);
 }
 public static void estimatePose() {
     LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");

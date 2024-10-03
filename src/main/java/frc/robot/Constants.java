@@ -111,7 +111,7 @@ public final class Constants {
     public static final int CLIMBER_RIGHT_LIMIT_SWITCH_PORT = 4;
 
     // where arm encoder plugs in
-    public static final int SPROCKET_ABS_ENCODER = 3; //9
+    public static final int SPROCKET_ABS_ENCODER = 2; //told to me by taiki and anthony on 10/2/2024
   } 
 
   public static class ClimberConstants {
@@ -140,6 +140,8 @@ public final class Constants {
     public static final double ENCODER_MAX_ANGLE = 63;
     public static final double SPROCKET_SPEED = .5;
     public static final double SPROCKET_ANGLE_DEADBAND = 2;
+    public static final double SPROCKET_OFFSET = -49.2;
+    public static final double SPROCKET_INTAKE_ANGLE = 52;
     //Both inverts are true, at least in our program (motors are mounted in same direction)
   }
   //Shooter constants

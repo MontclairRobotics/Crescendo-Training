@@ -94,8 +94,10 @@ public class Drivetrain extends SubsystemBase {
     
     //gets the input from the driverController and sets it to our xInput, yInput, and rotational input
     //they are multiplied by negative 1 because we have to invert it for some reason
-    double xInput = -1*RobotContainer.driverController.getLeftX();
-    double yInput = -1 *RobotContainer.driverController.getLeftY();
+
+    //in swerve, positive X is the forward direction which is why xInput = getLeftY and vice versa
+    double xInput = -1*RobotContainer.driverController.getLeftY();
+    double yInput = -1*RobotContainer.driverController.getLeftX();
     double rotationInput = -1 *RobotContainer.driverController.getRightX();
     
     //Math.signum returns -1 or positive 1 based on if the value of what you input is negative or positive

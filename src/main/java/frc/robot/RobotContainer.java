@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
@@ -22,78 +23,58 @@ import frc.robot.util.ControllerTools.DPad;
 public class RobotContainer {
     //Creates an intake object. Must be referenced in other classes by doing:
     //RobotContainer.intake.insertExampleMethod();
+  
+    //INSTANTIATING ALL OF THE SUBSYSTEMS
     public static Intake intake = new Intake();
-
-    //Creates new Sprocket object. If you get static issues try referencing the object and then
-    //the method.
     public static Sprocket sprocket = new Sprocket();
-
     public static Shooter shooter = new Shooter();
     public static Drivetrain drivetrain = new Drivetrain();
-
-    //Creates new Climbers object
     public static Climbers climbers = new Climbers();
-
-    //new auto object
     public static Auto auto = new Auto();
-
-    //new autoBuilder object
     public static AutoBuilder autoBuilder = new AutoBuilder();
 
-    //new Shooter object
-
-
-    //all the different controllers used to configure button bindings
+    //INSTANTIATING THE CONTROLLERS
     public static CommandPS5Controller driverController = new CommandPS5Controller(0);
     public static CommandPS5Controller operatorController = new CommandPS5Controller(1);
     public static CommandPS5Controller testingController = new CommandPS5Controller(2);
 
-    //Constructor...these comments are killing me...
+    public static boolean shouldShiftClimberDefaultCommand;
     public RobotContainer() {
 
-    //sets the default command for the drivetrain to take the joystick inputs from
-    //the driverController and converts them into velocitys for the robot to drive
-    //in teleoperated mode
-    drivetrain.setDefaultCommand(drivetrain.driveCommand());
-
-    //sets the default command for the sprocket to be in manual control
-    sprocket.setDefaultCommand(sprocket.sprocketDefaultCommand());
-
-    //calls the configureBindings method which binds the buttons to certain commands
+    //TO CONFIGURE BINDINGS
     configureBindings();
 
-  }//end of constructor.
+    /*sets the default command for the drivetrain to take the joystick inputs from
+    the driverController and converts them into velocities for the robot to drive
+    in teleoperated mode*/
+    drivetrain.setDefaultCommand(drivetrain.driveCommand());
 
-  //Configure key bindings
+    //DEFAULT COMMAND FOR SPROCKET IS MANUAL CONTROL
+    sprocket.setDefaultCommand(sprocket.sprocketDefaultCommand());
+
+    climbers.setDefaultCommand(climbers.DefaultCommand());
+    
+  }
+
   private void configureBindings() {
     
     //Operator bindings
-    operatorController.cross().whileTrue(shooter.shootSpeakerCommand()).onFalse(shooter.stopCommand());
-    operatorController.square().onTrue(shooter.shootAmpCommand()).onFalse(shooter.stopCommand());
+    operatorController.circle().whileTrue(shooter.shootSpeakerCommand()).onFalse(shooter.stopCommand());
+    operatorController.triangle().onTrue(shooter.shootAmpCommand()).onFalse(shooter.stopCommand());
 
-    //Climber
-    ControllerTools.getDPad(DPad.DOWN, operatorController).onTrue(climbers.downCommand()).onFalse(climbers.stopCommand());
-    ControllerTools.getDPad(DPad.UP, operatorController).onTrue(climbers.upCommand()).onFalse(climbers.stopCommand());
+    shouldShiftClimberDefaultCommand = operatorController.L1().getAsBoolean();
+    operatorController.L2().whileTrue(intake.inhaleCommand());
+    operatorController.R2().whileTrue(intake.exhaleCommand());
 
-    //intakes
-    operatorController.L1().whileTrue(intake.inhaleCommand());
-    operatorController.R1().whileTrue(intake.exhaleCommand());
-
-    //sprocket temporary setAngleCommand
-    operatorController.circle().onTrue(sprocket.setAngleCommand(35));
-    operatorController.triangle().onTrue(sprocket.setAngleCommand(50));
-    //brake mode
+    //FOR TESTING
+    //operatorController.cross().onTrue(sprocket.setAngleCommand(35));
+    //operatorController.square().onTrue(sprocket.setAngleCommand(50));
     operatorController.touchpad().onTrue(sprocket.setCoastModeCommand().ignoringDisable(true)).onFalse(sprocket.setBrakeModeCommand().ignoringDisable(true));
     
-    // //driver bindings
-    driverController.L1().onTrue(drivetrain.
-    toRobotRelativeCommand()).onFalse(drivetrain.toFieldRelativeCommand());
-    driverController.R2().onTrue(drivetrain.zeroGyro());
-
-    // ControllerTools.getDPad(DPad.UP, driverController).onTrue(RobotContainer.sprocket.setAngleCommand(63));
-    // ControllerTools.getDPad(DPad.DOWN, driverController).onTrue(RobotContainer.sprocket.setAngleCommand(26));
+    //DRIVER BINDINGS
+    driverController.L1().onTrue(drivetrain.toRobotRelativeCommand()).onFalse(drivetrain.toFieldRelativeCommand());
+    driverController.touchpad().onTrue(drivetrain.zeroGyro());
   }
-
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *

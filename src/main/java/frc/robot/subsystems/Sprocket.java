@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.Ports;
 import frc.robot.RobotContainer;
 
 public class Sprocket extends SubsystemBase {
@@ -25,7 +26,7 @@ public class Sprocket extends SubsystemBase {
     boolean canGoDown;
     double inputForSprocket;
     boolean isAtSetPoint;
-    static DutyCycleEncoder absoluteEncoder = new DutyCycleEncoder(3); 
+    static DutyCycleEncoder absoluteEncoder = new DutyCycleEncoder(Ports.SPROCKET_ABS_ENCODER); 
 
     static PIDController pidController = new PIDController(.8,0,0); 
     static boolean isUsingPID;
@@ -40,12 +41,14 @@ public class Sprocket extends SubsystemBase {
     }
     //gets the actual angle of the encoder with offset
     public static double getRawPosition(){
-        return absoluteEncoder.getDistance()-281.6;
+        return absoluteEncoder.getDistance() + ArmConstants.SPROCKET_OFFSET; 
     }
     //a DoubleSupplier that supplies the actual angle of the encoder for logging purposes
     public DoubleSupplier getRawPositionSupplier(){
         return () -> getRawPosition();
     }
+    public DoubleSupplier sprocketRawPositionVariable = this.getRawPositionSupplier();
+    
     //method for setting the angle using PID
     public void setAngle(Rotation2d angle){
         pidController.setSetpoint(angle.getDegrees());

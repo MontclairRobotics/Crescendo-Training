@@ -14,12 +14,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
+import frc.robot.Constants.ArmConstants;
 
 public class Intake extends SubsystemBase {
     CANSparkMax topIntakeMotor = new CANSparkMax(Constants.Ports.INTAKE_TOP_MOTOR,MotorType.kBrushless);
     CANSparkMax bottomIntakeMotor = new CANSparkMax(Constants.Ports.INTAKE_BOTTOM_MOTOR, MotorType.kBrushless);
     
-    //creates the beambreak as a digitalinput
     DigitalInput beambreak = new DigitalInput(9);
 
     //True means BB is not broken; false means BB is broken
@@ -28,18 +28,14 @@ public class Intake extends SubsystemBase {
     }
     // Starts intake motors
     public void inhale(){
-        
-        RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(52));
+        RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(ArmConstants.SPROCKET_INTAKE_ANGLE));
         topIntakeMotor.set(Constants.IntakeConstants.INTAKE_SPEED);
         bottomIntakeMotor.set(Constants.IntakeConstants.INTAKE_SPEED);
         Transport.start();
-       
-    }
-    public Command inhaleCommand(){
-        return Commands.runOnce(()-> inhale(), this).onlyWhile(getBB()).finallyDo(() ->holdBreath());
     }
     // Reverses intake motors
     public void exhale(){
+        RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(ArmConstants.SPROCKET_INTAKE_ANGLE));
         topIntakeMotor.set(-Constants.IntakeConstants.INTAKE_SPEED);
         bottomIntakeMotor.set(-Constants.IntakeConstants.INTAKE_SPEED);
         Transport.reverse();
@@ -48,7 +44,9 @@ public class Intake extends SubsystemBase {
     public void holdBreath(){
         topIntakeMotor.set(0);
         bottomIntakeMotor.set(0);
-    
+    }
+    public Command inhaleCommand(){
+        return Commands.runOnce(()-> inhale(), this).onlyWhile(getBB()).finallyDo(() ->holdBreath());
     }
     //command for reverse intaking
     public Command exhaleCommand (){
