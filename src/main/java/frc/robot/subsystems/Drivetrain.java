@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import java.io.File;
+import java.util.function.BooleanSupplier;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 
@@ -12,15 +13,19 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.wpilibj.Filesystem;
 import swervelib.parser.SwerveParser;
 import swervelib.SwerveDrive;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.vision.Limelight;
 
 public class Drivetrain extends SubsystemBase {
 
@@ -35,9 +40,20 @@ public class Drivetrain extends SubsystemBase {
   public File swerveJsonDirectory;
   public SwerveDrive swerveDrive;
   public Translation2d centerOfRotationMeters;
+  public double odometryHeading;
+
+
+  public PIDController anglePidController;
+  public double responseForAlignToAngleRobotRelative;
+  public boolean isRobotAtAngleSetPoint;
 
   //constructor
   public Drivetrain() {
+
+  //FOR the auto turn button (robot relative)
+  anglePidController = new PIDController(.01, 0, 0);
+  anglePidController.setTolerance(2);
+
 
   //this makes it so the robot drives with respect to the field
   FieldRelative = true;
@@ -84,11 +100,7 @@ public class Drivetrain extends SubsystemBase {
   public Command toFieldRelativeCommand (){
     return Commands.runOnce(() -> toFieldRelative(), this);
   }
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-    swerveDrive.getPose();
-  }
+  
  
   public void drive () {
     
@@ -141,5 +153,57 @@ public class Drivetrain extends SubsystemBase {
     return Commands.runOnce(() -> {drive();}, this);
    
   }
+  //this is a method to set the setpoint once before running the command to turn the robot automatically
+  //field relative
+  public void setSetPointForAlignToAngleRobotRelativeMethod(double angle){
+    //converts setPoint to field relative angle
+    double setPoint = odometryHeading + angle;
+    anglePidController.setSetpoint(setPoint);
+  }
+  public void alignToAngleRobotRelative() {
+    //creates a blank translation to pass in to the drive function so the robot doesn't move
+    Translation2d translation = new Translation2d(0, 0);
+    //calculates the input for the drive function (NO IDEA IF I SHOULD MULTIPLY THIS BY SOMETHING)
+    //inputs field relative angle (set point is also converted to field relative)
+    responseForAlignToAngleRobotRelative = anglePidController.calculate(odometryHeading);
+    //calls the drive function with no translation but with turning
+    //should work maybe idk
+    swerveDrive.drive(translation, responseForAlignToAngleRobotRelative, false, false);
+    }
+  //command for setting set point
+  public Command setSetPointCommand(double angle) {
+    return Commands.runOnce(() -> {setSetPointForAlignToAngleRobotRelativeMethod(angle);});
+  }
+  //commmand for turning robot robot relative
+  public Command alignToAngleRobotRelativeCommand(){
+    return Commands.run(() -> {alignToAngleRobotRelative();}).onlyIf(isRobotNOTAtAngleSetPoint());
+  }
+  //command that strings the two together
+  public Command alignRobotRelativeCommand(double angle) {
+    return Commands.sequence(setSetPointCommand(angle), alignToAngleRobotRelativeCommand());
+  }
+  public BooleanSupplier isRobotNOTAtAngleSetPoint(){
+    return () -> !isRobotAtAngleSetPoint;
+  }
+
+
+  //SCORING MODE!!!!
+  public void stopScoringMode(){
+
+  }
+
+  public Command scoringMode() {
+    return Commands.parallel(RobotContainer.sprocket.setAngleCommand(40), 
+    alignRobotRelativeCommand(RobotContainer.limelight.getTX()));
+  }
+
+    @Override
+    public void periodic() {
+    // This method will be called once per scheduler run
+    swerveDrive.getPose();
+    odometryHeading = swerveDrive.getPose().getRotation().getDegrees();
+    isRobotAtAngleSetPoint = anglePidController.atSetpoint();
+  }
+  
  
   }

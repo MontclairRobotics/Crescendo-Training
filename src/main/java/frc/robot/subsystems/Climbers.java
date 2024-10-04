@@ -16,8 +16,8 @@ public class Climbers extends SubsystemBase{
     DigitalInput leftlimitSwitch = new DigitalInput(Constants.Ports.CLIMBER_LEFT_LIMIT_SWITCH_PORT);
     DigitalInput rightlimitSwitch = new DigitalInput(Constants.Ports.CLIMBER_RIGHT_LIMIT_SWITCH_PORT);
 
-    boolean canRightClimberGoDown = true;
-    boolean canLeftClimberGoDown = true;
+    boolean canRightClimberGoDown;
+    boolean canLeftClimberGoDown;
 
     double rightInput = 0;
     double leftInput = 0;

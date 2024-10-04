@@ -18,6 +18,7 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Sprocket;
 import frc.robot.util.ControllerTools;
 import frc.robot.util.ControllerTools.DPad;
+import frc.robot.vision.Limelight;
 
 
 public class RobotContainer {
@@ -32,6 +33,7 @@ public class RobotContainer {
     public static Climbers climbers = new Climbers();
     public static Auto auto = new Auto();
     public static AutoBuilder autoBuilder = new AutoBuilder();
+    public static Limelight limelight = new Limelight();
 
     //INSTANTIATING THE CONTROLLERS
     public static CommandPS5Controller driverController = new CommandPS5Controller(0);
@@ -67,13 +69,15 @@ public class RobotContainer {
     operatorController.R2().whileTrue(intake.exhaleCommand());
 
     //FOR TESTING
-    //operatorController.cross().onTrue(sprocket.setAngleCommand(35));
-    //operatorController.square().onTrue(sprocket.setAngleCommand(50));
+    operatorController.cross().onTrue(sprocket.setAngleCommand(35));
+    operatorController.square().onTrue(sprocket.setAngleCommand(50));
     operatorController.touchpad().onTrue(sprocket.setCoastModeCommand().ignoringDisable(true)).onFalse(sprocket.setBrakeModeCommand().ignoringDisable(true));
     
     //DRIVER BINDINGS
     driverController.L1().onTrue(drivetrain.toRobotRelativeCommand()).onFalse(drivetrain.toFieldRelativeCommand());
     driverController.touchpad().onTrue(drivetrain.zeroGyro());
+    driverController.R2().whileTrue(drivetrain.scoringMode());
+    driverController.cross().onTrue(drivetrain.alignRobotRelativeCommand(90));
   }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
