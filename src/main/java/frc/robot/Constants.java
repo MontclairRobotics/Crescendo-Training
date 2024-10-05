@@ -148,6 +148,11 @@ public final class Constants {
   public class ShooterConstants {
       public static final double SPEAKER_SPEED_RPS = 25;
       public static final double SHOOT_SPEAKER_VELOCITY = 4000;
+      public static final double AMP_TOP_SPEED = 600;
+      public static final double AMP_BOTTOM_SPEED = 800;
+      public static final double AMP_SCORE_ANGLE = 60;
+      public static final double AMP_TOP_RPS = 10;
+      public static final double AMP_BOTTOM_RPS = 13.33333;
   }
   
 }

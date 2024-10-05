@@ -14,6 +14,8 @@ import static edu.wpi.first.units.MutableMeasure.mutable;
 
 import java.util.function.DoubleSupplier;
 
+import org.opencv.core.Mat;
+
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
@@ -86,6 +88,13 @@ public class Shooter extends SubsystemBase {
          getVelocity(bottomMotor) < (velocityRPS + 1.4)) return true;
       else return false;
     }
+    public boolean isAtVelocity( double topVelocityRPS, double bottomVelocityRPS){
+       if(getVelocity(topMotor) > (topVelocityRPS - 1.4) && 
+         getVelocity(topMotor) < (topVelocityRPS + 1.4) &&
+         getVelocity(bottomMotor) > (bottomVelocityRPS - 1.4) && 
+         getVelocity(bottomMotor) < (bottomVelocityRPS + 1.4)) return true;
+      else return false;
+    }
   //Shooter Commands
   public void shootSpeaker(){
     setVelocity(ShooterConstants.SPEAKER_SPEED_RPS);
@@ -93,15 +102,23 @@ public class Shooter extends SubsystemBase {
       Transport.start();
     }
   }
-
+  public void shoot(double topVelocityRPS, double bottomVelocityRPS) {
+    setVelocity(topVelocityRPS, bottomVelocityRPS);
+    if(isAtVelocity(topVelocityRPS, bottomVelocityRPS)) Transport.start();
+  }
   public static double getVelocity(CANSparkMax motor){
       return motor.getEncoder().getVelocity();
+  }
+  public Command scoreAmp(){
+    return Commands.sequence(
+      RobotContainer.sprocket.setAngleCommand(ShooterConstants.AMP_SCORE_ANGLE),
+      shootAmpCommand());
   }
   public Command shootSpeakerCommand () {
     return Commands.runOnce(() -> {RobotContainer.shooter.shootSpeaker();});
   }
   public Command shootAmpCommand () {
-    return Commands.runOnce(() -> {RobotContainer.shooter.setVelocity(2000,1500);});
+    return Commands.runOnce(() -> {RobotContainer.shooter.shoot(ShooterConstants.AMP_TOP_RPS, ShooterConstants.AMP_BOTTOM_RPS);});
   }
   public void stop(){
     topMotor.set(0);
