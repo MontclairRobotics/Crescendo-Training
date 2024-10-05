@@ -31,14 +31,6 @@ public static void takeSnapshot() {
     LimelightHelpers.takeSnapshot("","Limelight Snapshot");
 }
 
-public void setPipeline(Pipetype pipe) {
-    if(pipe == Pipetype.DRIVER){ 
-        LimelightHelpers.setCameraMode_Driver(cameraName);
-    }
-    if(pipe == Pipetype.NOTE){
-        LimelightHelpers.setCameraMode_Processor(cameraName);
-    }
-}
 public void setDefaultPipe() {
     LimelightHelpers.setCameraMode_Driver(cameraName);
 }

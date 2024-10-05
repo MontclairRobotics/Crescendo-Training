@@ -56,7 +56,7 @@ public class Auto extends SubsystemBase {
   public boolean isAutoStringValid;
   
   //the string that is sent to the driver as their feedback
-  String feedback; 
+ public String feedback; 
 
   //instance variables of the arrays used in the autoSequencer
   private char[] allNotes;
@@ -98,13 +98,13 @@ public class Auto extends SubsystemBase {
   public Auto() {
 
      testAutoString = "111";
-     autoString = "2BBAAC5";
+     autoString = "2HG";
 
     //creates the array of all STARTING locations
     startingLocations = new char[]{'1','2','3'};
 
     //creates the array of all SCORING locations
-    scoringLocations = new char[]{'4','5','1','2','3'};
+    scoringLocations = new char[]{'6','7','4','5','1','2','3'};
 
     //creates the array of all the notes
     allNotes = new char[]{'A','B','C','D','E','F','G','H'};
@@ -209,11 +209,11 @@ public class Auto extends SubsystemBase {
   //AUTOSEQUENCER
   public boolean autoSequencer() {
     
-    //TODO: figure out why this isnt working
     if(isIn(autoString.charAt(0), startingLocations)) autoCommandGroup.addCommands(RobotContainer.shooter.shootSpeakerCommand());
     else {
       setFeedback("That's not a real starting location");
       isAutoStringValid = false;
+      return isAutoStringValid;
     }
 
     isAutoStringValid = true;
@@ -223,6 +223,7 @@ public class Auto extends SubsystemBase {
       current = autoString.charAt(i);
       System.out.println(i + " " + current );
       if(i != 0) previous = autoString.charAt(i-1);
+      else previous = 'X';
       
       if(i < autoString.length() -1) next = autoString.charAt(i+1);
       else next = 'X';
@@ -245,8 +246,8 @@ public class Auto extends SubsystemBase {
       shouldIntake = isGoingToNote && (isFromScoringLocation || isFromNoteScoringLocation);
       shouldShoot = isFromNote && (isGoingToScoringLocation || isGoingToNoteScoringLocation);
 
-      System.out.println("From: " + isFromScoringLocation);
-      System.out.println("Going to: " + isGoingToScoringLocation);
+      System.out.println("From scoring location: " + isFromScoringLocation);
+      System.out.println("Going to scoring location: " + isGoingToScoringLocation);
       //auto string validator part
       if(isFromNote && isGoingToNote){
         if(!isGoingToNoteScoringLocation) {
@@ -257,12 +258,12 @@ public class Auto extends SubsystemBase {
 
       if(isFromScoringLocation   &&  isGoingToScoringLocation ){
         isAutoStringValid = false;
-        setFeedback("Don't go between two scoring locations");      
+        setFeedback("Don't go between two scoring locations");   
       }
       
       //builds the sequential command group
       if(isAutoStringValid){
-        feedback = "looks good";
+        feedback = "looks good!";
         if(shouldIntake){
           autoCommandGroup.addCommands(followPathAndIntakeCommand(pathName));
         } 

@@ -87,7 +87,10 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    System.out.println("feedback: " + RobotContainer.auto.feedback);
+    System.out.println(RobotContainer.auto.isAutoStringValid);
+  }
 
   @Override
   public void teleopInit() {

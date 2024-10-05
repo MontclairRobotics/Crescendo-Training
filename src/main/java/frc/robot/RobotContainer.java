@@ -85,6 +85,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    auto.autoSequencer();
     return Commands.runOnce(() -> auto.runAutoSequentialCommandGroup());
   }
 }

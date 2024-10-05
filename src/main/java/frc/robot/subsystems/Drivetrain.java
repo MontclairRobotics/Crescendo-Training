@@ -187,10 +187,28 @@ public class Drivetrain extends SubsystemBase {
   }
 
 
-  //SCORING MODE!!!!
-  public void stopScoringMode(){
 
+  //FIELD RELATIVE TURNING
+  public void setFieldRelativeAngle(double angle){
+    anglePidController.setSetpoint(angle);
   }
+  public void goToAngleFieldRelative(){
+    Translation2d translation = new Translation2d(0,0);
+    double response = anglePidController.calculate(odometryHeading);
+    swerveDrive.drive(translation, response, true, false);
+  }
+  public Command setFieldRelativeAngleCommand(double angle){
+    return Commands.runOnce(() -> {setFieldRelativeAngle(angle);});
+  }
+  public Command goToAngleFieldRelativeCommand(){
+    return Commands.run(()->{goToAngleFieldRelative();});
+  }
+  public Command alignFieldRelativeCommand(double angle){
+    return Commands.sequence(setFieldRelativeAngleCommand(angle), goToAngleFieldRelativeCommand());
+  }
+
+  
+  //SCORING MODE!!!!
 
   public Command scoringMode() {
     return Commands.parallel(RobotContainer.sprocket.setAngleCommand(40), 
