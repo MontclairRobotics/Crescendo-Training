@@ -90,6 +90,7 @@ public class Robot extends LoggedRobot {
   public void autonomousPeriodic() {
     System.out.println("feedback: " + RobotContainer.auto.feedback);
     System.out.println(RobotContainer.auto.isAutoStringValid);
+    System.out.println(Auto.autoString);
   }
 
   @Override

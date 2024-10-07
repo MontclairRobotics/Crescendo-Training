@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.EnumSet;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
@@ -13,6 +15,9 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEvent.Kind;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -97,8 +102,20 @@ public class Auto extends SubsystemBase {
   /** Creates a new Auto. */
   public Auto() {
 
+    // Shuffleboard.getTab("Driver Station");
+    // NetworkTableInstance inst = NetworkTableInstance.getDefault();
+    // NetworkTable ntTable = inst.getTable("Shuffleboard").getSubTable("Debug");
+    // Shuffleboard.getTab("Driver Station");
+
+    // ntTable.addListener(
+    //     "Enter Command",
+    //     EnumSet.of(Kind.kValueAll),
+    //     (table, key, event) -> {
+    //      System.out.println(key);
+    //     });
+
      testAutoString = "111";
-     autoString = "2HG";
+     autoString = "2B";
 
     //creates the array of all STARTING locations
     startingLocations = new char[]{'1','2','3'};
@@ -208,13 +225,14 @@ public class Auto extends SubsystemBase {
 
   //AUTOSEQUENCER
   public boolean autoSequencer() {
-    
+    if(autoString.length() > 0) {
     if(isIn(autoString.charAt(0), startingLocations)) autoCommandGroup.addCommands(RobotContainer.shooter.shootSpeakerCommand());
     else {
       setFeedback("That's not a real starting location");
       isAutoStringValid = false;
       return isAutoStringValid;
     }
+  }
 
     isAutoStringValid = true;
 
@@ -249,14 +267,14 @@ public class Auto extends SubsystemBase {
       System.out.println("From scoring location: " + isFromScoringLocation);
       System.out.println("Going to scoring location: " + isGoingToScoringLocation);
       //auto string validator part
-      if(isFromNote && isGoingToNote){
-        if(!isGoingToNoteScoringLocation) {
+      if (isFromNote && isGoingToNote){
+        if (!isGoingToNoteScoringLocation) {
           isAutoStringValid = false;
           setFeedback("Don't go between two notes when you are not scoring at one of them.");
-      } 
+        } 
       }
 
-      if(isFromScoringLocation   &&  isGoingToScoringLocation ){
+      if (isFromScoringLocation && isGoingToScoringLocation ){
         isAutoStringValid = false;
         setFeedback("Don't go between two scoring locations");   
       }
