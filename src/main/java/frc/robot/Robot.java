@@ -35,16 +35,19 @@ public class Robot extends LoggedRobot {
 
     m_robotContainer = new RobotContainer();
 
-    DoubleSupplier topVelocitySupplier = () -> Shooter.getVelocity(Shooter.topMotor);
-    DoubleSupplier bottomVelocitySupplier = () -> Shooter.getVelocity(Shooter.bottomMotor);
-
-    SmartDashboard.putNumber("topMotor Velocity", Shooter.getVelocity(Shooter.topMotor));
-    SmartDashboard.putNumber("bottomMotor Velocity", Shooter.getVelocity(Shooter.bottomMotor));
-
-    Shuffleboard.getTab("Debug").addDouble("Top Motor Velocity", topVelocitySupplier).withSize(3,1);
-    Shuffleboard.getTab("Debug").addDouble("Bottom Motor Velocity", bottomVelocitySupplier).withSize(3,1);
+    SmartDashboard.putNumber("topMotor Velocity RPM", Shooter.getVelocityRPM(Shooter.topMotor));
+    SmartDashboard.putNumber("bottomMotor Velocity RPM", Shooter.getVelocityRPM(Shooter.bottomMotor));
     Shuffleboard.getTab("Debug").addDouble("Sprocket angle", RobotContainer.sprocket.sprocketRawPositionVariable);
+    Shuffleboard.getTab("Debug").addDouble("Top velocity RPM", RobotContainer.shooter.velocitySupplierRPM(Shooter.topMotor)).withSize(3,1);
+    Shuffleboard.getTab("Debug").addDouble("Bottom velocity RPM", RobotContainer.shooter.velocitySupplierRPM(Shooter.bottomMotor)).withSize(3,1);
+    Shuffleboard.getTab("Debug").addDouble("Top velocity RPSSS", RobotContainer.shooter.velocitySupplierRPS(Shooter.topMotor)).withSize(3, 1);
+    Shuffleboard.getTab("Debug").addDouble("Top velocity RPSSS", RobotContainer.shooter.velocitySupplierRPS(Shooter.bottomMotor)).withSize(3,1);
     
+    Shuffleboard.getTab("Debug").addDouble("setPoint", RobotContainer.drivetrain.setPointSupplier()).withSize(2,1);
+    Shuffleboard.getTab("Debug").addDouble("response", RobotContainer.drivetrain.responseSupplier()).withSize(2,1);
+    Shuffleboard.getTab("Debug").addBoolean("Is Robot At Set Point", RobotContainer.drivetrain.isRobotAtAngleSetPoint()).withSize(2,1);
+    Shuffleboard.getTab("Debug").addDouble("Odometry Heading", RobotContainer.drivetrain.odometryHeadingDoubleSupplier()).withSize(2,1);
+
     // DoubleLogEntry topMotorVelocity;
     // DoubleLogEntry bottomMotorVelocity;
 
@@ -103,8 +106,6 @@ public class Robot extends LoggedRobot {
       m_autonomousCommand.cancel();
     }
 
-
-
     
   }
 
@@ -115,6 +116,7 @@ public class Robot extends LoggedRobot {
     // System.out.println("From:" + RobotContainer.auto.isFromScoringLocation);
     // System.out.println("Going to:" + RobotContainer.auto.isGoingToScoringLocation);
     // System.out.println(RobotContainer.auto.isIn(Auto.autoString.charAt(0), RobotContainer.auto.scoringLocations));
+    System.out.println(RobotContainer.intake.beambreak.get());
   }
 
   @Override

@@ -15,46 +15,51 @@ import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.Ports;
 
 public class Intake extends SubsystemBase {
     CANSparkMax topIntakeMotor = new CANSparkMax(Constants.Ports.INTAKE_TOP_MOTOR,MotorType.kBrushless);
     CANSparkMax bottomIntakeMotor = new CANSparkMax(Constants.Ports.INTAKE_BOTTOM_MOTOR, MotorType.kBrushless);
     
-    DigitalInput beambreak = new DigitalInput(9);
+    public DigitalInput beambreak = new DigitalInput(Ports.TRANSPORT_BEAM_BREAK);
 
     //True means BB is not broken; false means BB is broken
     public BooleanSupplier getBB(){
         return () -> beambreak.get();
     }
     // Starts intake motors
-    public void inhale(){
+    public void intake(){
+        if(beambreak.get()){
         RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(ArmConstants.SPROCKET_INTAKE_ANGLE));
-        topIntakeMotor.set(Constants.IntakeConstants.INTAKE_SPEED);
-        bottomIntakeMotor.set(Constants.IntakeConstants.INTAKE_SPEED);
+        topIntakeMotor.set(IntakeConstants.INTAKE_SPEED);
+        bottomIntakeMotor.set(IntakeConstants.INTAKE_SPEED);
         Transport.start();
+        } else RobotContainer.intake.stop();
     }
     // Reverses intake motors
-    public void exhale(){
-        RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(ArmConstants.SPROCKET_INTAKE_ANGLE));
-        topIntakeMotor.set(-Constants.IntakeConstants.INTAKE_SPEED);
-        bottomIntakeMotor.set(-Constants.IntakeConstants.INTAKE_SPEED);
+    public void outtake(){
+        RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(ArmConstants.SPROCKET_OUTTAKE_ANGLE));
+        topIntakeMotor.set(-IntakeConstants.INTAKE_SPEED);
+        bottomIntakeMotor.set(-IntakeConstants.INTAKE_SPEED);
         Transport.reverse();
     }
     // Stops intake motors
-    public void holdBreath(){
+    public void stop(){
         topIntakeMotor.set(0);
         bottomIntakeMotor.set(0);
+        Transport.stop();
     }
-    public Command inhaleCommand(){
-        return Commands.runOnce(()-> inhale(), this).onlyWhile(getBB()).finallyDo(() ->holdBreath());
+    public Command intakeCommand(){
+        return Commands.run(()-> intake(), this).onlyWhile(getBB()).finallyDo(() ->stop());
     }
     //command for reverse intaking
-    public Command exhaleCommand (){
-        return Commands.runOnce(() -> {exhale();}, this).finallyDo(() -> {holdBreath();
+    public Command outtakeCommand (){
+        return Commands.run(() -> {outtake();}, this).finallyDo(() -> {stop();
         Transport.stop();});
     }
     //command to stop the intake motors
-    public Command holdBreathCommand (){
-        return Commands.runOnce(() -> {holdBreath();}, this);
+    public Command stopCommand (){
+        return Commands.runOnce(() -> {stop();}, this);
     }
 }

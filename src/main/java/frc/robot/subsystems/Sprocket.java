@@ -74,7 +74,7 @@ public class Sprocket extends SubsystemBase {
         rightSprocketMotor.setIdleMode(IdleMode.kBrake);
     }
     public Command setBrakeModeCommand(){
-        return Commands.runOnce(()-> setBrakeMode(), this);
+        return Commands.run(()-> setBrakeMode(), this);
     }
     //sets coast mode for moving sprocket
     public void setCoastMode (){
@@ -91,9 +91,6 @@ public class Sprocket extends SubsystemBase {
     }
     public Command sprocketDefaultCommand(){
         return Commands.runOnce(()->sprocketDefault(), this);
-    }
-    public Command inhaleSetAngle(){
-        return Commands.runOnce(() -> RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(52)), this);
     }
 
     public void periodic() {

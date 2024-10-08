@@ -199,7 +199,7 @@ public class Auto extends SubsystemBase {
   }
   public void followPathAndIntakeMethod (String pathString) {
     AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathString));
-    RobotContainer.intake.inhaleCommand();
+    RobotContainer.intake.intakeCommand();
   }
   public Command followPathCommand(String pathString) {
       PathPlannerPath path = PathPlannerPath.fromPathFile(pathString);

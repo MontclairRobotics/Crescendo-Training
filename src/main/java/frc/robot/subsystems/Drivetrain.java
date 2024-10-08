@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import java.io.File;
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 
@@ -19,6 +20,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -40,20 +42,21 @@ public class Drivetrain extends SubsystemBase {
   public File swerveJsonDirectory;
   public SwerveDrive swerveDrive;
   public Translation2d centerOfRotationMeters;
+
+
+  //turning robot relative
+  public double setPoint;
   public double odometryHeading;
-
-
   public PIDController anglePidController;
-  public double responseForAlignToAngleRobotRelative;
+  public double response;
   public boolean isRobotAtAngleSetPoint;
 
   //constructor
   public Drivetrain() {
 
   //FOR the auto turn button (robot relative)
-  anglePidController = new PIDController(.01, 0, 0);
+  anglePidController = new PIDController(1.5, .5, 0.22);
   anglePidController.setTolerance(2);
-
 
   //this makes it so the robot drives with respect to the field
   FieldRelative = true;
@@ -151,13 +154,12 @@ public class Drivetrain extends SubsystemBase {
   //that means it will run as long as no other command is occupying the drivetrain.
   public Command driveCommand(){
     return Commands.runOnce(() -> {drive();}, this);
-   
   }
   //this is a method to set the setpoint once before running the command to turn the robot automatically
   //field relative
-  public void setSetPointForAlignToAngleRobotRelativeMethod(double angle){
+  public void setSetpoint(double angle){
     //converts setPoint to field relative angle
-    double setPoint = odometryHeading + angle;
+    setPoint = odometryHeading + angle;
     anglePidController.setSetpoint(setPoint);
   }
   public void alignToAngleRobotRelative() {
@@ -165,14 +167,14 @@ public class Drivetrain extends SubsystemBase {
     Translation2d translation = new Translation2d(0, 0);
     //calculates the input for the drive function (NO IDEA IF I SHOULD MULTIPLY THIS BY SOMETHING)
     //inputs field relative angle (set point is also converted to field relative)
-    responseForAlignToAngleRobotRelative = anglePidController.calculate(odometryHeading);
+    response = anglePidController.calculate(odometryHeading);
     //calls the drive function with no translation but with turning
     //should work maybe idk
-    swerveDrive.drive(translation, responseForAlignToAngleRobotRelative, false, false);
+    swerveDrive.drive(translation, response, false, false);
     }
   //command for setting set point
   public Command setSetPointCommand(double angle) {
-    return Commands.runOnce(() -> {setSetPointForAlignToAngleRobotRelativeMethod(angle);});
+    return Commands.runOnce(() -> {setSetpoint(angle);});
   }
   //commmand for turning robot robot relative
   public Command alignToAngleRobotRelativeCommand(){
@@ -184,6 +186,18 @@ public class Drivetrain extends SubsystemBase {
   }
   public BooleanSupplier isRobotNOTAtAngleSetPoint(){
     return () -> !isRobotAtAngleSetPoint;
+  }
+  public DoubleSupplier responseSupplier(){
+    return () -> response;
+  }
+  public DoubleSupplier odometryHeadingDoubleSupplier(){
+    return () -> odometryHeading;
+  }
+  public BooleanSupplier isRobotAtAngleSetPoint(){
+    return () -> isRobotAtAngleSetPoint;
+  }
+  public DoubleSupplier setPointSupplier(){
+    return () -> setPoint;
   }
 
 
@@ -207,7 +221,6 @@ public class Drivetrain extends SubsystemBase {
     return Commands.sequence(setFieldRelativeAngleCommand(angle), goToAngleFieldRelativeCommand());
   }
 
-  
   //SCORING MODE!!!!
 
   public Command scoringMode() {

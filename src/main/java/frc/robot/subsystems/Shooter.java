@@ -47,26 +47,45 @@ public class Shooter extends SubsystemBase {
   static RelativeEncoder topEncoder = topMotor.getEncoder();
   static RelativeEncoder bottomEncoder = bottomMotor.getEncoder();
   //Creates feedforward
-  public static SimpleMotorFeedforward topFeedforward = new SimpleMotorFeedforward(0.1639,0.13481,0.025138);
-  public static SimpleMotorFeedforward bottomFeedforward = new SimpleMotorFeedforward(0.20548,0.13256,0.020699);
- 
+
+  //old constants
+ // public static SimpleMotorFeedforward topFeedforward = new SimpleMotorFeedforward(0.1639,0.13481,0.025138);
+ // public static SimpleMotorFeedforward bottomFeedforward = new SimpleMotorFeedforward(0.20548,0.13256,0.020699);
+ //new constants
+  public static SimpleMotorFeedforward topFeedforward = new SimpleMotorFeedforward(ShooterConstants.TOP_SHOOTER_FF_KS, ShooterConstants.TOP_SHOOTER_FF_KV, ShooterConstants.TOP_SHOOTER_FF_KA);
+  public static SimpleMotorFeedforward bottomFeedforward = new SimpleMotorFeedforward(ShooterConstants.BOTTOM_SHOOTER_FF_KS, ShooterConstants.BOTTOM_SHOOTER_FF_KV, ShooterConstants.BOTTOM_SHOOTER_FF_KA);
   /** Creates a new Shooter. */
   public Shooter() {
-    topController.setP(6.6337E-06, 1);
-    topController.setD(0, 1);
+    //old constants
+    // topController.setP(6.6337E-06*60, 1);
+    // topController.setD(0, 1);
 
-    bottomController.setP(2.8688E-05, 1);
-    bottomController.setD(0, 1);
+    // bottomController.setP(2.8688E-05, 1);
+    // bottomController.setD(0, 1);
 
-    topEncoder.setVelocityConversionFactor(1/60.0);
-    bottomEncoder.setVelocityConversionFactor(1/60.0);
+    //new constants
+    topController.setP(ShooterConstants.TOP_SHOOTER_PID_KP, 1);
+    topController.setD(ShooterConstants.TOP_SHOOTER_PID_KD, 1);
 
-    Shuffleboard.getTab("Debug").addDouble("Top velocity", velocitySupplier(topMotor));
-    Shuffleboard.getTab("Debug").addDouble("Bottom velocity", velocitySupplier(bottomMotor));
+    bottomController.setP(ShooterConstants.BOTTOM_SHOOTER_PID_KP, 1);
+    bottomController.setD(ShooterConstants.BOTTOM_SHOOTER_PID_KD, 1);
+
+  //   topEncoder.setVelocityConversionFactor();
+  //  bottomEncoder.setVelocityConversionFactor(1/60.0);
+
+    Shuffleboard.getTab("Debug").addDouble("Top velocity RPM", velocitySupplierRPM(topMotor));
+    Shuffleboard.getTab("Debug").addDouble("Bottom velocity RPM", velocitySupplierRPM(bottomMotor));
+
+    Shuffleboard.getTab("Debug").addDouble("Top velocity RPSSS", velocitySupplierRPS(topMotor));
+    Shuffleboard.getTab("Debug").addDouble("Top velocity RPSSS", velocitySupplierRPS(bottomMotor));
   }
-
-  public DoubleSupplier velocitySupplier(CANSparkMax motor){
-    return () -> getVelocity(motor);
+  //supplier of Velocity RPMMMMM
+  public DoubleSupplier velocitySupplierRPM(CANSparkMax motor){
+    return () -> getVelocityRPM(motor);
+  }
+  //supplier of velocity RPSSSSS
+  public DoubleSupplier velocitySupplierRPS(CANSparkMax motor){
+    return () -> getVelocityRPS(motor);
   }
     //sets both shooter motors to the same velocity, meaning the motors will spin to that velocity
     public void setVelocity (double velocity) {
@@ -81,44 +100,51 @@ public class Shooter extends SubsystemBase {
         topController.setReference(topVelocity, ControlType.kVelocity, 1, topFeedforwardValue );
         bottomController.setReference(bottomVelocity, ControlType.kVelocity, 1, bottomFeedforwardValue );
     }
-    public boolean isAtVelocity (double velocityRPS) {
-      if(getVelocity(topMotor) > (velocityRPS - 1.4) && 
-         getVelocity(topMotor) < (velocityRPS + 1.4) &&
-         getVelocity(bottomMotor) > (velocityRPS - 1.4) && 
-         getVelocity(bottomMotor) < (velocityRPS + 1.4)) return true;
+    //returns true if input velocity (RPM) is within the deadband (RPM)
+    public boolean isAtVelocityRPS (double topSetpointRPS, double bottomSetpointRPS) {
+     if(Math.abs(getVelocityRPS(topMotor) - topSetpointRPS) < ShooterConstants.SHOOTER_VELOCITY_DEADBAND_RPS
+       && Math.abs(getVelocityRPS(bottomMotor) - bottomSetpointRPS) < ShooterConstants.SHOOTER_VELOCITY_DEADBAND_RPS) return true;
       else return false;
     }
-    public boolean isAtVelocity( double topVelocityRPS, double bottomVelocityRPS){
-       if(getVelocity(topMotor) > (topVelocityRPS - 1.4) && 
-         getVelocity(topMotor) < (topVelocityRPS + 1.4) &&
-         getVelocity(bottomMotor) > (bottomVelocityRPS - 1.4) && 
-         getVelocity(bottomMotor) < (bottomVelocityRPS + 1.4)) return true;
+    //returns true if input velocity RPS is within the deadband RPS
+    public boolean isAtVelocityRPM( double topSetpoint, double bottomSetpoint){
+       if(Math.abs(getVelocityRPM(topMotor) - topSetpoint) < ShooterConstants.SHOOTER_VELOCITY_DEADBAND_RPM
+       && Math.abs(getVelocityRPM(bottomMotor) - bottomSetpoint) < ShooterConstants.SHOOTER_VELOCITY_DEADBAND_RPM) return true;
       else return false;
     }
-  //Shooter Commands
-  public void shootSpeaker(){
-    setVelocity(ShooterConstants.SPEAKER_SPEED_RPS);
-    if(isAtVelocity(ShooterConstants.SPEAKER_SPEED_RPS)){
-      Transport.start();
-    }
+
+  //spins the wheels to shoot at DIFFERENT speeds, when they reach said speed, transport will start.
+  public void shootRPM(double topVelocityRPM, double bottomVelocityRPM) {
+    setVelocity(topVelocityRPM, bottomVelocityRPM);
+    if(isAtVelocityRPM(topVelocityRPM, bottomVelocityRPM)) Transport.start();
   }
-  public void shoot(double topVelocityRPS, double bottomVelocityRPS) {
-    setVelocity(topVelocityRPS, bottomVelocityRPS);
-    if(isAtVelocity(topVelocityRPS, bottomVelocityRPS)) Transport.start();
+
+  //spins the wheels to shoot at the SAME speed, when they reach said speed, transport will start.
+  public void shootRPM(double velocityRPM) {
+    setVelocity(velocityRPM);
+    if(isAtVelocityRPM(velocityRPM, velocityRPM)) Transport.start();
   }
-  public static double getVelocity(CANSparkMax motor){
+
+  //gets the velocity given a certain motor in RPM
+  public static double getVelocityRPM(CANSparkMax motor){
       return motor.getEncoder().getVelocity();
   }
+
+  //gets the velocity of input motor in RPS
+  public static double getVelocityRPS(CANSparkMax motor){
+    return motor.getEncoder().getVelocity()/60;
+  }
+
   public Command scoreAmp(){
     return Commands.sequence(
       RobotContainer.sprocket.setAngleCommand(ShooterConstants.AMP_SCORE_ANGLE),
       shootAmpCommand());
   }
   public Command shootSpeakerCommand () {
-    return Commands.runOnce(() -> {RobotContainer.shooter.shootSpeaker();});
+    return Commands.run(() -> {RobotContainer.shooter.shootRPM(ShooterConstants.SHOOT_SPEAKER_VELOCITY);});
   }
   public Command shootAmpCommand () {
-    return Commands.runOnce(() -> {RobotContainer.shooter.shoot(ShooterConstants.AMP_TOP_RPS, ShooterConstants.AMP_BOTTOM_RPS);});
+    return Commands.run(() -> {RobotContainer.shooter.shootRPM(ShooterConstants.AMP_TOP_SPEED, ShooterConstants.AMP_BOTTOM_SPEED);});
   }
   public void stop(){
     topMotor.set(0);
