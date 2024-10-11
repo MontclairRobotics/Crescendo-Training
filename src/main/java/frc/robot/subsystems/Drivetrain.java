@@ -55,7 +55,7 @@ public class Drivetrain extends SubsystemBase {
   public Drivetrain() {
 
   //FOR the auto turn button (robot relative)
-  anglePidController = new PIDController(1.5, .5, 0.22);
+  anglePidController = new PIDController(1.3, 0, 0.5);
   anglePidController.setTolerance(2);
 
   //this makes it so the robot drives with respect to the field
@@ -160,6 +160,8 @@ public class Drivetrain extends SubsystemBase {
   public void setSetpoint(double angle){
     //converts setPoint to field relative angle
     setPoint = odometryHeading + angle;
+    //wraps angle idek if this will fix
+    setPoint = wrapAngle(odometryHeading + angle);
     anglePidController.setSetpoint(setPoint);
   }
   public void alignToAngleRobotRelative() {
@@ -174,11 +176,11 @@ public class Drivetrain extends SubsystemBase {
     }
   //command for setting set point
   public Command setSetPointCommand(double angle) {
-    return Commands.runOnce(() -> {setSetpoint(angle);});
+    return Commands.runOnce(() -> {setSetpoint(angle);}, RobotContainer.drivetrain);
   }
   //commmand for turning robot robot relative
   public Command alignToAngleRobotRelativeCommand(){
-    return Commands.run(() -> {alignToAngleRobotRelative();}).onlyIf(isRobotNOTAtAngleSetPoint());
+    return Commands.run(() -> {alignToAngleRobotRelative();}, this).onlyIf(isRobotNOTAtAngleSetPoint());
   }
   //command that strings the two together
   public Command alignRobotRelativeCommand(double angle) {
@@ -204,7 +206,7 @@ public class Drivetrain extends SubsystemBase {
 
   //FIELD RELATIVE TURNING
   public void setFieldRelativeAngle(double angle){
-    anglePidController.setSetpoint(angle);
+    anglePidController.setSetpoint(wrapAngle(angle));
   }
   public void goToAngleFieldRelative(){
     Translation2d translation = new Translation2d(0,0);
@@ -212,7 +214,7 @@ public class Drivetrain extends SubsystemBase {
     swerveDrive.drive(translation, response, true, false);
   }
   public Command setFieldRelativeAngleCommand(double angle){
-    return Commands.runOnce(() -> {setFieldRelativeAngle(angle);});
+    return Commands.runOnce(() -> {setFieldRelativeAngle(angle);}, this);
   }
   public Command goToAngleFieldRelativeCommand(){
     return Commands.run(()->{goToAngleFieldRelative();});
@@ -220,7 +222,13 @@ public class Drivetrain extends SubsystemBase {
   public Command alignFieldRelativeCommand(double angle){
     return Commands.sequence(setFieldRelativeAngleCommand(angle), goToAngleFieldRelativeCommand());
   }
-
+  public static double wrapAngle(double angle) {
+    angle = (angle + 180) % 360; // Step 1 and 2
+    if (angle < 0) {
+        angle += 360; // Make sure it's positive
+    }
+    return angle - 180; // Step 3
+}
   //SCORING MODE!!!!
 
   public Command scoringMode() {

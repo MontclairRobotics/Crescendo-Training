@@ -28,20 +28,23 @@ public class Intake extends SubsystemBase {
     public BooleanSupplier getBB(){
         return () -> beambreak.get();
     }
+    public BooleanSupplier getReverseBB(){
+        return () -> !beambreak.get();
+    }
     // Starts intake motors
     public void intake(){
         if(beambreak.get()){
         RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(ArmConstants.SPROCKET_INTAKE_ANGLE));
-        topIntakeMotor.set(IntakeConstants.INTAKE_SPEED);
-        bottomIntakeMotor.set(IntakeConstants.INTAKE_SPEED);
+        topIntakeMotor.set(-IntakeConstants.INTAKE_SPEED);
+        bottomIntakeMotor.set(-IntakeConstants.INTAKE_SPEED);
         Transport.start();
         } else RobotContainer.intake.stop();
     }
     // Reverses intake motors
     public void outtake(){
         RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(ArmConstants.SPROCKET_OUTTAKE_ANGLE));
-        topIntakeMotor.set(-IntakeConstants.INTAKE_SPEED);
-        bottomIntakeMotor.set(-IntakeConstants.INTAKE_SPEED);
+        topIntakeMotor.set(IntakeConstants.INTAKE_SPEED);
+        bottomIntakeMotor.set(IntakeConstants.INTAKE_SPEED);
         Transport.reverse();
     }
     // Stops intake motors

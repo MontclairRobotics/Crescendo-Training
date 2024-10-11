@@ -17,6 +17,7 @@ import java.util.function.DoubleSupplier;
 import org.opencv.core.Mat;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.MutableMeasure;
@@ -30,7 +31,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants;
 import frc.robot.RobotContainer;
+import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Ports;
 import frc.robot.Constants.ShooterConstants;
 
@@ -73,11 +77,11 @@ public class Shooter extends SubsystemBase {
   //   topEncoder.setVelocityConversionFactor();
   //  bottomEncoder.setVelocityConversionFactor(1/60.0);
 
-    Shuffleboard.getTab("Debug").addDouble("Top velocity RPM", velocitySupplierRPM(topMotor));
-    Shuffleboard.getTab("Debug").addDouble("Bottom velocity RPM", velocitySupplierRPM(bottomMotor));
+    // Shuffleboard.getTab("Debug").addDouble("Top velocity RPM", velocitySupplierRPM(topMotor));
+    // Shuffleboard.getTab("Debug").addDouble("Bottom velocity RPM", velocitySupplierRPM(bottomMotor));
 
-    Shuffleboard.getTab("Debug").addDouble("Top velocity RPSSS", velocitySupplierRPS(topMotor));
-    Shuffleboard.getTab("Debug").addDouble("Top velocity RPSSS", velocitySupplierRPS(bottomMotor));
+    // Shuffleboard.getTab("Debug").addDouble("Top velocity RPSSS", velocitySupplierRPS(topMotor));
+    // Shuffleboard.getTab("Debug").addDouble("Bottom velocity RPSSS", velocitySupplierRPS(bottomMotor));
   }
   //supplier of Velocity RPMMMMM
   public DoubleSupplier velocitySupplierRPM(CANSparkMax motor){
@@ -134,10 +138,25 @@ public class Shooter extends SubsystemBase {
   public static double getVelocityRPS(CANSparkMax motor){
     return motor.getEncoder().getVelocity()/60;
   }
-
+  public void intakeSource(){
+    RobotContainer.shooter.shootRPM(-ShooterConstants.SHOOT_SPEAKER_VELOCITY);
+    if(isAtVelocityRPM(-ShooterConstants.SHOOT_SPEAKER_VELOCITY, -ShooterConstants.SHOOT_SPEAKER_VELOCITY)){
+      Transport.reverse();
+    };
+  }
+  public Command intakeSourceCommand(){
+    return Commands.sequence(
+      Commands.runOnce(() -> RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(52)), RobotContainer.sprocket),
+      Commands.run(() -> {intakeSource();})
+      .onlyWhile(RobotContainer.intake.getBB()),
+      Commands.run(()-> {intakeSource();})
+      .onlyWhile(RobotContainer.intake.getReverseBB())
+      );
+    
+  }
   public Command scoreAmp(){
     return Commands.sequence(
-      RobotContainer.sprocket.setAngleCommand(ShooterConstants.AMP_SCORE_ANGLE),
+      Commands.runOnce(() -> RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(ShooterConstants.AMP_SCORE_ANGLE)), this),
       shootAmpCommand());
   }
   public Command shootSpeakerCommand () {

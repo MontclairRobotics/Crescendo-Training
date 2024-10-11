@@ -11,11 +11,11 @@ public class Transport {
     
     //starts the transport
     public static void start(){
-        transportMotor.set(Constants.TRANSPORT_SPEED);
+        transportMotor.set(-Constants.TRANSPORT_SPEED);
     }
     //reverses the transport
     public static void reverse(){
-        transportMotor.set(-Constants.TRANSPORT_SPEED);
+        transportMotor.set(Constants.TRANSPORT_SPEED);
     }
     //stops the transport
     public static void stop(){

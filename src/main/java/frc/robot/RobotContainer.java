@@ -69,7 +69,7 @@ public class RobotContainer {
     //shoots speaker without angle changing
     operatorController.circle().whileTrue(shooter.shootSpeakerCommand()).onFalse(shooter.stopCommand());
     //shoots amp hopefully works
-    operatorController.triangle().whileTrue(shooter.shootAmpCommand()).onFalse(shooter.stopCommand());
+    operatorController.triangle().whileTrue(shooter.scoreAmp()).onFalse(shooter.stopCommand());
     //intake
     operatorController.L2().onTrue(intake.intakeCommand()).onFalse(intake.stopCommand());
     //outtake
@@ -79,6 +79,8 @@ public class RobotContainer {
     operatorController.square().onTrue(sprocket.setAngleCommand(50));
     //makes sprocket able to be moved when disabled
     operatorController.touchpad().onTrue(sprocket.setCoastModeCommand().ignoringDisable(true)).whileFalse(sprocket.setBrakeModeCommand().ignoringDisable(true));
+    //intake from source. UNTESTED
+    operatorController.L1().onTrue(shooter.intakeSourceCommand());
     
     /*DRIVER BINDINGS*/
     //robot relative driving
@@ -89,6 +91,7 @@ public class RobotContainer {
     driverController.R2().whileTrue(drivetrain.scoringMode());
     //align to angle for testing. DOES NOT WORK
     driverController.cross().onTrue(drivetrain.alignRobotRelativeCommand(90));
+    driverController.circle().onTrue(drivetrain.alignFieldRelativeCommand(90));
   }
 
   /**
