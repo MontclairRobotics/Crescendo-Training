@@ -210,7 +210,7 @@ public class Auto extends SubsystemBase {
   }
   public Command followPathAndShootCommand(String pathString, boolean isScoringAmp){
     if(!isScoringAmp){
-      return Commands.runOnce(() -> followPathCommand(pathString), this, RobotContainer.drivetrain).andThen(() -> RobotContainer.shooter.shootSpeakerCommand(), this, RobotContainer.shooter);
+      return Commands.runOnce(() -> followPathCommand(pathString), this, RobotContainer.drivetrain).andThen(() -> RobotContainer.shooter.scoreSpeakerCommand(), this, RobotContainer.shooter);
     } else {
       return Commands.runOnce(() -> followPathCommand(pathString), this, RobotContainer.drivetrain).andThen(() -> RobotContainer.shooter.shootAmpCommand(), this, RobotContainer.shooter);
     }
@@ -226,7 +226,7 @@ public class Auto extends SubsystemBase {
   //AUTOSEQUENCER
   public boolean autoSequencer() {
     if(autoString.length() > 0) {
-    if(isIn(autoString.charAt(0), startingLocations)) autoCommandGroup.addCommands(RobotContainer.shooter.shootSpeakerCommand());
+    if(isIn(autoString.charAt(0), startingLocations)) autoCommandGroup.addCommands(RobotContainer.shooter.scoreSpeakerCommand());
     else {
       setFeedback("That's not a real starting location");
       isAutoStringValid = false;
@@ -286,7 +286,7 @@ public class Auto extends SubsystemBase {
           autoCommandGroup.addCommands(followPathAndIntakeCommand(pathName));
         } 
         if(shouldShoot){
-          if(current == next) autoCommandGroup.addCommands(RobotContainer.shooter.shootSpeakerCommand());
+          if(current == next) autoCommandGroup.addCommands(RobotContainer.shooter.scoreSpeakerCommand());
           else if(next == '4') autoCommandGroup.addCommands(followPathAndShootCommand(pathName, true));
           else autoCommandGroup.addCommands(followPathAndShootCommand(pathName, false));
         }

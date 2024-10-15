@@ -1,5 +1,7 @@
 package frc.robot.vision;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -8,7 +10,7 @@ import frc.robot.Constants;
 
 public class Limelight extends SubsystemBase{
 
-    public final String llname = "shooter-limelight";
+    public final static String llname = "shooter-limelight";
     int tagCount;
     NetworkTable Limetable = NetworkTableInstance.getDefault().getTable("limelight");
     NetworkTableEntry ty = Limetable.getEntry("ty");
@@ -20,12 +22,15 @@ public class Limelight extends SubsystemBase{
 public double getDistanceFromLimeToGoal() {
  return distanceFromLimelightToGoalInches;
 }
-public double getTX(){
+public static double getTX(){
     return LimelightHelpers.getLimelightNTDouble(llname, "tx");
 } 
 public double getTY() {
     return LimelightHelpers.getLimelightNTDouble(llname, "ty");
 } 
+public static DoubleSupplier txSupplier(){
+    return () -> getTX();
+}
 public double getBotPose(){
     return LimelightHelpers.getLimelightNTDouble(llname, "botpose");
 }  
@@ -37,7 +42,14 @@ public boolean isTargetInView(){
     if(limelightMeasurement.tagCount > 0) return true;
     return false;
 }
+public void periodic(){
+ 
 
+
+
+
+
+}
 public void setPipeline(Pipetype pipe) {
     if(pipe == Pipetype.DRIVER){ 
         LimelightHelpers.setCameraMode_Driver(llname);

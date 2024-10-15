@@ -29,6 +29,7 @@ import frc.robot.subsystems.Transport;
 import frc.robot.util.ControllerTools;
 import frc.robot.util.ControllerTools.DPad;
 import frc.robot.vision.Limelight;
+import frc.robot.vision.LimelightHelpers;
 
 
 public class RobotContainer {
@@ -51,6 +52,7 @@ public class RobotContainer {
   
     //the measely constructor
     public RobotContainer() {
+    LimelightHelpers.setCameraMode_Driver(Limelight.llname);
     //configures bindings
     configureBindings();
     }
@@ -68,7 +70,7 @@ public class RobotContainer {
     //OPERATOR BINDINGS
     
     //shoots speaker without angle changing
-    operatorController.circle().whileTrue(shooter.shootSpeakerCommand()).onFalse(shooter.stopCommand());
+    operatorController.circle().whileTrue(shooter.scoreSpeakerCommand()).onFalse(shooter.stopCommand());
     //shoots amp hopefully works
     operatorController.triangle().whileTrue(shooter.scoreAmp()).onFalse(shooter.stopCommand());
     //intake because inverts

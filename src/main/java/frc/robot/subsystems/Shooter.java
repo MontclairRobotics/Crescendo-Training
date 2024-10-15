@@ -51,7 +51,7 @@ public class Shooter extends SubsystemBase {
   static RelativeEncoder topEncoder = topMotor.getEncoder();
   static RelativeEncoder bottomEncoder = bottomMotor.getEncoder();
   //Creates feedforward
-
+  boolean scoringMode;
   //old constants
  // public static SimpleMotorFeedforward topFeedforward = new SimpleMotorFeedforward(0.1639,0.13481,0.025138);
  // public static SimpleMotorFeedforward bottomFeedforward = new SimpleMotorFeedforward(0.20548,0.13256,0.020699);
@@ -128,7 +128,14 @@ public class Shooter extends SubsystemBase {
     setVelocity(velocityRPM);
     if(isAtVelocityRPM(velocityRPM, velocityRPM)) Transport.start();
   }
+  public void scoreSpeaker(){
+    if(scoringMode) Transport.start();
+    else shootRPM(ShooterConstants.SHOOT_SPEAKER_VELOCITY);
+  }
 
+  public Command spinWheelsCommand(double top, double bot){
+    return Commands.run(()->spinWheels(top, bot), this);
+  }
   //gets the velocity given a certain motor in RPM
   public static double getVelocityRPM(CANSparkMax motor){
       return motor.getEncoder().getVelocity();
@@ -155,6 +162,10 @@ public class Shooter extends SubsystemBase {
     };
     }
   }
+  public void spinWheels(double topVelocityRPM, double bottomVelocityRPM){
+    setVelocity(topVelocityRPM, bottomVelocityRPM);
+  }
+
   public Command intakeSourceCommand(){
     return Commands.sequence(
       Commands.runOnce(() -> RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(52)), RobotContainer.sprocket),
@@ -178,9 +189,10 @@ public class Shooter extends SubsystemBase {
       Commands.waitSeconds(.6),
       shootAmpCommand());
   }
-  public Command shootSpeakerCommand () {
-    return Commands.run(() -> {RobotContainer.shooter.shootRPM(ShooterConstants.SHOOT_SPEAKER_VELOCITY);});
+  public Command scoreSpeakerCommand () {
+    return Commands.run(() -> {scoreSpeaker();});
   }
+  
   public Command shootAmpCommand () {
     return Commands.run(() -> {RobotContainer.shooter.shootRPM(ShooterConstants.AMP_TOP_SPEED, ShooterConstants.AMP_BOTTOM_SPEED);});
   }
@@ -279,6 +291,6 @@ public class Shooter extends SubsystemBase {
 
   public void periodic() {
     // This method will be called once per scheduler run
-    
+    scoringMode = RobotContainer.driverController.R2().getAsBoolean();
   }
 }

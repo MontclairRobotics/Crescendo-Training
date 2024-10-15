@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.vision.Limelight;
 
 public class Drivetrain extends SubsystemBase {
@@ -162,13 +163,16 @@ public class Drivetrain extends SubsystemBase {
   //field relative
 
   public void setSetpoint(double angle){
-    //converts setPoint to field relative angle
-    setPoint = odometryHeading + angle;
-
-    //wraps angle idek if this will fix
     wrappedSetPoint = wrapAngle(odometryHeading + angle);
     anglePidController.setSetpoint(wrappedSetPoint);
   }
+  public void alignScoringMode(){
+    Translation2d translation = new Translation2d(0,0);
+    setPoint = wrapAngle(odometryHeading + Limelight.getTX());
+    response = anglePidController.calculate(odometryHeading) * Math.PI /180;
+    swerveDrive.drive(translation, response, false, true);
+  }
+
   public void alignToAngleRobotRelative() {
     //creates a blank translation to pass in to the drive function so the robot doesn't move
     Translation2d translation = new Translation2d(0, 0);
@@ -179,9 +183,13 @@ public class Drivetrain extends SubsystemBase {
     //should work maybe idk
     swerveDrive.drive(translation, response, false, true);
     }
+
   //command for setting set point
   public Command setSetPointCommand(double angle) {
     return Commands.runOnce(() -> {setSetpoint(angle);}, RobotContainer.drivetrain);
+  }
+  public Command alignScoringModeCommand(){
+    return Commands.run(() -> {alignScoringMode();}, this);
   }
   //commmand for turning robot robot relative
   public Command alignToAngleRobotRelativeCommand(){
@@ -240,8 +248,13 @@ public class Drivetrain extends SubsystemBase {
   //SCORING MODE!!!!
 
   public Command scoringMode() {
-    return Commands.parallel(RobotContainer.sprocket.setAngleCommand(40), 
-    alignRobotRelativeCommand(RobotContainer.limelight.getTX()));
+    return Commands.parallel(
+    //sets sprocket. to be replaced with function to align angle
+    RobotContainer.sprocket.setAngleCommand(40), 
+    //turns toward april tag
+    alignScoringModeCommand(),
+    //ramps up flywheels
+    RobotContainer.shooter.spinWheelsCommand(ShooterConstants.SHOOT_SPEAKER_VELOCITY, ShooterConstants.SHOOT_SPEAKER_VELOCITY));
   }
 
     @Override
