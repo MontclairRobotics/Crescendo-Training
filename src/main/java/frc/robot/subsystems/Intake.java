@@ -54,7 +54,7 @@ public class Intake extends SubsystemBase {
         Transport.stop();
     }
     public Command intakeCommand(){
-        return Commands.run(()-> intake(), this).onlyWhile(getBB()).finallyDo(() ->stop());
+        return Commands.run(()-> intake(), this).finallyDo(() -> {stop(); Transport.stop();});
     }
     //command for reverse intaking
     public Command outtakeCommand (){

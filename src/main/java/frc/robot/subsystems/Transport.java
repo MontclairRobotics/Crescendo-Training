@@ -4,6 +4,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import frc.robot.Constants;
+import frc.robot.Constants.IntakeConstants;
 
 public class Transport {
     //transport motor object
@@ -11,11 +12,11 @@ public class Transport {
     
     //starts the transport
     public static void start(){
-        transportMotor.set(-Constants.TRANSPORT_SPEED);
+        transportMotor.set(-IntakeConstants.TRANSPORT_SPEED);
     }
     //reverses the transport
     public static void reverse(){
-        transportMotor.set(Constants.TRANSPORT_SPEED);
+        transportMotor.set(IntakeConstants.TRANSPORT_SPEED);
     }
     //stops the transport
     public static void stop(){

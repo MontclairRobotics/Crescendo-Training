@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.Auto;
 import frc.robot.subsystems.Climbers;
 import frc.robot.subsystems.Drivetrain;
@@ -70,17 +71,17 @@ public class RobotContainer {
     operatorController.circle().whileTrue(shooter.shootSpeakerCommand()).onFalse(shooter.stopCommand());
     //shoots amp hopefully works
     operatorController.triangle().whileTrue(shooter.scoreAmp()).onFalse(shooter.stopCommand());
-    //intake
+    //intake because inverts
     operatorController.L2().onTrue(intake.intakeCommand()).onFalse(intake.stopCommand());
-    //outtake
+    //outtake because inverts
     operatorController.R2().onTrue(intake.outtakeCommand()).onFalse(intake.stopCommand());
-    //sprocket angle commands for fun
-    operatorController.cross().onTrue(sprocket.setAngleCommand(35));
-    operatorController.square().onTrue(sprocket.setAngleCommand(50));
+    //jank fix
+    operatorController.cross().onTrue(IntakeConstants.reverseIntakeAndTransportSpeedsCommand());
+    operatorController.square().onTrue(IntakeConstants.reverseIntakeSpeedCommand());
     //makes sprocket able to be moved when disabled
     operatorController.touchpad().onTrue(sprocket.setCoastModeCommand().ignoringDisable(true)).whileFalse(sprocket.setBrakeModeCommand().ignoringDisable(true));
     //intake from source. UNTESTED
-    operatorController.L1().onTrue(shooter.intakeSourceCommand());
+    operatorController.R1().whileTrue(shooter.intakeSourceCommand()).onFalse(shooter.stopIntakeSourceCommand());
     
     /*DRIVER BINDINGS*/
     //robot relative driving
@@ -91,7 +92,7 @@ public class RobotContainer {
     driverController.R2().whileTrue(drivetrain.scoringMode());
     //align to angle for testing. DOES NOT WORK
     driverController.cross().onTrue(drivetrain.alignRobotRelativeCommand(90));
-    driverController.circle().onTrue(drivetrain.alignFieldRelativeCommand(90));
+    driverController.circle().onTrue(drivetrain.alignRobotRelativeCommand(180));
   }
 
   /**

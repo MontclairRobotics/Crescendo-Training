@@ -27,6 +27,8 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.util.Tunable;
 import java.awt.geom.Point2D;
 
@@ -126,12 +128,22 @@ public final class Constants {
   public static class IntakeConstants {
 
   //self-explanatory guys...
-  public static final double INTAKE_SPEED = -.7;
-
+  public static double INTAKE_SPEED = -.7;
+  public static double TRANSPORT_SPEED = -.7;
+  public static void reverseIntakeAndTransportSpeeds(){
+    INTAKE_SPEED *= -1;
+    TRANSPORT_SPEED *= -1;
   }
-
-  //transport speed
-  public static final double TRANSPORT_SPEED = -.7;
+  public static void reverseIntakeSpeed(){
+    INTAKE_SPEED *= -1;
+  }
+  public static Command reverseIntakeAndTransportSpeedsCommand(){
+    return Commands.runOnce(() -> reverseIntakeAndTransportSpeeds());
+  }
+  public static Command reverseIntakeSpeedCommand(){
+    return Commands.runOnce(() -> reverseIntakeSpeed());
+  }
+  }
 
   //arm stuff
   public static class ArmConstants {

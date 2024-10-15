@@ -120,7 +120,7 @@ public class Shooter extends SubsystemBase {
   //spins the wheels to shoot at DIFFERENT speeds, when they reach said speed, transport will start.
   public void shootRPM(double topVelocityRPM, double bottomVelocityRPM) {
     setVelocity(topVelocityRPM, bottomVelocityRPM);
-    if(isAtVelocityRPM(topVelocityRPM, bottomVelocityRPM)) Transport.start();
+    if(isAtVelocityRPM(topVelocityRPM, bottomVelocityRPM)) Transport.reverse();
   }
 
   //spins the wheels to shoot at the SAME speed, when they reach said speed, transport will start.
@@ -139,24 +139,43 @@ public class Shooter extends SubsystemBase {
     return motor.getEncoder().getVelocity()/60;
   }
   public void intakeSource(){
-    RobotContainer.shooter.shootRPM(-ShooterConstants.SHOOT_SPEAKER_VELOCITY);
-    if(isAtVelocityRPM(-ShooterConstants.SHOOT_SPEAKER_VELOCITY, -ShooterConstants.SHOOT_SPEAKER_VELOCITY)){
-      Transport.reverse();
+    RobotContainer.shooter.shootRPM(-2000);
+    if(isAtVelocityRPM(-2000, -2000)){
+      Transport.start();
     };
+  }
+  public void intakeSource2(){
+    if(!RobotContainer.intake.beambreak.get()) {
+      RobotContainer.shooter.stop();
+      Transport.stop();
+    } else {
+    RobotContainer.shooter.shootRPM(-2000);
+    if(isAtVelocityRPM(-2000, -2000)){
+      Transport.start();
+    };
+    }
   }
   public Command intakeSourceCommand(){
     return Commands.sequence(
       Commands.runOnce(() -> RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(52)), RobotContainer.sprocket),
       Commands.run(() -> {intakeSource();})
       .onlyWhile(RobotContainer.intake.getBB()),
-      Commands.run(()-> {intakeSource();})
+      Commands.run(()-> {intakeSource2();})
       .onlyWhile(RobotContainer.intake.getReverseBB())
       );
     
   }
+  public void stopIntakeSource(){
+    RobotContainer.shooter.stop();
+    Transport.stop();
+  }
+  public Command stopIntakeSourceCommand(){
+    return Commands.runOnce(() -> stopIntakeSource());
+  }
   public Command scoreAmp(){
     return Commands.sequence(
       Commands.runOnce(() -> RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(ShooterConstants.AMP_SCORE_ANGLE)), this),
+      Commands.waitSeconds(.6),
       shootAmpCommand());
   }
   public Command shootSpeakerCommand () {

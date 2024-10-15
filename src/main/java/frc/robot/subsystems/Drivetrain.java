@@ -42,10 +42,12 @@ public class Drivetrain extends SubsystemBase {
   public File swerveJsonDirectory;
   public SwerveDrive swerveDrive;
   public Translation2d centerOfRotationMeters;
-
+  
+  
 
   //turning robot relative
   public double setPoint;
+  public double wrappedSetPoint;
   public double odometryHeading;
   public PIDController anglePidController;
   public double response;
@@ -55,8 +57,9 @@ public class Drivetrain extends SubsystemBase {
   public Drivetrain() {
 
   //FOR the auto turn button (robot relative)
-  anglePidController = new PIDController(1.3, 0, 0.5);
+  anglePidController = new PIDController(1, 0, 0.03);
   anglePidController.setTolerance(2);
+  anglePidController.enableContinuousInput(-180, 180);
 
   //this makes it so the robot drives with respect to the field
   FieldRelative = true;
@@ -157,22 +160,24 @@ public class Drivetrain extends SubsystemBase {
   }
   //this is a method to set the setpoint once before running the command to turn the robot automatically
   //field relative
+
   public void setSetpoint(double angle){
     //converts setPoint to field relative angle
     setPoint = odometryHeading + angle;
+
     //wraps angle idek if this will fix
-    setPoint = wrapAngle(odometryHeading + angle);
-    anglePidController.setSetpoint(setPoint);
+    wrappedSetPoint = wrapAngle(odometryHeading + angle);
+    anglePidController.setSetpoint(wrappedSetPoint);
   }
   public void alignToAngleRobotRelative() {
     //creates a blank translation to pass in to the drive function so the robot doesn't move
     Translation2d translation = new Translation2d(0, 0);
     //calculates the input for the drive function (NO IDEA IF I SHOULD MULTIPLY THIS BY SOMETHING)
     //inputs field relative angle (set point is also converted to field relative)
-    response = anglePidController.calculate(odometryHeading);
+    response = anglePidController.calculate(odometryHeading) * Math.PI / 180;
     //calls the drive function with no translation but with turning
     //should work maybe idk
-    swerveDrive.drive(translation, response, false, false);
+    swerveDrive.drive(translation, response, false, true);
     }
   //command for setting set point
   public Command setSetPointCommand(double angle) {
@@ -180,7 +185,7 @@ public class Drivetrain extends SubsystemBase {
   }
   //commmand for turning robot robot relative
   public Command alignToAngleRobotRelativeCommand(){
-    return Commands.run(() -> {alignToAngleRobotRelative();}, this).onlyIf(isRobotNOTAtAngleSetPoint());
+    return Commands.run(() -> {alignToAngleRobotRelative();}, this).onlyWhile(isRobotNOTAtAngleSetPoint());
   }
   //command that strings the two together
   public Command alignRobotRelativeCommand(double angle) {
@@ -201,12 +206,15 @@ public class Drivetrain extends SubsystemBase {
   public DoubleSupplier setPointSupplier(){
     return () -> setPoint;
   }
-
+  public DoubleSupplier wrappedSetPointSupplier(){
+    return () -> wrappedSetPoint;
+  }
 
 
   //FIELD RELATIVE TURNING
   public void setFieldRelativeAngle(double angle){
-    anglePidController.setSetpoint(wrapAngle(angle));
+    double wrappedAngle = wrapAngle(angle);
+    anglePidController.setSetpoint(wrappedAngle);
   }
   public void goToAngleFieldRelative(){
     Translation2d translation = new Translation2d(0,0);
