@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ShooterConstants;
@@ -53,13 +54,14 @@ public class Drivetrain extends SubsystemBase {
   public PIDController anglePidController;
   public double response;
   public boolean isRobotAtAngleSetPoint;
+  public boolean shouldStop;
 
   //constructor
   public Drivetrain() {
 
   //FOR the auto turn button (robot relative)
-  anglePidController = new PIDController(1, 0, 0.03);
-  anglePidController.setTolerance(2);
+  anglePidController = new PIDController(1, .3, 0.07);
+  anglePidController.setTolerance(1);
   anglePidController.enableContinuousInput(-180, 180);
 
   //this makes it so the robot drives with respect to the field
@@ -166,14 +168,24 @@ public class Drivetrain extends SubsystemBase {
     wrappedSetPoint = wrapAngle(odometryHeading + angle);
     anglePidController.setSetpoint(wrappedSetPoint);
   }
-  public void alignScoringMode(){
+  public void alignScoringMode(boolean lockDrive){
+    if(RobotContainer.shooter.scoringMode){
     Translation2d translation = new Translation2d(0,0);
     setPoint = wrapAngle(odometryHeading + Limelight.getTX());
     response = anglePidController.calculate(odometryHeading) * Math.PI /180;
-    swerveDrive.drive(translation, response, false, true);
+    if(lockDrive) swerveDrive.drive(translation, response, false, true);
+    else swerveDrive.drive(returnDefaultDriveTranslation(), response, false, true);
+    } else stopScoringMode();
   }
-
-  public void alignToAngleRobotRelative() {
+  public void stopScoringMode(){
+    RobotContainer.shooter.stop();
+    Sprocket.stop();
+    
+  }
+  public Command stopScoringModeCommand(){
+    return Commands.runOnce(() -> stopScoringMode());
+  }
+  public void alignToAngleRobotRelative(boolean lockDrive) {
     //creates a blank translation to pass in to the drive function so the robot doesn't move
     Translation2d translation = new Translation2d(0, 0);
     //calculates the input for the drive function (NO IDEA IF I SHOULD MULTIPLY THIS BY SOMETHING)
@@ -181,23 +193,24 @@ public class Drivetrain extends SubsystemBase {
     response = anglePidController.calculate(odometryHeading) * Math.PI / 180;
     //calls the drive function with no translation but with turning
     //should work maybe idk
-    swerveDrive.drive(translation, response, false, true);
+    if(lockDrive) swerveDrive.drive(translation, response, false, true);
+    else swerveDrive.drive(returnDefaultDriveTranslation(), response, false, true);
     }
 
   //command for setting set point
   public Command setSetPointCommand(double angle) {
     return Commands.runOnce(() -> {setSetpoint(angle);}, RobotContainer.drivetrain);
   }
-  public Command alignScoringModeCommand(){
-    return Commands.run(() -> {alignScoringMode();}, this);
+  public Command alignScoringModeCommand(boolean lockDrive){
+    return Commands.run(() -> {alignScoringMode(lockDrive);}, this);
   }
   //commmand for turning robot robot relative
-  public Command alignToAngleRobotRelativeCommand(){
-    return Commands.run(() -> {alignToAngleRobotRelative();}, this).onlyWhile(isRobotNOTAtAngleSetPoint());
+  public Command alignToAngleRobotRelativeCommand(boolean lockDrive){
+    return Commands.run(() -> {alignToAngleRobotRelative(lockDrive);}, this).onlyWhile(inputNotIgnorable());
   }
   //command that strings the two together
-  public Command alignRobotRelativeCommand(double angle) {
-    return Commands.sequence(setSetPointCommand(angle), alignToAngleRobotRelativeCommand());
+  public Command alignRobotRelativeCommand(double angle, boolean lockDrive) {
+    return Commands.sequence(setSetPointCommand(angle), alignToAngleRobotRelativeCommand(lockDrive));
   }
   public BooleanSupplier isRobotNOTAtAngleSetPoint(){
     return () -> !isRobotAtAngleSetPoint;
@@ -224,19 +237,34 @@ public class Drivetrain extends SubsystemBase {
     double wrappedAngle = wrapAngle(angle);
     anglePidController.setSetpoint(wrappedAngle);
   }
-  public void goToAngleFieldRelative(){
+  public void goToAngleFieldRelative(boolean lockDrive){
     Translation2d translation = new Translation2d(0,0);
-    double response = anglePidController.calculate(odometryHeading);
-    swerveDrive.drive(translation, response, true, false);
+    double response = anglePidController.calculate(odometryHeading) *Math.PI/180;
+    if(lockDrive) swerveDrive.drive(translation, response, true, true);
+    else swerveDrive.drive(returnDefaultDriveTranslation(), response, true, true);
+  }
+  public Translation2d returnDefaultDriveTranslation(){
+    double xInput = -1*RobotContainer.driverController.getLeftY();
+    double yInput = -1*RobotContainer.driverController.getLeftX();
+    double rotationInput = -1 *RobotContainer.driverController.getRightX();
+    xInput = Math.signum(xInput) * xInput * xInput;
+    yInput = Math.signum(yInput) * yInput * yInput;
+    rotationInput = Math.signum(rotationInput) * rotationInput * rotationInput;
+    if(Math.abs(xInput)<.04) xInput = 0;
+    if(Math.abs(yInput)<.04) yInput = 0;
+    double xVelocity = xInput * maximumSpeed;
+    double yVelocity = yInput * maximumSpeed;
+    Translation2d translation2d = new Translation2d(xVelocity, yVelocity);
+    return translation2d;
   }
   public Command setFieldRelativeAngleCommand(double angle){
     return Commands.runOnce(() -> {setFieldRelativeAngle(angle);}, this);
   }
-  public Command goToAngleFieldRelativeCommand(){
-    return Commands.run(()->{goToAngleFieldRelative();});
+  public Command goToAngleFieldRelativeCommand(boolean lockDrive){
+    return Commands.run(()->{goToAngleFieldRelative(lockDrive);}).onlyWhile(isRobotNOTAtAngleSetPoint());
   }
-  public Command alignFieldRelativeCommand(double angle){
-    return Commands.sequence(setFieldRelativeAngleCommand(angle), goToAngleFieldRelativeCommand());
+  public Command alignFieldRelativeCommand(double angle, boolean lockDrive){
+    return Commands.sequence(setFieldRelativeAngleCommand(angle), goToAngleFieldRelativeCommand(lockDrive));
   }
   public static double wrapAngle(double angle) {
     angle = (angle + 180) % 360; // Step 1 and 2
@@ -245,14 +273,17 @@ public class Drivetrain extends SubsystemBase {
     }
     return angle - 180; // Step 3
 }
+  public BooleanSupplier inputNotIgnorable(){
+    return () -> !shouldStop;
+  }
   //SCORING MODE!!!!
 
-  public Command scoringMode() {
+  public Command scoringMode(boolean lockDrive) {
     return Commands.parallel(
     //sets sprocket. to be replaced with function to align angle
-    RobotContainer.sprocket.setAngleCommand(40), 
+    RobotContainer.sprocket.setAngleContinousCommand(RobotContainer.limelight.tySupplier()), 
     //turns toward april tag
-    alignScoringModeCommand(),
+    alignScoringModeCommand(lockDrive),
     //ramps up flywheels
     RobotContainer.shooter.spinWheelsCommand(ShooterConstants.SHOOT_SPEAKER_VELOCITY, ShooterConstants.SHOOT_SPEAKER_VELOCITY));
   }
@@ -260,6 +291,7 @@ public class Drivetrain extends SubsystemBase {
     @Override
     public void periodic() {
     // This method will be called once per scheduler run
+    shouldStop = !isRobotAtAngleSetPoint && Math.abs(response) < 0.05;
     swerveDrive.getPose();
     odometryHeading = swerveDrive.getPose().getRotation().getDegrees();
     isRobotAtAngleSetPoint = anglePidController.atSetpoint();

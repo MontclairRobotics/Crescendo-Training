@@ -33,19 +33,17 @@ public class Intake extends SubsystemBase {
     }
     // Starts intake motors
     public void intake(){
-        if(beambreak.get()){
         RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(ArmConstants.SPROCKET_INTAKE_ANGLE));
-        topIntakeMotor.set(-IntakeConstants.INTAKE_SPEED);
-        bottomIntakeMotor.set(-IntakeConstants.INTAKE_SPEED);
-        Transport.start();
-        } else RobotContainer.intake.stop();
+        topIntakeMotor.set(IntakeConstants.INTAKE_SPEED);
+        bottomIntakeMotor.set(IntakeConstants.INTAKE_SPEED);
+        Transport.reverse();
     }
     // Reverses intake motors
     public void outtake(){
         RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(ArmConstants.SPROCKET_OUTTAKE_ANGLE));
-        topIntakeMotor.set(IntakeConstants.INTAKE_SPEED);
-        bottomIntakeMotor.set(IntakeConstants.INTAKE_SPEED);
-        Transport.reverse();
+        topIntakeMotor.set(-IntakeConstants.INTAKE_SPEED);
+        bottomIntakeMotor.set(-IntakeConstants.INTAKE_SPEED);
+        Transport.start();
     }
     // Stops intake motors
     public void stop(){
@@ -54,7 +52,7 @@ public class Intake extends SubsystemBase {
         Transport.stop();
     }
     public Command intakeCommand(){
-        return Commands.run(()-> intake(), this).finallyDo(() -> {stop(); Transport.stop();});
+        return Commands.run(()-> intake(), this).onlyWhile(getBB()).finallyDo(() -> stop());
     }
     //command for reverse intaking
     public Command outtakeCommand (){

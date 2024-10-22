@@ -66,8 +66,9 @@ public class RobotContainer {
     sprocket.setDefaultCommand(sprocket.sprocketDefaultCommand());
     //climber default commmand
     climbers.setDefaultCommand(climbers.climbersDefaultCommand());
-    
-    //OPERATOR BINDINGS
+    //TESTING BINDINGS
+
+    /*OPERATOR BINDINGS*/
     
     //shoots speaker without angle changing
     operatorController.circle().whileTrue(shooter.scoreSpeakerCommand()).onFalse(shooter.stopCommand());
@@ -78,23 +79,27 @@ public class RobotContainer {
     //outtake because inverts
     operatorController.R2().onTrue(intake.outtakeCommand()).onFalse(intake.stopCommand());
     //jank fix
-    operatorController.cross().onTrue(IntakeConstants.reverseIntakeAndTransportSpeedsCommand());
-    operatorController.square().onTrue(IntakeConstants.reverseIntakeSpeedCommand());
     //makes sprocket able to be moved when disabled
     operatorController.touchpad().onTrue(sprocket.setCoastModeCommand().ignoringDisable(true)).whileFalse(sprocket.setBrakeModeCommand().ignoringDisable(true));
     //intake from source. UNTESTED
     operatorController.R1().whileTrue(shooter.intakeSourceCommand()).onFalse(shooter.stopIntakeSourceCommand());
     
+
     /*DRIVER BINDINGS*/
     //robot relative driving
     driverController.L2().onTrue(drivetrain.toRobotRelativeCommand()).onFalse(drivetrain.toFieldRelativeCommand());
     //zero gyro
     driverController.touchpad().onTrue(drivetrain.zeroGyro());
     //scoring mode. DOES NOT WORK YET
-    driverController.R2().whileTrue(drivetrain.scoringMode());
+    driverController.R2().onTrue(drivetrain.scoringMode(false)).onFalse(drivetrain.stopScoringModeCommand());
     //align to angle for testing. DOES NOT WORK
-    driverController.cross().onTrue(drivetrain.alignRobotRelativeCommand(90));
-    driverController.circle().onTrue(drivetrain.alignRobotRelativeCommand(180));
+    driverController.R2().onTrue(drivetrain.alignRobotRelativeCommand(30, false));
+    driverController.square().onTrue(drivetrain.alignFieldRelativeCommand(90, false));
+    driverController.cross().onTrue(drivetrain.alignFieldRelativeCommand(180, false));
+    driverController.circle().onTrue(drivetrain.alignFieldRelativeCommand(-90, false));
+    driverController.triangle().onTrue(drivetrain.alignFieldRelativeCommand(0, false));
+
+    
   }
 
   /**

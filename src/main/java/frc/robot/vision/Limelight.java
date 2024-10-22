@@ -10,7 +10,7 @@ import frc.robot.Constants;
 
 public class Limelight extends SubsystemBase{
 
-    public final static String llname = "shooter-limelight";
+    public final static String llname = "limelight-shooter";
     int tagCount;
     NetworkTable Limetable = NetworkTableInstance.getDefault().getTable("limelight");
     NetworkTableEntry ty = Limetable.getEntry("ty");
@@ -28,6 +28,9 @@ public static double getTX(){
 public double getTY() {
     return LimelightHelpers.getLimelightNTDouble(llname, "ty");
 } 
+public DoubleSupplier tySupplier(){
+    return () -> getTY();
+}
 public static DoubleSupplier txSupplier(){
     return () -> getTX();
 }

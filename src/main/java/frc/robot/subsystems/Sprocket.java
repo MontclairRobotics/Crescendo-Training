@@ -59,6 +59,9 @@ public class Sprocket extends SubsystemBase {
     public Command setAngleCommand(double angle) {
         return Commands.runOnce(() -> RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(angle)), this);
     }
+    public Command setAngleContinousCommand(DoubleSupplier dub){
+        return Commands.run(() -> this.setAngle(Rotation2d.fromDegrees(dub.getAsDouble())), this);
+    }
     //stops the sprocket
     public static void stop() {
         rightSprocketMotor.set(0);

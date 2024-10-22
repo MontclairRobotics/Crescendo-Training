@@ -298,7 +298,7 @@ public class Auto extends SubsystemBase {
     //return statement
    } 
    
-  System.out.println("feedback: "+ feedback);
+  System.out.println("feedback: " + feedback);
   System.out.println("is the string valid:" + isAutoStringValid);
    return isAutoStringValid; 
   

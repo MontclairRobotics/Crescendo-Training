@@ -49,7 +49,7 @@ public class Robot extends LoggedRobot {
     Shuffleboard.getTab("Debug").addBoolean("Is Robot At Set Point", RobotContainer.drivetrain.isRobotAtAngleSetPoint()).withSize(2,1);
     Shuffleboard.getTab("Debug").addDouble("Odometry Heading", RobotContainer.drivetrain.odometryHeadingDoubleSupplier()).withSize(2,1);
     Shuffleboard.getTab("Debug").addDouble("wrapped setpoint", RobotContainer.drivetrain.wrappedSetPointSupplier()).withSize(2,1);
-    
+    Shuffleboard.getTab("Debug").addBoolean("Beambreak is NOT triggered", RobotContainer.intake.getBB());
     // DoubleLogEntry topMotorVelocity;
     // DoubleLogEntry bottomMotorVelocity;
 
