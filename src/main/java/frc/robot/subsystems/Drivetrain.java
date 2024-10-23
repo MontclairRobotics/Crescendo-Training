@@ -60,7 +60,7 @@ public class Drivetrain extends SubsystemBase {
   public Drivetrain() {
 
   //FOR the auto turn button (robot relative)
-  anglePidController = new PIDController(1, .3, 0.07);
+  anglePidController = new PIDController(1, .25, 0.04);
   anglePidController.setTolerance(1);
   anglePidController.enableContinuousInput(-180, 180);
 

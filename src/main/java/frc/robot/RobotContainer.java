@@ -91,9 +91,9 @@ public class RobotContainer {
     //zero gyro
     driverController.touchpad().onTrue(drivetrain.zeroGyro());
     //scoring mode. DOES NOT WORK YET
-    driverController.R2().onTrue(drivetrain.scoringMode(false)).onFalse(drivetrain.stopScoringModeCommand());
+    driverController.R2().and(()->limelight.isTargetInView()).whileTrue(drivetrain.scoringMode(false)).onFalse(drivetrain.stopScoringModeCommand());
     //align to angle for testing. DOES NOT WORK
-    driverController.R2().onTrue(drivetrain.alignRobotRelativeCommand(30, false));
+    //driverController.R2().onTrue(drivetrain.alignRobotRelativeCommand(30, false));
     driverController.square().onTrue(drivetrain.alignFieldRelativeCommand(90, false));
     driverController.cross().onTrue(drivetrain.alignFieldRelativeCommand(180, false));
     driverController.circle().onTrue(drivetrain.alignFieldRelativeCommand(-90, false));

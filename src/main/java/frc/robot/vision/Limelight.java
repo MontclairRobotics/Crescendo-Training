@@ -7,6 +7,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.VisionConstants;
 
 public class Limelight extends SubsystemBase{
 
@@ -15,12 +16,12 @@ public class Limelight extends SubsystemBase{
     NetworkTable Limetable = NetworkTableInstance.getDefault().getTable("limelight");
     NetworkTableEntry ty = Limetable.getEntry("ty");
     double targetOffsetAngle_Vertical = ty.getDouble(0.0);
-    double distanceFromLimelightToGoalInches = (Constants.VisionConstants.SPEAKER_GOAL_HEIGHT 
-    - Constants.VisionConstants.SHOOTER_LIMELIGHT_HEIGHT) / Math.tan
-    (Constants.VisionConstants.SHOOTER_LIMELIGHT_ANGLE_DEGREES);
+    double distanceFromLimelightToSpeakerInches;
+    double speakerToLimelightVerticalInches = (VisionConstants.SPEAKER_GOAL_HEIGHT 
+- VisionConstants.SHOOTER_LIMELIGHT_HEIGHT);
 
 public double getDistanceFromLimeToGoal() {
- return distanceFromLimelightToGoalInches;
+ return distanceFromLimelightToSpeakerInches;
 }
 public static double getTX(){
     return LimelightHelpers.getLimelightNTDouble(llname, "tx");
@@ -46,11 +47,16 @@ public boolean isTargetInView(){
     return false;
 }
 public void periodic(){
- 
 
-
-
-
+/*this is h2-h1/tan(a1+a2)
+ * h2 is the speaker height
+ * h1 is the limelight mount height
+ * speakertoLimelightVerticalInches is h2-h1
+ * a1 is ty
+ * a2 is angle of camera
+*/
+distanceFromLimelightToSpeakerInches = speakerToLimelightVerticalInches
+/ Math.tan(Math.toRadians(getTY() + VisionConstants.SHOOTER_LIMELIGHT_ANGLE_DEGREES));
 
 }
 public void setPipeline(Pipetype pipe) {
