@@ -36,35 +36,19 @@ public class Robot extends LoggedRobot {
 
     m_robotContainer = new RobotContainer();
 
+    /* LOGGING */
     SmartDashboard.putNumber("topMotor Velocity RPM", Shooter.getVelocityRPM(Shooter.topMotor));
     SmartDashboard.putNumber("bottomMotor Velocity RPM", Shooter.getVelocityRPM(Shooter.bottomMotor));
-    Shuffleboard.getTab("Debug").addDouble("Sprocket angle", RobotContainer.sprocket.sprocketRawPositionVariable);
-    // Shuffleboard.getTab("Debug").addDouble("Top velocity RPM", RobotContainer.shooter.velocitySupplierRPM(Shooter.topMotor)).withSize(3,1);
-    // Shuffleboard.getTab("Debug").addDouble("Bottom velocity RPM", RobotContainer.shooter.velocitySupplierRPM(Shooter.bottomMotor)).withSize(3,1);
-    // Shuffleboard.getTab("Debug").addDouble("Top velocity RPS", RobotContainer.shooter.velocitySupplierRPS(Shooter.topMotor)).withSize(3, 1);
-    // Shuffleboard.getTab("Debug").addDouble("Bottom velocity RPSSS", RobotContainer.shooter.velocitySupplierRPS(Shooter.bottomMotor)).withSize(3,1);
+    Shuffleboard.getTab("Debug").addDouble("Sprocket angle", RobotContainer.sprocket.getRawPositionSupplier());
     Shuffleboard.getTab("Debug").addDouble("TX", Limelight.txSupplier()).withSize(2,1);
     Shuffleboard.getTab("Debug").addDouble("setPoint", RobotContainer.drivetrain.setPointSupplier()).withSize(2,1);
     Shuffleboard.getTab("Debug").addDouble("response", RobotContainer.drivetrain.responseSupplier()).withSize(2,1);
     Shuffleboard.getTab("Debug").addBoolean("Is Robot At Set Point", RobotContainer.drivetrain.isRobotAtAngleSetPoint()).withSize(2,1);
     Shuffleboard.getTab("Debug").addDouble("Odometry Heading", RobotContainer.drivetrain.odometryHeadingDoubleSupplier()).withSize(2,1);
     Shuffleboard.getTab("Debug").addDouble("wrapped setpoint", RobotContainer.drivetrain.wrappedSetPointSupplier()).withSize(2,1);
-    Shuffleboard.getTab("Debug").addBoolean("Beambreak is NOT triggered", RobotContainer.intake.getBB());
-    // DoubleLogEntry topMotorVelocity;
-    // DoubleLogEntry bottomMotorVelocity;
+    Shuffleboard.getTab("Debug").addDouble("ty", Limelight.tySupplier()).withSize(2,1);
+    Shuffleboard.getTab("Debug").addDouble("best fit angle", RobotContainer.limelight.bestFitAngleSupplier()).withSize(2,1);
 
-    // //Starts recording to data log
-    // DataLogManager.start();
-    // //creates datalog
-    // DataLog log = DataLogManager.getLog();
-
-    // //ugh
-    // topMotorVelocity = new DoubleLogEntry(log, "topMotorVelocity");
-    // bottomMotorVelocity = new DoubleLogEntry(log, "bottomMotorVelocity");
-
-    // topMotorVelocity.append(Shooter.getVelocity(Shooter.topMotor));
-    // bottomMotorVelocity.append(Shooter.getVelocity(Shooter.bottomMotor));
-  
   }
 
   @Override
@@ -95,7 +79,7 @@ public class Robot extends LoggedRobot {
   public void autonomousPeriodic() {
     System.out.println("feedback: " + RobotContainer.auto.feedback);
     System.out.println(RobotContainer.auto.isAutoStringValid);
-    System.out.println(Auto.autoString);
+    System.out.println(RobotContainer.auto.autoString);
   }
 
   @Override

@@ -28,122 +28,112 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
+import frc.robot.Commands.AutoCommands;
 import frc.robot.Constants.DriveConstants;
 
 public class Auto extends SubsystemBase {
 
-  //the string that is inputed to the driverstation by the user
 
-  public static String autoString;
+  /* INSTANCE VARIABLES */
+  public String autoString;
   public String testAutoString;
 
+  /* NOTE BOOLEANS */
   public boolean isFromNoteScoringLocation;
-    public boolean isFromScoringLocation;
-    public boolean isFromCloseNote;
-    public boolean isFromNote;
-    // boolean isFromFarNote;
+  public boolean isFromScoringLocation;
+  public boolean isFromCloseNote;
+  public boolean isFromNote;
 
-    public boolean isGoingToNoteScoringLocation;
-    public boolean isGoingToScoringLocation;
-    public boolean isGoingToCloseNote;
-    public boolean isGoingToNote;
-    // boolean isGoingToFarNote;
+  /* MORE NOTE BOOLEANS */
+  public boolean isGoingToNoteScoringLocation;
+  public boolean isGoingToScoringLocation;
+  public boolean isGoingToCloseNote;
+  public boolean isGoingToNote;
     
-    boolean shouldIntake;
-    boolean shouldShoot;
+  /* INTAKE AND SHOOT BOOLEANS */
+  public boolean shouldIntake;
+  public boolean shouldShoot;
 
-    char previous = 'X';
-    char current;
-    char next;
-    String pathName;
+  /* CHARS */
+  public char previous = 'X';
+  public char current;
+  public char next;
+  public String pathName;
 
-
+  /* IS AUTO STRING VALID */
   public boolean isAutoStringValid;
   
-  //the string that is sent to the driver as their feedback
- public String feedback; 
+  /* FEEDBACK */
+  public String feedback; 
 
-  //instance variables of the arrays used in the autoSequencer
+  /* ARRAYS!!! */
   private char[] allNotes;
   private char[] closeNotes;
   public char[] scoringLocations;
   private char[] startingLocations;
   private char[] farNotes;
-
-  //  These are all of the methods and variables used in the configureHolonomic method,
-  //  which allows us to drive autonomously by supplying the methods that the code
-  //  needs to follow paths
    
-  // This variable is set to (0,0) because our robot is square and so the center is not offset
+  /* SET TO 0,0 BECAUSE OUR ROBOT IS SQUARE */
   Translation2d centerOfRotationMeters;
 
-  // This method returns the current xPosition, yPosition, and rotation2d of the robot
+  /* RETURNS POSE2D OF THE ROBOT */
   public Pose2d getPose2d(){
     return RobotContainer.drivetrain.swerveDrive.getPose();
   }
 
-  // This method takes in a pose2d which is in the form of xPosition, yPosition, and rotation2d,
-  // and it resets the odometry to that pose. The odometry is where the robot THINKS it is.
+  /* RESETS POSE2D */
   public void resetPose2d (Pose2d pose){
     RobotContainer.drivetrain.swerveDrive.resetOdometry(pose);
   }
 
-  // This method takes in ChassisSpeeds, which are a set of xSpeeds, ySpeeds, and rotation.
-  // It drives the robot with these speeds with respect to the robot (robot relative)
+  /* DRIVES ROBOT WITH CHASSIS SPEEDS */
   public void driveRobotRelative(ChassisSpeeds chassisSpeeds){
     RobotContainer.drivetrain.swerveDrive.drive(chassisSpeeds, false, centerOfRotationMeters);
    }
 
-   //This method returns the current ChassisSpeeds of the robot.
+  /* RETURNS CHASSIS SPEEDS */
   public ChassisSpeeds getChassisSpeeds(){
     return RobotContainer.drivetrain.swerveDrive.getRobotVelocity();
   }
 
-  /** Creates a new Auto. */
+  /*
+   * 
+   * 
+   * CONSTRUCTOR
+   * 
+   * 
+   */
   public Auto() {
 
-    // Shuffleboard.getTab("Driver Station");
-    // NetworkTableInstance inst = NetworkTableInstance.getDefault();
-    // NetworkTable ntTable = inst.getTable("Shuffleboard").getSubTable("Debug");
-    // Shuffleboard.getTab("Driver Station");
+    testAutoString = "111";
+    autoString = "2B";
 
-    // ntTable.addListener(
-    //     "Enter Command",
-    //     EnumSet.of(Kind.kValueAll),
-    //     (table, key, event) -> {
-    //      System.out.println(key);
-    //     });
-
-     testAutoString = "111";
-     autoString = "2B";
-
-    //creates the array of all STARTING locations
+    /* ALL STARTING LOCATIONS */
     startingLocations = new char[]{'1','2','3'};
 
-    //creates the array of all SCORING locations
+    /* ALL SCORING LOCATIONS */
     scoringLocations = new char[]{'6','7','4','5','1','2','3'};
 
-    //creates the array of all the notes
+    /* ALL NOTES */
     allNotes = new char[]{'A','B','C','D','E','F','G','H'};
 
-    //creates the array of all close notes
+    /* ALL CLOSE NOTES */
     closeNotes = new char[]{'A','B','C'};
 
-    //creates the array of all far notes
+    /* ALL FAR NOTES */
     farNotes = new char[]{'D','F','H','I','J'};
 
-    //creates the input for the autoString; i already tried but i gave up
-    //TOdO: figure out how to recieve a text entry
-
-    feedback = "f";
+    feedback = "Enter an autostring";
 
     boolean isAutoValid = autoSequencer();
     Shuffleboard.getTab("Driver Station").add("Is auto valid:", isAutoValid).withPosition(1,2);
     Shuffleboard.getTab("Driver Station").add("Feedback:", feedback).withSize(5,1);
 
 
-    //sets the value of the offset (again, since our drivetrain is square, this is zero)
+    /* sets offset center of rotation meters to 0 */
     centerOfRotationMeters = new Translation2d(0,0);
+
+    /* CONFIGURES AUTO SO IT ACTUALLY WORKS */
       AutoBuilder.configureHolonomic(
             this::getPose2d, // Robot pose supplier
             this::resetPose2d, // Method to reset odometry (will be called if your auto has a starting pose)
@@ -152,7 +142,7 @@ public class Auto extends SubsystemBase {
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
                     new PIDConstants(8.12, 0.0, 0.0), // Translation PID constants
                     new PIDConstants(.01, 0.0, 0.07), // Rotation PID constants
-                    Drivetrain.maximumSpeed, // Max module speed, in m/s
+                    RobotContainer.drivetrain.maximumSpeed, // Max module speed, in m/s
                     DriveConstants.DRIVE_BASE_RADIUS, // Drive base radius in meters. Distance from robot center to furthest module.
                     new ReplanningConfig() // Default path replanning config. See the API for the options here
             ),
@@ -171,8 +161,15 @@ public class Auto extends SubsystemBase {
     );  // public Auto auto = new Auto();
 
 
-  }//end of constructor
+  }
 
+  /*
+   * 
+   * 
+   * METHODS
+   * 
+   *
+   */
 
   /*
    * this method takes in an array and a character you want to check,
@@ -190,43 +187,19 @@ public class Auto extends SubsystemBase {
     return isIn;
   }
 
-  //creates the command group for the auto
-  public static SequentialCommandGroup autoCommandGroup = new SequentialCommandGroup();
-
-  //method to easily add paths to a sequential command group
-  public void addPathToGroup (String pathString){
-    autoCommandGroup.addCommands(AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathString)));
-  }
-  public void followPathAndIntakeMethod (String pathString) {
-    AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathString));
-    RobotContainer.intake.intakeCommand();
-  }
-  public Command followPathCommand(String pathString) {
-      PathPlannerPath path = PathPlannerPath.fromPathFile(pathString);
-      return Commands.runOnce(() -> {AutoBuilder.followPath(path);}, this, RobotContainer.drivetrain);
-  }
-  public Command followPathAndIntakeCommand(String pathString){
-      return Commands.runOnce(() -> followPathAndIntakeMethod(pathString), this, RobotContainer.intake, RobotContainer.drivetrain);
-  }
-  public Command followPathAndShootCommand(String pathString, boolean isScoringAmp){
-    if(!isScoringAmp){
-      return Commands.runOnce(() -> followPathCommand(pathString), this, RobotContainer.drivetrain).andThen(() -> RobotContainer.shooter.scoreSpeakerCommand(), this, RobotContainer.shooter);
-    } else {
-      return Commands.runOnce(() -> followPathCommand(pathString), this, RobotContainer.drivetrain).andThen(() -> RobotContainer.shooter.shootAmpCommand(), this, RobotContainer.shooter);
-    }
-  }
-  //TODO: load path file when building sequence 
-  //add .follow path to sequence instread of .followpath command
-  //add try catch bllock.
-
+  /* SETS THE FEEDBACK */
   public void setFeedback(String theFeedbackInput) {
     feedback = theFeedbackInput;
   }
 
-  //AUTOSEQUENCER
+  /*
+   * 
+   * AUTOSEQUENCER
+   * 
+   */
   public boolean autoSequencer() {
     if(autoString.length() > 0) {
-    if(isIn(autoString.charAt(0), startingLocations)) autoCommandGroup.addCommands(RobotContainer.shooter.scoreSpeakerCommand());
+    if(isIn(autoString.charAt(0), startingLocations)) AutoCommands.autoCommandGroup.addCommands(RobotContainer.shootercommands.scoreSpeaker(true));
     else {
       setFeedback("That's not a real starting location");
       isAutoStringValid = false;
@@ -283,35 +256,27 @@ public class Auto extends SubsystemBase {
       if(isAutoStringValid){
         feedback = "looks good!";
         if(shouldIntake){
-          autoCommandGroup.addCommands(followPathAndIntakeCommand(pathName));
+          AutoCommands.autoCommandGroup.addCommands(RobotContainer.autocommands.followPathAndIntake(pathName));
         } 
         if(shouldShoot){
-          if(current == next) autoCommandGroup.addCommands(RobotContainer.shooter.scoreSpeakerCommand());
-          else if(next == '4') autoCommandGroup.addCommands(followPathAndShootCommand(pathName, true));
-          else autoCommandGroup.addCommands(followPathAndShootCommand(pathName, false));
+          if(current == next) AutoCommands.autoCommandGroup.addCommands(RobotContainer.shootercommands.scoreSpeaker(true));
+          else if(next == '4') AutoCommands.autoCommandGroup.addCommands(RobotContainer.autocommands.followPathAndShoot(pathName, true));
+          else AutoCommands.autoCommandGroup.addCommands(RobotContainer.autocommands.followPathAndShoot(pathName, false));
         }
         // setFeedback("Looks Good!", true);
       }
     
-
-    // System.out.println("the auto sequencer finished");
-    //return statement
    } 
    
   System.out.println("feedback: " + feedback);
   System.out.println("is the string valid:" + isAutoStringValid);
    return isAutoStringValid; 
   
-  } //end of is AutoStringValid
+  } /* END OF AUTOSEQUENCER */
   
-
-  public SequentialCommandGroup runAutoSequentialCommandGroup(){
-    return autoCommandGroup;
-  }
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    // System.out.println("hi")
   }
 
 }

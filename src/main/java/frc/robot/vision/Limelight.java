@@ -26,10 +26,10 @@ public double getDistanceFromLimeToGoal() {
 public static double getTX(){
     return LimelightHelpers.getLimelightNTDouble(llname, "tx");
 } 
-public double getTY() {
+public static double getTY() {
     return LimelightHelpers.getLimelightNTDouble(llname, "ty");
 } 
-public DoubleSupplier tySupplier(){
+public static DoubleSupplier tySupplier(){
     return () -> getTY();
 }
 public static DoubleSupplier txSupplier(){
@@ -42,9 +42,21 @@ public static void takeSnapshot() {
     LimelightHelpers.takeSnapshot("","Limelight Snapshot");
 }
 public boolean isTargetInView(){
-    LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate(llname, "entry");
+    LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate(llname, "botpose");
     if(limelightMeasurement.tagCount > 0) return true;
     return false;
+}
+public DoubleSupplier bestFitAngleSupplier(){
+    return () -> bestFit();
+}
+public double bestFit(){
+    return bestFitFromDistance(getDistanceToSpeaker());
+}
+public double bestFitFromDistance(double x){
+   return (59.41*Math.exp(-0.01694*x)) + 27.01;
+}
+public double getDistanceToSpeaker(){
+    return distanceFromLimelightToSpeakerInches;
 }
 public void periodic(){
 
@@ -59,13 +71,6 @@ distanceFromLimelightToSpeakerInches = speakerToLimelightVerticalInches
 / Math.tan(Math.toRadians(getTY() + VisionConstants.SHOOTER_LIMELIGHT_ANGLE_DEGREES));
 
 }
-public void setPipeline(Pipetype pipe) {
-    if(pipe == Pipetype.DRIVER){ 
-        LimelightHelpers.setCameraMode_Driver(llname);
-    }
-    if(pipe == Pipetype.NOTE){
-        LimelightHelpers.setCameraMode_Processor(llname);
-    }
-}
+
     }
 

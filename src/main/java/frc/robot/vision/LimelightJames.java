@@ -31,9 +31,9 @@ public static void takeSnapshot() {
     LimelightHelpers.takeSnapshot("","Limelight Snapshot");
 }
 
-public void setDefaultPipe() {
-    LimelightHelpers.setCameraMode_Driver(cameraName);
-}
+// public void setDefaultPipe() {
+//    LimelightHelpers.setCameraMode_Driver(cameraName);
+// }
 public static void estimatePose() {
     LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
     if(limelightMeasurement.tagCount >= 2)

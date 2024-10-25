@@ -12,6 +12,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import static edu.wpi.first.units.MutableMeasure.mutable;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import org.opencv.core.Mat;
@@ -32,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.IntakeConstants;
@@ -41,170 +43,182 @@ import frc.robot.Constants.ShooterConstants;
 
 public class Shooter extends SubsystemBase {
 
-   //Creates the motors involved in the shooter mechanism
+  /* INSTANTIATES MOTOR OBJECTS */
   public static CANSparkMax topMotor = new CANSparkMax(Ports.SHOOTER_TOP_MOTOR, MotorType.kBrushless);
   public static CANSparkMax bottomMotor = new CANSparkMax(Ports.SHOOTER_BOTTOM_MOTOR, MotorType.kBrushless);
-  //Creates velocity PID controllers for shooter
+
+  /* CREATES VELOCITY PID CONTROLLERS FOR THE SHOOTER */
    SparkPIDController topController = topMotor.getPIDController();
    SparkPIDController bottomController = bottomMotor.getPIDController();
-  //Creates the encoders for shooter
+
+  /* *CREATES THE ENCODERS FOR THE SHOOTER */
   static RelativeEncoder topEncoder = topMotor.getEncoder();
   static RelativeEncoder bottomEncoder = bottomMotor.getEncoder();
-  //Creates feedforward
-  boolean scoringMode;
-  //old constants
- // public static SimpleMotorFeedforward topFeedforward = new SimpleMotorFeedforward(0.1639,0.13481,0.025138);
- // public static SimpleMotorFeedforward bottomFeedforward = new SimpleMotorFeedforward(0.20548,0.13256,0.020699);
- //new constants
+  
+  /* INSTANCE VARIABLES */
+  public boolean scoringMode;
+
+  /* FEEDFORWARD CONSTANTS */
   public static SimpleMotorFeedforward topFeedforward = new SimpleMotorFeedforward(ShooterConstants.TOP_SHOOTER_FF_KS, ShooterConstants.TOP_SHOOTER_FF_KV, ShooterConstants.TOP_SHOOTER_FF_KA);
   public static SimpleMotorFeedforward bottomFeedforward = new SimpleMotorFeedforward(ShooterConstants.BOTTOM_SHOOTER_FF_KS, ShooterConstants.BOTTOM_SHOOTER_FF_KV, ShooterConstants.BOTTOM_SHOOTER_FF_KA);
-  /** Creates a new Shooter. */
+
+  /**
+   * 
+   *  CREATES A NEW SHOOTER 
+   * 
+   * */
+
   public Shooter() {
-    //old constants
-    // topController.setP(6.6337E-06*60, 1);
-    // topController.setD(0, 1);
-
-    // bottomController.setP(2.8688E-05, 1);
-    // bottomController.setD(0, 1);
-
-    //new constants
+    
+    /* PID CONSTANTS */
     topController.setP(ShooterConstants.TOP_SHOOTER_PID_KP, 1);
     topController.setD(ShooterConstants.TOP_SHOOTER_PID_KD, 1);
-
     bottomController.setP(ShooterConstants.BOTTOM_SHOOTER_PID_KP, 1);
     bottomController.setD(ShooterConstants.BOTTOM_SHOOTER_PID_KD, 1);
 
-  //   topEncoder.setVelocityConversionFactor();
-  //  bottomEncoder.setVelocityConversionFactor(1/60.0);
+   }
 
-    // Shuffleboard.getTab("Debug").addDouble("Top velocity RPM", velocitySupplierRPM(topMotor));
-    // Shuffleboard.getTab("Debug").addDouble("Bottom velocity RPM", velocitySupplierRPM(bottomMotor));
+   /*
+    *  
+    * SHOOTER METHODS!!!!!!!!!!!
+    *
+    */
 
-    // Shuffleboard.getTab("Debug").addDouble("Top velocity RPSSS", velocitySupplierRPS(topMotor));
-    // Shuffleboard.getTab("Debug").addDouble("Bottom velocity RPSSS", velocitySupplierRPS(bottomMotor));
-  }
-  //supplier of Velocity RPMMMMM
+   /* SUPPLIES THE VELOICTY IN RPM */ 
   public DoubleSupplier velocitySupplierRPM(CANSparkMax motor){
     return () -> getVelocityRPM(motor);
   }
-  //supplier of velocity RPSSSSS
+
+   /* SUPPLIES THE VELOICTY IN RPS */ 
   public DoubleSupplier velocitySupplierRPS(CANSparkMax motor){
     return () -> getVelocityRPS(motor);
   }
-    //sets both shooter motors to the same velocity, meaning the motors will spin to that velocity
-    public void setVelocity (double velocity) {
-        double topFeedforwardValue = topFeedforward.calculate(velocity);
-        double bottomFeedforwardValue = bottomFeedforward.calculate(velocity);
-        topController.setReference(velocity, ControlType.kVelocity, 1, topFeedforwardValue );
-        bottomController.setReference(velocity, ControlType.kVelocity, 1, bottomFeedforwardValue );
-    }
-    public void setVelocity (double topVelocity, double bottomVelocity) {
-        double topFeedforwardValue = topFeedforward.calculate(topVelocity);
-        double bottomFeedforwardValue = bottomFeedforward.calculate(bottomVelocity);
-        topController.setReference(topVelocity, ControlType.kVelocity, 1, topFeedforwardValue );
-        bottomController.setReference(bottomVelocity, ControlType.kVelocity, 1, bottomFeedforwardValue );
-    }
-    //returns true if input velocity (RPM) is within the deadband (RPM)
-    public boolean isAtVelocityRPS (double topSetpointRPS, double bottomSetpointRPS) {
-     if(Math.abs(getVelocityRPS(topMotor) - topSetpointRPS) < ShooterConstants.SHOOTER_VELOCITY_DEADBAND_RPS
-       && Math.abs(getVelocityRPS(bottomMotor) - bottomSetpointRPS) < ShooterConstants.SHOOTER_VELOCITY_DEADBAND_RPS) return true;
-      else return false;
-    }
-    //returns true if input velocity RPS is within the deadband RPS
-    public boolean isAtVelocityRPM( double topSetpoint, double bottomSetpoint){
-       if(Math.abs(getVelocityRPM(topMotor) - topSetpoint) < ShooterConstants.SHOOTER_VELOCITY_DEADBAND_RPM
-       && Math.abs(getVelocityRPM(bottomMotor) - bottomSetpoint) < ShooterConstants.SHOOTER_VELOCITY_DEADBAND_RPM) return true;
-      else return false;
-    }
 
-  //spins the wheels to shoot at DIFFERENT speeds, when they reach said speed, transport will start.
-  public void shootRPM(double topVelocityRPM, double bottomVelocityRPM) {
-    setVelocity(topVelocityRPM, bottomVelocityRPM);
-    if(isAtVelocityRPM(topVelocityRPM, bottomVelocityRPM)) Transport.reverse();
+  /* SETS ONE VELOCITY TO BOTH MOTORS */
+  public void setVelocity (double velocity) {
+    double topFeedforwardValue = topFeedforward.calculate(velocity);
+    double bottomFeedforwardValue = bottomFeedforward.calculate(velocity);
+    topController.setReference(velocity, ControlType.kVelocity, 1, topFeedforwardValue );
+    bottomController.setReference(velocity, ControlType.kVelocity, 1, bottomFeedforwardValue );
+  }  
+
+  /* SETS DIFFERENCE VELOCITIES TO EACH MOTOR */
+  public void setVelocity (double topVelocity, double bottomVelocity) {
+    double topFeedforwardValue = topFeedforward.calculate(topVelocity);
+    double bottomFeedforwardValue = bottomFeedforward.calculate(bottomVelocity);
+    topController.setReference(topVelocity, ControlType.kVelocity, 1, topFeedforwardValue );
+    bottomController.setReference(bottomVelocity, ControlType.kVelocity, 1, bottomFeedforwardValue );
+  }  
+
+  /* CHECKS IF THE MOTORS ARE AT VELOCITY */
+  public boolean isAtVelocityRPM(double topSetpoint, double bottomSetpoint){
+    if(Math.abs(getVelocityRPM(topMotor) - topSetpoint) < ShooterConstants.SHOOTER_VELOCITY_DEADBAND_RPM
+    && Math.abs(getVelocityRPM(bottomMotor) - bottomSetpoint) < ShooterConstants.SHOOTER_VELOCITY_DEADBAND_RPM) return true;
+    else return false;
+  }  
+
+  /* SUPPLIES A BOOLEAN TO SAY IF THE MOTORS ARE AT VELOCITY */
+  public BooleanSupplier isAtVelocitySupplier(double topSetpoint, double bottomSetpoint){
+    return () -> isAtVelocityRPM(topSetpoint, bottomSetpoint);
   }
 
-  //spins the wheels to shoot at the SAME speed, when they reach said speed, transport will start.
+  /*
+   * SHOOTS WITH EACH MOTOR RECIEVING A SPEPARATE INPUT
+   */
+  public void shootRPM(double topVelocityRPM, double bottomVelocityRPM) {
+    setVelocity(topVelocityRPM, bottomVelocityRPM);
+    if(isAtVelocityRPM(topVelocityRPM, bottomVelocityRPM)) Transport.start();
+  }
+
+  /*
+   * SHOOTS WITH ONE INPUT TO BOTH MOTORS
+   */
   public void shootRPM(double velocityRPM) {
     setVelocity(velocityRPM);
     if(isAtVelocityRPM(velocityRPM, velocityRPM)) Transport.start();
   }
-  public void scoreSpeaker(){
-    if(scoringMode) Transport.start();
-    else shootRPM(ShooterConstants.SHOOT_SPEAKER_VELOCITY);
+
+  /*
+   * THIS IS ESSENTIAL FOR STOPPING SCORING MODE FOR SPEAKER
+   */
+  public void stopScoring(){
+    RobotContainer.shooter.stop();
+    Transport.stop();
   }
 
-  public Command spinWheelsCommand(double top, double bot){
-    return Commands.run(()->spinWheels(top, bot), this);
-  }
-  //gets the velocity given a certain motor in RPM
+
+  /*
+   * GETS THE VELOCITY IN ROTATIONS PER MIN
+   */
   public static double getVelocityRPM(CANSparkMax motor){
       return motor.getEncoder().getVelocity();
   }
 
-  //gets the velocity of input motor in RPS
+  /*
+  * GETS THE VELOCITY IN ROTATIONS PER SEC
+  */
   public static double getVelocityRPS(CANSparkMax motor){
     return motor.getEncoder().getVelocity()/60;
   }
+
+  /*
+   * INTAKE FROM SOURCE
+   */
   public void intakeSource(){
     RobotContainer.shooter.shootRPM(-2000);
     if(isAtVelocityRPM(-2000, -2000)){
-      Transport.start();
+      Transport.reverse();
     };
   }
-  public void intakeSource2(){
-    if(!RobotContainer.intake.beambreak.get()) {
-      RobotContainer.shooter.stop();
-      Transport.stop();
-    } else {
-    RobotContainer.shooter.shootRPM(-2000);
-    if(isAtVelocityRPM(-2000, -2000)){
-      Transport.start();
-    };
-    }
-  }
+  
+  /*
+   * SPINS UP WHEELS BUT DOESN'T SHOOT 
+   */
   public void spinWheels(double topVelocityRPM, double bottomVelocityRPM){
     setVelocity(topVelocityRPM, bottomVelocityRPM);
   }
 
-  public Command intakeSourceCommand(){
-    return Commands.sequence(
-      Commands.runOnce(() -> RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(52)), RobotContainer.sprocket),
-      Commands.run(() -> {intakeSource();})
-      .onlyWhile(RobotContainer.intake.getBB()),
-      Commands.run(()-> {intakeSource2();})
-      .onlyWhile(RobotContainer.intake.getReverseBB())
-      );
-    
+  /*
+   * MAKES SURE WE ARE TECHNICALLY READY TO SHOOT, MOSTLY TO STOP THE SHOOTER
+   */
+  public BooleanSupplier noteReadyToShoot(){
+    return () -> RobotContainer.intake.bbTriggered;
   }
-  public void stopIntakeSource(){
-    RobotContainer.shooter.stop();
-    Transport.stop();
-  }
-  public Command stopIntakeSourceCommand(){
-    return Commands.runOnce(() -> stopIntakeSource());
-  }
-  public Command scoreAmp(){
-    return Commands.sequence(
-      Commands.runOnce(() -> RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(ShooterConstants.AMP_SCORE_ANGLE)), this),
-      Commands.waitSeconds(.6),
-      shootAmpCommand());
-  }
-  public Command scoreSpeakerCommand () {
-    return Commands.run(() -> {scoreSpeaker();});
-  }
-  
-  public Command shootAmpCommand () {
-    return Commands.run(() -> {RobotContainer.shooter.shootRPM(ShooterConstants.AMP_TOP_SPEED, ShooterConstants.AMP_BOTTOM_SPEED);});
-  }
+
+  /*
+   * METHOD TO STOP THE SHOOTER AND THE TRANSPORT
+   */
   public void stop(){
     topMotor.set(0);
     bottomMotor.set(0);
     Transport.stop();
   }
-  public Command stopCommand(){
-    return Commands.runOnce(() -> stop());
+
+  /*
+   * 
+   * 
+   * PERIODIC METHOD
+   * 
+   * 
+   * 
+   */
+
+  public void periodic() {
+  
+    scoringMode = RobotContainer.driverController.R2().getAsBoolean();
+    
   }
-  //Start of SysID
+
+ /**
+  * 
+  * 
+  *
+  * SYS ID FROM HERE ON OUT
+  *
+  *
+  *
+  */
+
   public SysIdRoutine getSysIdRoutine () {
 
   // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
@@ -289,8 +303,4 @@ public class Shooter extends SubsystemBase {
 
   //END OF SYSID
 
-  public void periodic() {
-    // This method will be called once per scheduler run
-    scoringMode = RobotContainer.driverController.R2().getAsBoolean();
-  }
 }

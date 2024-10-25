@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import com.revrobotics.CANSparkMax;
@@ -19,107 +20,139 @@ import frc.robot.RobotContainer;
 
 public class Sprocket extends SubsystemBase {
     
-    static CANSparkMax leftSprocketMotor = new CANSparkMax(Constants.Ports.LEFT_ANGLE_MOTOR, MotorType.kBrushless);
-    static CANSparkMax rightSprocketMotor = new CANSparkMax(Constants.Ports.RIGHT_ANGLE_MOTOR, MotorType.kBrushless);
+    /* INSTANTIATES SPROCKET MOTORS */
+    static CANSparkMax leftMotor = new CANSparkMax(Constants.Ports.LEFT_ANGLE_MOTOR, MotorType.kBrushless);
+    static CANSparkMax rightMotor = new CANSparkMax(Constants.Ports.RIGHT_ANGLE_MOTOR, MotorType.kBrushless);
     
+    /* INSTANCE VARIABLES */
     boolean canGoUp;
     boolean canGoDown;
     double inputForSprocket;
     boolean isAtSetPoint;
+    double currentSetPoint;
+
+    /* ABSOLUTE ENCODER */
     static DutyCycleEncoder absoluteEncoder = new DutyCycleEncoder(Ports.SPROCKET_ABS_ENCODER); 
 
+    /* PID CONTROLLER STUFF */
     static PIDController pidController = new PIDController(.8,0,0); 
     static boolean isUsingPID;
     boolean isSprocketSafe;
     
+    /*
+     * 
+     * CONSTRUCTOR
+     * INSTANTIATES SPROCKET
+     * 
+     */
+
     public Sprocket() {
         absoluteEncoder.setDistancePerRotation(360);
         Shuffleboard.getTab("Debug").addDouble("Sprocket Angle", getRawPositionSupplier());
-        leftSprocketMotor.setInverted(true);
-        rightSprocketMotor.setInverted(true);
+        leftMotor.setInverted(true);
+        rightMotor.setInverted(true);
         pidController.setTolerance(1);
     }
-    //gets the actual angle of the encoder with offset
+
+    /*
+     * 
+     * METHODS
+     * 
+     */
+
+    /* GETS THE ENCODER ANGLE (THE ACTUAL VALUE) */
     public static double getRawPosition(){
         return absoluteEncoder.getDistance() + ArmConstants.SPROCKET_OFFSET; 
     }
-    //a DoubleSupplier that supplies the actual angle of the encoder for logging purposes
+
+    /* GETS THE ENCODER ANGLE, FOR LOGGING PURPOSES */
     public DoubleSupplier getRawPositionSupplier(){
         return () -> getRawPosition();
     }
-    public DoubleSupplier sprocketRawPositionVariable = this.getRawPositionSupplier();
     
-    //method for setting the angle using PID
+    /**
+     * SETS ANGLE USING PID
+     * 
+     * @param angle is in rotation 2d
+     */
+
     public void setAngle(Rotation2d angle){
-        pidController.setSetpoint(angle.getDegrees());
+        if(angle.getDegrees() > 63 || angle.getDegrees() < 26) stop();
+        else pidController.setSetpoint(angle.getDegrees());
+
+        /* THIS IS TO CHECK IF SPROCKET IS AT ANGLE */
+        currentSetPoint = angle.getDegrees();
+
         isUsingPID = true;
         System.out.println("isUsingPid is being set to true");
     }
-    //command for setting the angle using PID
-    public Command setAngleCommand(double angle) {
-        return Commands.runOnce(() -> RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(angle)), this);
+
+    /* STOPS THE SPROCKET MOTORS */
+    public void stop() {
+        rightMotor.set(0);
+        leftMotor.set(0);
     }
-    public Command setAngleContinousCommand(DoubleSupplier dub){
-        return Commands.run(() -> this.setAngle(Rotation2d.fromDegrees(dub.getAsDouble())), this);
-    }
-    //stops the sprocket
-    public static void stop() {
-        rightSprocketMotor.set(0);
-        leftSprocketMotor.set(0);
-    }
-    //command for stopping the sprocket
-    public Command stopCommand(){
-        return Commands.runOnce(()-> stop());
-    }
-    //sets brakemode
+
+    /* SETS BRAKE MODE TO BOTH SPROCKET MOTORS */
     public void setBrakeMode(){
-        leftSprocketMotor.setIdleMode(IdleMode.kBrake);
-        rightSprocketMotor.setIdleMode(IdleMode.kBrake);
+        leftMotor.setIdleMode(IdleMode.kBrake);
+        rightMotor.setIdleMode(IdleMode.kBrake);
     }
-    public Command setBrakeModeCommand(){
-        return Commands.run(()-> setBrakeMode(), this);
-    }
-    //sets coast mode for moving sprocket
+    
+    /* SETS BOTH MOTORS TO COAST MODE */
     public void setCoastMode (){
-        leftSprocketMotor.setIdleMode(IdleMode.kCoast);
-        rightSprocketMotor.setIdleMode(IdleMode.kCoast);
+        leftMotor.setIdleMode(IdleMode.kCoast);
+        rightMotor.setIdleMode(IdleMode.kCoast);
     }
-    public Command setCoastModeCommand(){
-        return Commands.runOnce(()-> setCoastMode(), this);
-    }
-    //default command, actually moving is done in periodic
+   
+    /* SPROCKET DEFAULT INPUT METHOD USING THE JOYSTICK */
     public void sprocketDefault(){
         inputForSprocket = RobotContainer.operatorController.getLeftY();
         inputForSprocket = -1 * inputForSprocket * inputForSprocket * inputForSprocket;
     }
-    public Command sprocketDefaultCommand(){
-        return Commands.runOnce(()->sprocketDefault(), this);
+   
+    /* BOOLEAN SUPPLIER FOR CHECKING THAT THE SPROCKET IS AT THE ANGLE IT IS SET TO */
+    public BooleanSupplier isAtAngle(){
+        return () -> isAtSetPoint;
     }
+
+    /*
+     * 
+     * 
+     * PERIODIC METHOD
+     * CALLED ONCE EVERY SCHEDULED RUN
+     * 
+     * 
+     */
 
     public void periodic() {
 
+        //sets the is at setpoint method
+        isAtSetPoint = Math.abs(currentSetPoint - getRawPosition()) < ArmConstants.SPROCKET_ANGLE_DEADBAND;
+
+        //safety to protect motors
          if(Math.abs(inputForSprocket)<.04){
             inputForSprocket = 0;
         } else isUsingPID = false;
 
-        //logic to move the sprocket using both the manual control and PID simultaneously
             if(isUsingPID && (!canGoUp && pidController.getSetpoint() > 63 || !canGoDown && pidController.getSetpoint() < 26)) {
-                leftSprocketMotor.set(0);
-                rightSprocketMotor.set(0);
+                leftMotor.set(0);
+                rightMotor.set(0);
             } else if (isUsingPID) {
-                leftSprocketMotor.setVoltage(pidController.calculate(getRawPosition()));
-                rightSprocketMotor.setVoltage(pidController.calculate(getRawPosition()));
+                leftMotor.setVoltage(pidController.calculate(getRawPosition()));
+                rightMotor.setVoltage(pidController.calculate(getRawPosition()));
             } else if((!canGoUp && inputForSprocket > 0 ) || (!canGoDown && inputForSprocket < 0)) {
-                leftSprocketMotor.set(0);
-                rightSprocketMotor.set(0);
+                leftMotor.set(0);
+                rightMotor.set(0);
             } else if (Math.abs(inputForSprocket) > 0){
                 isUsingPID = false;
-                leftSprocketMotor.set(inputForSprocket);
-                rightSprocketMotor.set(inputForSprocket);
+                leftMotor.set(inputForSprocket);
+                rightMotor.set(inputForSprocket);
             } else {
-                leftSprocketMotor.set(0);
-                rightSprocketMotor.set(0);
+                leftMotor.set(0);
+                rightMotor.set(0);
             }
+
         //safety booleans
         canGoUp = getRawPosition() < (ArmConstants.ENCODER_MAX_ANGLE - ArmConstants.SPROCKET_ANGLE_DEADBAND);
         canGoDown = getRawPosition() > (ArmConstants.ENCODER_MIN_ANGLE - ArmConstants.SPROCKET_ANGLE_DEADBAND);

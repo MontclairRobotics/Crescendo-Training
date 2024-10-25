@@ -10,12 +10,12 @@ public class Transport {
     //transport motor object
     static CANSparkMax transportMotor = new CANSparkMax(Constants.Ports.SHOOTER_MOTOR_TRANSPORT, MotorType.kBrushless);
     
-    //starts the transport
-    public static void start(){
+    //reverse the transport
+    public static void reverse(){
         transportMotor.set(-IntakeConstants.TRANSPORT_SPEED);
     }
-    //reverses the transport
-    public static void reverse(){
+    //starts the transport
+    public static void start(){
         transportMotor.set(IntakeConstants.TRANSPORT_SPEED);
     }
     //stops the transport

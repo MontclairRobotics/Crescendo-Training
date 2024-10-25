@@ -39,7 +39,6 @@ public final class Constants {
 
     //The poses we determined to be best for scoring using odometry. These were not used in our program, feel free to change them.
     public static final double SPEAKER_SCORE_X_OFFSET = 6.0;
-    
     public static final Pose2d RED_SPEAKER_POSE = new Pose2d(Units.inchesToMeters(652.3 - SPEAKER_SCORE_X_OFFSET), Units.inchesToMeters(218.42), new Rotation2d());
     public static final Pose2d BLUE_SPEAKER_POSE = new Pose2d(Units.inchesToMeters(-1.5 + SPEAKER_SCORE_X_OFFSET), Units.inchesToMeters(218.42), new Rotation2d());
     
@@ -76,134 +75,162 @@ public final class Constants {
 
   public static class VisionConstants {
 
+    /* VERTICAL HEIGHT OF SHOOTER LIMELIGHT */
     public static final double SHOOTER_LIMELIGHT_HEIGHT = 7.5; //10.375;
+
+    /* VERTICAL HEIGHT OF INTAKE LIMELIGHT */
     public static final double INTAKE_LIMELIGHT_HEIGHT = 10.227995;
+
+    /* HEIGHT OF THE SPEAKER APRIL TAG */
     public static final double SPEAKER_APRILTAG_HEIGHT = 57.125; //57.875;
+
+    /* HEIGHT OF SPEAKER SLOT */
     public static final double SPEAKER_GOAL_HEIGHT = 81.8; //78.13-82.90
+
+    /* ANGLE OF LIMELIGHT-SHOOTER */
     public static final double SHOOTER_LIMELIGHT_ANGLE_DEGREES = 28.4; //26.74; //31.07;
+
+    /* ANGLE OF LIMELIGHT-INTAKE */
     public static final double INTAKE_LIMELIGHT_ANGLE_DEGREES = 0;
 
   }
 
-  public static class Ports { // todo: add correct ports (NEGATIVE PORTS CRASH THE CODE SO CHANGE BEFORE USING PLS)
+  public static class Ports { 
 
-    //don't know what this is
     public static final int LED_PWM = -1;
 
-    //intake motors
+    /* INTAKE MOTORS */
     public static final int INTAKE_TOP_MOTOR = 21;
     public static final int INTAKE_BOTTOM_MOTOR = 20;
     
-    // shooter motors
+    /* SHOOTER MOTORS */
     public static final int SHOOTER_BOTTOM_MOTOR = 29;
     public static final int SHOOTER_TOP_MOTOR = 28;
     public static final int SHOOTER_MOTOR_TRANSPORT = 27;
 
-    // Sprocket motors
+    /* SPROCKET MOTORS */
     public static final int LEFT_ANGLE_MOTOR = 30;
     public static final int RIGHT_ANGLE_MOTOR = 31;
 
-    //where the beambreak plugs into the roboRIO (this is how you access it)
+    /* BEAMBREAK */
     public static final int TRANSPORT_BEAM_BREAK = 9;
 
-    // Climber ports
+    /* CLIMBERS */
     public static final int CLIMBER_LEFT_MOTOR = 48;
     public static final int CLIMBER_RIGHT_MOTOR = 49;
     public static final int CLIMBER_LEFT_LIMIT_SWITCH_PORT = 5;
     public static final int CLIMBER_RIGHT_LIMIT_SWITCH_PORT = 4;
 
-    // where arm encoder plugs in
+    //* ABS ENCODER */
     public static final int SPROCKET_ABS_ENCODER = 2; //told to me by taiki and anthony on 10/2/2024
   } 
 
+  /*
+   * 
+   * 
+   * CLIMBER CONSTANTS
+   * 
+   * 
+   */
   public static class ClimberConstants {
 
-    // Climbers
     public static final double CLIMBER_SPEED = 0.3;
     public static final double MAX_HEIGHT = 18; // Inches
     public static final double ROTATIONS_PER_INCH = Math.PI/30; //12.0672 * Math.PI;
 
   }
 
+  /*
+   * 
+   * 
+   * INTAKE CONSTANTS
+   * 
+   * 
+   */
   public static class IntakeConstants {
 
-  //self-explanatory guys...
   public static double INTAKE_SPEED = -.7;
   public static double TRANSPORT_SPEED = -.7;
-  public static void reverseIntakeAndTransportSpeeds(){
-    INTAKE_SPEED *= -1;
-    TRANSPORT_SPEED *= -1;
-  }
-  public static void reverseIntakeSpeed(){
-    INTAKE_SPEED *= -1;
-  }
-  public static Command reverseIntakeAndTransportSpeedsCommand(){
-    return Commands.runOnce(() -> reverseIntakeAndTransportSpeeds());
-  }
-  public static Command reverseIntakeSpeedCommand(){
-    return Commands.runOnce(() -> reverseIntakeSpeed());
-  }
+    
   }
 
-  //arm stuff
+  /*
+   * 
+   * 
+   * SPROCKET CONSTANTS
+   * 
+   * 
+   */
+
   public static class ArmConstants {
-    public static final double SPROCKET_ROTATIONS_PER_DEGREE = 1.26984126984;
+    /* ANGLES */
+    public static final double SOURCE_INTAKE_ANGLE = 52;
     public static final double ENCODER_MIN_ANGLE = 26;
     public static final double ENCODER_MAX_ANGLE = 63;
-    public static final double SPROCKET_SPEED = .5;
-    public static final double SPROCKET_ANGLE_DEADBAND = 2;
-    public static final double SPROCKET_OFFSET = -49.2 + 1;
     public static final double SPROCKET_INTAKE_ANGLE = 40;
     public static final double SPROCKET_OUTTAKE_ANGLE = 35;
 
+    public static final double SPROCKET_ROTATIONS_PER_DEGREE = 1.26984126984;
+    public static final double SPROCKET_SPEED = .5;
+    public static final double SPROCKET_ANGLE_DEADBAND = 1;
+    public static final double SPROCKET_OFFSET = -49.2 + 1;
+  
+
     //Both inverts are true, at least in our program (motors are mounted in same direction)
   }
-  //Shooter constants
-  public class ShooterConstants {
-      public static final double SPEAKER_SPEED_RPS = 25;
-      public static final double SHOOT_SPEAKER_VELOCITY = 4000;
-      public static final double AMP_TOP_SPEED = 600;
-      public static final double AMP_BOTTOM_SPEED = 800;
-      public static final double AMP_SCORE_ANGLE = 60;
-      public static final double AMP_TOP_RPS = 10;
-      public static final double AMP_BOTTOM_RPS = 13.33333;
-      public static final double SHOOTER_VELOCITY_DEADBAND_RPM = 60;
-      public static final double SHOOTER_VELOCITY_DEADBAND_RPS = 1;
-      
 
-        // From SysId
-    // public static final double TOP_SHOOTER_FF_KS = 0.20823;
-    // public static final double TOP_SHOOTER_FF_KV = 0.0021625;
-    // public static final double TOP_SHOOTER_FF_KA = 0.00024932;
-    // public static final double TOP_SHOOTER_PID_KP = 3.8326e-07;
-    // public static final double TOP_SHOOTER_PID_KI = 0;
-    // public static final double TOP_SHOOTER_PID_KD = 0;
+  /*
+   * 
+   * 
+   * SHOOTER CONSTANTS
+   * 
+   * 
+   */
+  public class ShooterConstants {
+
+    public static final double SUBWOOFER_ANGLE = 51.5; //need to actually change this to the actual value
+    public static final double SPEAKER_SPEED_RPS = 25;
+    public static final double SPEAKER_SCORE_VELOCITY = 2000;
+
+    public static final double AMP_TOP_SPEED = 600;
+    public static final double AMP_BOTTOM_SPEED = 800;
+    public static final double AMP_SCORE_ANGLE = 60;
+    public static final double AMP_TOP_RPS = 10;
+    public static final double AMP_BOTTOM_RPS = 13.33333;
+
+    public static final double SHOOTER_VELOCITY_DEADBAND_RPM = 60;
+    public static final double SHOOTER_VELOCITY_DEADBAND_RPS = 1;
+      
+    /* FEEDFORWARD TOP SHOOTER */
     public static final double TOP_SHOOTER_FF_KS = 0.25244; // 0.18454
     public static final double TOP_SHOOTER_FF_KV = 0.0022082; // 0.0021629
     public static final double TOP_SHOOTER_FF_KA = 0.0002064; // 0.00026348
+
+    /* PID TOP SHOOTER */
     public static final double TOP_SHOOTER_PID_KP = 1.932E-09; //4.4848e-07
     public static final double TOP_SHOOTER_PID_KI = 0;
     public static final double TOP_SHOOTER_PID_KD = 0;
 
-    // public static final double BOTTOM_SHOOTER_FF_KS = 0.22812;
-    // public static final double BOTTOM_SHOOTER_FF_KV = 0.0022851;
-    // public static final double BOTTOM_SHOOTER_FF_KA = 0.00026402;
-    // public static final double BOTTOM_SHOOTER_PID_KP = 4.1584e-07;
-    // public static final double BOTTOM_SHOOTER_PID_KI = 0;
-    // public static final double BOTTOM_SHOOTER_PID_KD = 0;
+    /* FEEDFORWARD BOTTOM SHOOTER */
     public static final double BOTTOM_SHOOTER_FF_KS = 0.22311; // 0.19665
     public static final double BOTTOM_SHOOTER_FF_KV = 0.0021558; // 0.0022763
     public static final double BOTTOM_SHOOTER_FF_KA = 0.00021675; // 0.00033793 
+
+    /* PID BOTTOM SHOOTER */
     public static final double BOTTOM_SHOOTER_PID_KP = 8.0536E-09; // 7.1995e-07
     public static final double BOTTOM_SHOOTER_PID_KI = 0;
     public static final double BOTTOM_SHOOTER_PID_KD = 0;
 
+    /* TRANSPORT FEEDFORWARD */
     public static final double TRANSPORT_FF_KS = 0.15883;
     public static final double TRANSPORT_FF_KV = 0.0020936;
     public static final double TRANSPORT_FF_KA = 0.00017895;
+
+    /* TRANSPORT PID */
     public static final double TRANSPORT_PID_KP = 1.6005e-07;
     public static final double TRANSPORT_PID_KI = 0;
     public static final double TRANSPORT_PID_KD = 0;
+
   }
   
 }

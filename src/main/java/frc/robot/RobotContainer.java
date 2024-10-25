@@ -18,6 +18,11 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import frc.robot.Commands.AutoCommands;
+import frc.robot.Commands.DriveCommands;
+import frc.robot.Commands.IntakeCommands;
+import frc.robot.Commands.ShooterCommands;
+import frc.robot.Commands.SprocketCommands;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.Auto;
 import frc.robot.subsystems.Climbers;
@@ -45,6 +50,13 @@ public class RobotContainer {
     public static Limelight limelight = new Limelight();
     public static Transport transport = new Transport();
 
+    //INSTANTIATING ALL OF THE COMMAND CLASSES
+    public static IntakeCommands intakecommands = new IntakeCommands();
+    public static ShooterCommands shootercommands = new ShooterCommands();
+    public static SprocketCommands sprocketcommands = new SprocketCommands();
+    public static DriveCommands drivecommands = new DriveCommands();
+    public static AutoCommands autocommands = new AutoCommands();
+
     //INSTANTIATING THE CONTROLLERS
     public static CommandPS5Controller driverController = new CommandPS5Controller(0);
     public static CommandPS5Controller operatorController = new CommandPS5Controller(1);
@@ -52,52 +64,97 @@ public class RobotContainer {
   
     //the measely constructor
     public RobotContainer() {
-    LimelightHelpers.setCameraMode_Driver(Limelight.llname);
     //configures bindings
     configureBindings();
     }
 
   private void configureBindings() {
-    //DEFAULT COMMANDS
+    /*
+     * 
+     * DEFAULT COMMANDS
+     * 
+     */
 
-    //driving duh
-    drivetrain.setDefaultCommand(drivetrain.driveCommand());
-    //sprocket manual control
-    sprocket.setDefaultCommand(sprocket.sprocketDefaultCommand());
-    //climber default commmand
+    //DRIVING JOYSTICK INPUTS
+    drivetrain.setDefaultCommand(drivecommands.driveCommand());
+
+    //SPROCKET MANUAL CONTROL
+    sprocket.setDefaultCommand(sprocketcommands.sprocketDefaultCommand());
+
+    //CLIMBER JOYSTICK INPUT
     climbers.setDefaultCommand(climbers.climbersDefaultCommand());
-    //TESTING BINDINGS
 
-    /*OPERATOR BINDINGS*/
+    /* 
+     * 
+     * OPERATOR BINDINGS
+     * 
+    */
     
-    //shoots speaker without angle changing
-    operatorController.circle().whileTrue(shooter.scoreSpeakerCommand()).onFalse(shooter.stopCommand());
-    //shoots amp hopefully works
-    operatorController.triangle().whileTrue(shooter.scoreAmp()).onFalse(shooter.stopCommand());
-    //intake because inverts
-    operatorController.L2().onTrue(intake.intakeCommand()).onFalse(intake.stopCommand());
-    //outtake because inverts
-    operatorController.R2().onTrue(intake.outtakeCommand()).onFalse(intake.stopCommand());
-    //jank fix
-    //makes sprocket able to be moved when disabled
-    operatorController.touchpad().onTrue(sprocket.setCoastModeCommand().ignoringDisable(true)).whileFalse(sprocket.setBrakeModeCommand().ignoringDisable(true));
-    //intake from source. UNTESTED
-    operatorController.R1().whileTrue(shooter.intakeSourceCommand()).onFalse(shooter.stopIntakeSourceCommand());
+    //SCORES SPEAKER (SUBWOOFER OR SCORING MODE)
+    operatorController.circle()
+      .whileTrue(shootercommands.scoreSpeaker(false))
+      .onFalse(shootercommands.stop());
     
+    //SCORES AMP
+    operatorController.triangle()
+      .whileTrue(shootercommands.scoreAmp())
+      .onFalse(shootercommands.stop());
+    
+    //RUNS THE INTAKE
+    operatorController.L2()
+      .onTrue(intakecommands.intake())
+      .onFalse(intakecommands.stopIntake());
 
-    /*DRIVER BINDINGS*/
-    //robot relative driving
-    driverController.L2().onTrue(drivetrain.toRobotRelativeCommand()).onFalse(drivetrain.toFieldRelativeCommand());
-    //zero gyro
-    driverController.touchpad().onTrue(drivetrain.zeroGyro());
-    //scoring mode. DOES NOT WORK YET
-    driverController.R2().and(()->limelight.isTargetInView()).whileTrue(drivetrain.scoringMode(false)).onFalse(drivetrain.stopScoringModeCommand());
-    //align to angle for testing. DOES NOT WORK
-    //driverController.R2().onTrue(drivetrain.alignRobotRelativeCommand(30, false));
-    driverController.square().onTrue(drivetrain.alignFieldRelativeCommand(90, false));
-    driverController.cross().onTrue(drivetrain.alignFieldRelativeCommand(180, false));
-    driverController.circle().onTrue(drivetrain.alignFieldRelativeCommand(-90, false));
-    driverController.triangle().onTrue(drivetrain.alignFieldRelativeCommand(0, false));
+    //RUNS THE OUTTAKE
+    operatorController.R2()
+      .onTrue(intakecommands.outtake())
+      .onFalse(intakecommands.stopIntake());
+
+    //SO SPROCKET CAN BE MOVED WHEN DISABLED
+    operatorController.touchpad()
+      .onTrue(sprocketcommands.setCoastModeCommand().ignoringDisable(true))
+      .whileFalse(sprocketcommands.setBrakeModeCommand().ignoringDisable(true));
+
+    //INTAKES FROM THE SHOOTER
+    operatorController.R1()
+      .whileTrue(intakecommands.intakeSourceCommand())
+      .onFalse(intakecommands.stopIntake());
+    
+    /*
+    *
+    *DRIVER BINDINGS
+    *
+    */
+
+    //ROBOT RELATIVE DRIVING
+    driverController.L2()
+      .onTrue(drivecommands.toRobotRelativeCommand())
+      .onFalse(drivecommands.toFieldRelativeCommand());
+
+    //ZEROS THE GYRO
+    driverController.touchpad()
+      .onTrue(drivecommands.zeroGyro());
+
+    //SCORING MODE
+    driverController.R2().and(()->LimelightHelpers.getTV(Limelight.llname))
+      .whileTrue(drivecommands.scoringMode(false, false))
+      .onFalse(drivecommands.stopScoringModeCommand());
+
+    //ALIGN FIELD RELATIVE TO 90 DEGREES (INTAKE POINT TO THE LEFT)
+    driverController.square()
+      .onTrue(drivecommands.alignToAngleFieldRelative(90, false));
+
+    //ALIGN FIELD RELATIVE TO 180 DEGREES (INTAKE POINT TOWARDS YOU)
+    driverController.cross()
+     .onTrue(drivecommands.alignToAngleFieldRelative(180, false));
+
+    //ALIGN FIELD RELATIVE -90 DEGREES (INTAKE POINTING RIGHT)
+    driverController.circle()
+      .onTrue(drivecommands.alignToAngleFieldRelative(-90, false));
+    
+    //ALIGN FIELD RELATIVE 0 DEGREES (INTAKE POINTING AWAY FROM YOU)
+    driverController.triangle()
+      .onTrue(drivecommands.alignToAngleFieldRelative(0, false));
 
     
   }
@@ -109,6 +166,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     auto.autoSequencer();
-    return Commands.runOnce(() -> auto.runAutoSequentialCommandGroup());
+    return Commands.runOnce(() -> autocommands.runAutoSequentialCommandGroup());
   }
 }

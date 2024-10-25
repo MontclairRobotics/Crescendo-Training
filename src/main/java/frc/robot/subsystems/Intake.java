@@ -24,43 +24,37 @@ public class Intake extends SubsystemBase {
     
     public DigitalInput beambreak = new DigitalInput(Ports.TRANSPORT_BEAM_BREAK);
 
-    //True means BB is not broken; false means BB is broken
-    public BooleanSupplier getBB(){
-        return () -> beambreak.get();
+    public boolean bbTriggered;
+    public boolean bbNotTriggered;
+
+    public BooleanSupplier noteInTransport(){
+        return () -> bbTriggered;
     }
-    public BooleanSupplier getReverseBB(){
-        return () -> !beambreak.get();
+    public BooleanSupplier noteOutOfTransport(){
+        return () -> bbNotTriggered;
     }
-    // Starts intake motors
-    public void intake(){
-        RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(ArmConstants.SPROCKET_INTAKE_ANGLE));
+   
+    public void start(){
         topIntakeMotor.set(IntakeConstants.INTAKE_SPEED);
         bottomIntakeMotor.set(IntakeConstants.INTAKE_SPEED);
-        Transport.reverse();
-    }
-    // Reverses intake motors
-    public void outtake(){
-        RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(ArmConstants.SPROCKET_OUTTAKE_ANGLE));
-        topIntakeMotor.set(-IntakeConstants.INTAKE_SPEED);
-        bottomIntakeMotor.set(-IntakeConstants.INTAKE_SPEED);
         Transport.start();
     }
-    // Stops intake motors
+
+    public void reverse(){
+        topIntakeMotor.set(-IntakeConstants.INTAKE_SPEED);
+        bottomIntakeMotor.set(-IntakeConstants.INTAKE_SPEED);
+        Transport.reverse();
+    }
+    
     public void stop(){
         topIntakeMotor.set(0);
         bottomIntakeMotor.set(0);
         Transport.stop();
     }
-    public Command intakeCommand(){
-        return Commands.run(()-> intake(), this).onlyWhile(getBB()).finallyDo(() -> stop());
+
+    public void periodic(){
+        bbTriggered = !beambreak.get();
+        bbNotTriggered = beambreak.get();
     }
-    //command for reverse intaking
-    public Command outtakeCommand (){
-        return Commands.run(() -> {outtake();}, this).finallyDo(() -> {stop();
-        Transport.stop();});
-    }
-    //command to stop the intake motors
-    public Command stopCommand (){
-        return Commands.runOnce(() -> {stop();}, this);
-    }
+
 }

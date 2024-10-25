@@ -35,102 +35,95 @@ public class Drivetrain extends SubsystemBase {
 
   /** Creates a new SwerveDrive. */
 
-  //instance variables, which are later set to values in the constructor
-  //or not if thats not applicable
+  /* INSTANCE VARIABLES */
   public Pigeon2 gyro;
   public boolean FieldRelative;
   public double rotationSpeed;
-  public static double maximumSpeed;
+  public double maximumSpeed;
   public File swerveJsonDirectory;
   public SwerveDrive swerveDrive;
   public Translation2d centerOfRotationMeters;
+  public boolean testing;
   
-  
-
-  //turning robot relative
+  /* INSTANCE VARIABLES FOR TURNING ROBOT RELATIVE */
   public double setPoint;
   public double wrappedSetPoint;
   public double odometryHeading;
-  public PIDController anglePidController;
+  public PIDController thetaController;
   public double response;
   public boolean isRobotAtAngleSetPoint;
   public boolean shouldStop;
 
-  //constructor
+  /*
+   * 
+   * 
+   * CONSTRUCTOR
+   * 
+   * 
+   */
   public Drivetrain() {
 
-  //FOR the auto turn button (robot relative)
-  anglePidController = new PIDController(1, .25, 0.04);
-  anglePidController.setTolerance(1);
-  anglePidController.enableContinuousInput(-180, 180);
+  
+  /* FOR AUTO ALIGN TO ANGLE */
+  thetaController = new PIDController(.82, .8, 0.045);
+  thetaController.setTolerance(1);
+  thetaController.enableContinuousInput(-180, 180);
 
-  //this makes it so the robot drives with respect to the field
   FieldRelative = true;
 
-  //how fast we rotate
   rotationSpeed = Units.degreesToRadians(120);
 
-  //how fast we translate
   maximumSpeed = Units.feetToMeters(3);
 
-  //accesses all of the stuff in the config files
-  //these include motor ports, offsets, inverts, etc
-  //the magic behind our swerve drive
+  /* ACCESSES ALL THE IMPORTANT INFORMATION NEEDED FOR THE SWERVE DRIVE */
   swerveJsonDirectory = new File(Filesystem.getDeployDirectory(), "swerve");
 
-  //This tells java to ignore the error so the code works!
+  /* STUPID CODE SO JAVA IGNORES THE ERROR */
+  
   try {
     //it will try this code, which technically throws an error
      swerveDrive = new SwerveParser(swerveJsonDirectory).createSwerveDrive(maximumSpeed);
   }
   catch (Exception e) {
-      //but, since there isn't code to catch, it will act like
-      //everything is fine and ignore the error
+      /* but, since there isn't code to catch, it will act like
+      * everything is fine and ignore the error
+      */
   }
-  } //end of constructor
 
-  //If we ever want to drive robotRelative here is the method that does so
+  }
+
+  /*
+   * 
+   * 
+   * METHODS
+   * 
+   * 
+   */
+
+  /* CONVERTS DRIVING TO ROBOT RELATIVE */
   public void toRobotRelative() {
     FieldRelative = false;
   }
-  //zeros the gyro 
-  public Command zeroGyro (){
-    return Commands.runOnce(() -> swerveDrive.zeroGyro(), this);
-  }
-  //to robotrelative but as a command
-  public Command toRobotRelativeCommand() {
-    return Commands.runOnce(() -> toRobotRelative(), this);
-  }
-  //to fieldrelative driving method
+
+  /* CONVERTS DRIVING TO FIELD RELATIVE */
   public void toFieldRelative() {
     FieldRelative = true;
   }
-  //^^ but as a command
-  public Command toFieldRelativeCommand (){
-    return Commands.runOnce(() -> toFieldRelative(), this);
-  }
-  
- 
+
+  /* DEFAULT DRIVE METHOD */
   public void drive () {
     
-    //gets the input from the driverController and sets it to our xInput, yInput, and rotational input
-    //they are multiplied by negative 1 because we have to invert it for some reason
-
-    //in swerve, positive X is the forward direction which is why xInput = getLeftY and vice versa
+    /* RECIEVES INPUTS FROM CONTROLLER */
     double xInput = -1*RobotContainer.driverController.getLeftY();
     double yInput = -1*RobotContainer.driverController.getLeftX();
     double rotationInput = -1 *RobotContainer.driverController.getRightX();
     
-    //Math.signum returns -1 or positive 1 based on if the value of what you input is negative or positive
-    //because we are squaring the input for smoother driving, the input with read always positive
-    //Math.signum fixes this issues by resetting it to negative if it is negative
-    //without this, we would not be able to drive backwards or to the left or rotate one of the directions
+    /* CUBES THE INPUT AND MAKES SURE THEY ARE THE RIGHT SIGN */
     xInput = Math.signum(xInput) * xInput * xInput;
     yInput = Math.signum(yInput) * yInput * yInput;
     rotationInput = Math.signum(rotationInput) * rotationInput * rotationInput;
 
-    //Simple way to create a deadband
-    //if the input from the controller is so little, it will set it to zero to protect the motors
+    /* DEADBAND TO PROTECT MOTORS */
     if(Math.abs(xInput)<.04){
       xInput = 0;
     }
@@ -140,78 +133,66 @@ public class Drivetrain extends SubsystemBase {
     if(Math.abs(yInput)<.04){
       yInput = 0;
     }
-    //this converts our input from the controller (with all the calculations done to it)
-    //into a velocity
+    
+    /* CONVERTS THE INPUTS INTO A VELOCITY */
     double xVelocity = xInput * maximumSpeed;
     double yVelocity = yInput * maximumSpeed;
-    //f is for funsies!
     double rotationF = rotationInput * rotationSpeed;
 
-    //the drive method takes in a translation2d so we use our xVelocity and yVelocity
-    //to create a new Translation2d
+    /* CREATES NEW TRANSLATION BASED ON THESE VALUES */
     Translation2d translation = new Translation2d(xVelocity, yVelocity);
 
-    //finally, we call the method that actually drives the robot using all of the code above
+    /* CALL THE SWERVE DRIVE METHOD */
     swerveDrive.drive(translation, rotationF, FieldRelative, true); 
+
   }
 
-  //command for the drive method
-  //this is later set as the default command for the drivetrain
-  //that means it will run as long as no other command is occupying the drivetrain.
-  public Command driveCommand(){
-    return Commands.runOnce(() -> {drive();}, this);
-  }
-  //this is a method to set the setpoint once before running the command to turn the robot automatically
-  //field relative
-
+  /* ROBOT RELATIVE SETPOINT METHOD */
   public void setSetpoint(double angle){
     wrappedSetPoint = wrapAngle(odometryHeading + angle);
-    anglePidController.setSetpoint(wrappedSetPoint);
+    thetaController.setSetpoint(wrappedSetPoint);
   }
+  
+  /* ALIGNS TO THE ANGLE DURING SCORING MODE */
   public void alignScoringMode(boolean lockDrive){
     if(RobotContainer.shooter.scoringMode){
+
     Translation2d translation = new Translation2d(0,0);
-    setPoint = wrapAngle(odometryHeading + Limelight.getTX());
-    response = anglePidController.calculate(odometryHeading) * Math.PI /180;
+
+    setSetpoint(Limelight.getTX());
+
+    response = -thetaController.calculate(odometryHeading) * Math.PI /180;
+
     if(lockDrive) swerveDrive.drive(translation, response, false, true);
-    else swerveDrive.drive(returnDefaultDriveTranslation(), response, false, true);
+    else swerveDrive.drive(returnDefaultDriveTranslation(), response, true, true);
     } else stopScoringMode();
   }
+
+  /* STOPS SCORING MODE */
   public void stopScoringMode(){
     RobotContainer.shooter.stop();
-    Sprocket.stop();
-    
+    RobotContainer.sprocket.stop();
   }
-  public Command stopScoringModeCommand(){
-    return Commands.runOnce(() -> stopScoringMode());
-  }
+ 
+  /* ALIGN TO ANGLE ROBOT RELATIVE */
   public void alignToAngleRobotRelative(boolean lockDrive) {
     //creates a blank translation to pass in to the drive function so the robot doesn't move
     Translation2d translation = new Translation2d(0, 0);
     //calculates the input for the drive function (NO IDEA IF I SHOULD MULTIPLY THIS BY SOMETHING)
     //inputs field relative angle (set point is also converted to field relative)
-    response = anglePidController.calculate(odometryHeading) * Math.PI / 180;
+    response = thetaController.calculate(odometryHeading) * Math.PI / 180;
     //calls the drive function with no translation but with turning
     //should work maybe idk
     if(lockDrive) swerveDrive.drive(translation, response, false, true);
     else swerveDrive.drive(returnDefaultDriveTranslation(), response, false, true);
     }
 
-  //command for setting set point
-  public Command setSetPointCommand(double angle) {
-    return Commands.runOnce(() -> {setSetpoint(angle);}, RobotContainer.drivetrain);
-  }
-  public Command alignScoringModeCommand(boolean lockDrive){
-    return Commands.run(() -> {alignScoringMode(lockDrive);}, this);
-  }
-  //commmand for turning robot robot relative
-  public Command alignToAngleRobotRelativeCommand(boolean lockDrive){
-    return Commands.run(() -> {alignToAngleRobotRelative(lockDrive);}, this).onlyWhile(inputNotIgnorable());
-  }
-  //command that strings the two together
-  public Command alignRobotRelativeCommand(double angle, boolean lockDrive) {
-    return Commands.sequence(setSetPointCommand(angle), alignToAngleRobotRelativeCommand(lockDrive));
-  }
+  /*
+  * 
+  * VARIOUS LOGGING TOOLS 
+  *
+  */
+
   public BooleanSupplier isRobotNOTAtAngleSetPoint(){
     return () -> !isRobotAtAngleSetPoint;
   }
@@ -231,22 +212,28 @@ public class Drivetrain extends SubsystemBase {
     return () -> wrappedSetPoint;
   }
 
-
-  //FIELD RELATIVE TURNING
+  /* SETS THE FIELD RELATIVE SET POINT ANGLE */
   public void setFieldRelativeAngle(double angle){
     double wrappedAngle = wrapAngle(angle);
-    anglePidController.setSetpoint(wrappedAngle);
+    thetaController.setSetpoint(wrappedAngle);
   }
-  public void goToAngleFieldRelative(boolean lockDrive){
+
+  /* ALIGNS TO ANGLE FIELD RELATIVE */
+  public void alignToAngleFieldRelative(boolean lockDrive){
     Translation2d translation = new Translation2d(0,0);
-    double response = anglePidController.calculate(odometryHeading) *Math.PI/180;
+    double response = thetaController.calculate(odometryHeading) *Math.PI/180;
     if(lockDrive) swerveDrive.drive(translation, response, true, true);
     else swerveDrive.drive(returnDefaultDriveTranslation(), response, true, true);
   }
+
+  /* RETURNS THE TRANSLATION2D MADE BY JOYSTICK INPUTS */
   public Translation2d returnDefaultDriveTranslation(){
-    double xInput = -1*RobotContainer.driverController.getLeftY();
-    double yInput = -1*RobotContainer.driverController.getLeftX();
-    double rotationInput = -1 *RobotContainer.driverController.getRightX();
+    double xInput;
+    double yInput;
+    double rotationInput;
+    xInput = -1*RobotContainer.driverController.getLeftY();
+    yInput = -1*RobotContainer.driverController.getLeftX();
+    rotationInput = -1 *RobotContainer.driverController.getRightX();
     xInput = Math.signum(xInput) * xInput * xInput;
     yInput = Math.signum(yInput) * yInput * yInput;
     rotationInput = Math.signum(rotationInput) * rotationInput * rotationInput;
@@ -257,35 +244,19 @@ public class Drivetrain extends SubsystemBase {
     Translation2d translation2d = new Translation2d(xVelocity, yVelocity);
     return translation2d;
   }
-  public Command setFieldRelativeAngleCommand(double angle){
-    return Commands.runOnce(() -> {setFieldRelativeAngle(angle);}, this);
-  }
-  public Command goToAngleFieldRelativeCommand(boolean lockDrive){
-    return Commands.run(()->{goToAngleFieldRelative(lockDrive);}).onlyWhile(isRobotNOTAtAngleSetPoint());
-  }
-  public Command alignFieldRelativeCommand(double angle, boolean lockDrive){
-    return Commands.sequence(setFieldRelativeAngleCommand(angle), goToAngleFieldRelativeCommand(lockDrive));
-  }
+
+  /* WRAPS THE ANGLE BETWEEN -180 AND 180 */
   public static double wrapAngle(double angle) {
     angle = (angle + 180) % 360; // Step 1 and 2
     if (angle < 0) {
         angle += 360; // Make sure it's positive
     }
     return angle - 180; // Step 3
-}
+  }
+
+  /* BOOLEAN SUPPLIER TO SAY THAT THERE IS INPUT */
   public BooleanSupplier inputNotIgnorable(){
     return () -> !shouldStop;
-  }
-  //SCORING MODE!!!!
-
-  public Command scoringMode(boolean lockDrive) {
-    return Commands.parallel(
-    //sets sprocket. to be replaced with function to align angle
-    RobotContainer.sprocket.setAngleContinousCommand(RobotContainer.limelight.tySupplier()), 
-    //turns toward april tag
-    alignScoringModeCommand(lockDrive),
-    //ramps up flywheels
-    RobotContainer.shooter.spinWheelsCommand(ShooterConstants.SHOOT_SPEAKER_VELOCITY, ShooterConstants.SHOOT_SPEAKER_VELOCITY));
   }
 
     @Override
@@ -294,7 +265,7 @@ public class Drivetrain extends SubsystemBase {
     shouldStop = !isRobotAtAngleSetPoint && Math.abs(response) < 0.05;
     swerveDrive.getPose();
     odometryHeading = swerveDrive.getPose().getRotation().getDegrees();
-    isRobotAtAngleSetPoint = anglePidController.atSetpoint();
+    isRobotAtAngleSetPoint = thetaController.atSetpoint();
   }
   
  
