@@ -5,6 +5,7 @@
 package frc.robot;
 
 import java.util.EnumSet;
+import java.util.function.BooleanSupplier;
 
 import javax.swing.TransferHandler.TransferSupport;
 
@@ -39,23 +40,22 @@ import frc.robot.vision.LimelightHelpers;
 
 public class RobotContainer {
   
-    //INSTANTIATING ALL OF THE SUBSYSTEMS
-    public static Intake intake = new Intake();
-    public static Sprocket sprocket = new Sprocket();
-    public static Shooter shooter = new Shooter();
-    public static Drivetrain drivetrain = new Drivetrain();
     public static Climbers climbers = new Climbers();
-    public static Auto auto = new Auto();
     public static AutoBuilder autoBuilder = new AutoBuilder();
     public static Limelight limelight = new Limelight();
     public static Transport transport = new Transport();
-
     //INSTANTIATING ALL OF THE COMMAND CLASSES
+    public static Intake intake = new Intake();
     public static IntakeCommands intakecommands = new IntakeCommands();
+    public static Shooter shooter = new Shooter();
     public static ShooterCommands shootercommands = new ShooterCommands();
+    public static Sprocket sprocket = new Sprocket();
     public static SprocketCommands sprocketcommands = new SprocketCommands();
+    public static Drivetrain drivetrain = new Drivetrain();
     public static DriveCommands drivecommands = new DriveCommands();
-    public static AutoCommands autocommands = new AutoCommands();
+    public static Auto auto = new Auto();
+    //public static AutoCommands autocommands = new AutoCommands();
+
 
     //INSTANTIATING THE CONTROLLERS
     public static CommandPS5Controller driverController = new CommandPS5Controller(0);
@@ -68,6 +68,12 @@ public class RobotContainer {
     configureBindings();
     }
 
+  public static BooleanSupplier getL2(){
+    return () -> operatorController.L2().getAsBoolean();
+  }
+  public static BooleanSupplier getR2(){
+    return () -> operatorController.R2().getAsBoolean();
+  }
   private void configureBindings() {
     /*
      * 
@@ -89,7 +95,7 @@ public class RobotContainer {
      * OPERATOR BINDINGS
      * 
     */
-    
+  
     //SCORES SPEAKER (SUBWOOFER OR SCORING MODE)
     operatorController.circle()
       .whileTrue(shootercommands.scoreSpeaker(false))
@@ -108,7 +114,7 @@ public class RobotContainer {
     //RUNS THE OUTTAKE
     operatorController.R2()
       .onTrue(intakecommands.outtake())
-      .onFalse(intakecommands.stopIntake());
+      .whileFalse(intakecommands.stopIntake());
 
     //SO SPROCKET CAN BE MOVED WHEN DISABLED
     operatorController.touchpad()
@@ -166,6 +172,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     auto.autoSequencer();
-    return Commands.runOnce(() -> autocommands.runAutoSequentialCommandGroup());
+    return Commands.runOnce(() -> RobotContainer.auto.autocommands.runAutoSequentialCommandGroup());
   }
 }

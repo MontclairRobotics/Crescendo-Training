@@ -33,12 +33,12 @@ public class SprocketCommands extends Command {
      * Pass in a double supplier and it will continuosly align to that angle even if it is changing
      * used for scoring mode
      */
-    public Command setAngleContinousCommand(DoubleSupplier dub){
-        return Commands.run(() -> RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(dub.getAsDouble())), RobotContainer.sprocket);
+    public Command setAngleContinousCommand(DoubleSupplier angDegSupplier){
+        return Commands.run(() -> RobotContainer.sprocket.setAngle(Rotation2d.fromDegrees(angDegSupplier.getAsDouble())), RobotContainer.sprocket);
     }
 
     /* COMMAND TO STOP THE SPROCKET */
-    public Command stopCommand(){
+    public Command stop(){
         return Commands.runOnce(()-> RobotContainer.sprocket.stop());
     }
 
@@ -61,6 +61,7 @@ public class SprocketCommands extends Command {
         return Commands.run(()-> RobotContainer.sprocket.sprocketDefault(), RobotContainer.sprocket);
     }
 
+    /* RETURNS TO THE INTAKE ANGLE, WHICH IS THE DEFAULT ANGLE */
     public Command returnToDefaultAngle(){
         return RobotContainer.sprocketcommands.setAngleCommand(ArmConstants.SPROCKET_INTAKE_ANGLE);
     }

@@ -72,7 +72,7 @@ public class DriveCommands extends Command {
         RobotContainer.drivecommands.alignScoringModeCommand(lockDrive),
 
         //ramps up flywheels and shoots automatically if during auto
-        RobotContainer.shootercommands.spinWheels(ShooterConstants.SHOOT_SPEAKER_VELOCITY),
+        RobotContainer.shootercommands.spinWheels(ShooterConstants.SPEAKER_SCORE_VELOCITY),
 
         RobotContainer.shootercommands.scoreSpeaker(duringAuto))
 

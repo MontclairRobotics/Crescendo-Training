@@ -33,6 +33,7 @@ import frc.robot.Constants.DriveConstants;
 
 public class Auto extends SubsystemBase {
 
+  public AutoCommands autocommands;
 
   /* INSTANCE VARIABLES */
   public String autoString;
@@ -104,6 +105,8 @@ public class Auto extends SubsystemBase {
    * 
    */
   public Auto() {
+
+    autocommands = new AutoCommands();
 
     testAutoString = "111";
     autoString = "2B";
@@ -199,7 +202,7 @@ public class Auto extends SubsystemBase {
    */
   public boolean autoSequencer() {
     if(autoString.length() > 0) {
-    if(isIn(autoString.charAt(0), startingLocations)) AutoCommands.autoCommandGroup.addCommands(RobotContainer.shootercommands.scoreSpeaker(true));
+    if(isIn(autoString.charAt(0), startingLocations)) ;
     else {
       setFeedback("That's not a real starting location");
       isAutoStringValid = false;
@@ -224,12 +227,10 @@ public class Auto extends SubsystemBase {
       isFromScoringLocation = isIn(current, scoringLocations);
       isFromCloseNote = isIn(current, closeNotes);
       isFromNote = isIn(current, allNotes);
-      // isFromFarNote = isIn(current, farNotes);
 
       isGoingToScoringLocation = isIn(next, scoringLocations);
       isGoingToCloseNote = isIn(next, closeNotes);
       isGoingToNote = isIn(next, allNotes);
-      // isGoingToFarNote = isIn(next, farNotes);
 
       isGoingToNoteScoringLocation = isGoingToCloseNote && isFromNote;
       isFromNoteScoringLocation = isFromCloseNote && isIn(previous, allNotes);
@@ -239,7 +240,12 @@ public class Auto extends SubsystemBase {
 
       System.out.println("From scoring location: " + isFromScoringLocation);
       System.out.println("Going to scoring location: " + isGoingToScoringLocation);
-      //auto string validator part
+
+      /*
+       * 
+       * validator part
+       * 
+       */
       if (isFromNote && isGoingToNote){
         if (!isGoingToNoteScoringLocation) {
           isAutoStringValid = false;
@@ -255,14 +261,24 @@ public class Auto extends SubsystemBase {
       //builds the sequential command group
       if(isAutoStringValid){
         feedback = "looks good!";
+        if(i == 0) AutoCommands.autoCommandGroup.addCommands(RobotContainer.shootercommands.scoreSubwoofer());
         if(shouldIntake){
-          AutoCommands.autoCommandGroup.addCommands(RobotContainer.autocommands.followPathAndIntake(pathName));
+          AutoCommands.autoCommandGroup.addCommands(autocommands.followPathAndIntake(pathName));
         } 
         if(shouldShoot){
-          if(current == next) AutoCommands.autoCommandGroup.addCommands(RobotContainer.shootercommands.scoreSpeaker(true));
-          else if(next == '4') AutoCommands.autoCommandGroup.addCommands(RobotContainer.autocommands.followPathAndShoot(pathName, true));
-          else AutoCommands.autoCommandGroup.addCommands(RobotContainer.autocommands.followPathAndShoot(pathName, false));
+          if(current == next) AutoCommands.autoCommandGroup.addCommands(RobotContainer.drivecommands.scoringMode(false, true));
+          else if(next == '4') AutoCommands.autoCommandGroup.addCommands(autocommands.followPathAndShoot(pathName, true));
+          else AutoCommands.autoCommandGroup.addCommands(autocommands.followPathAndShoot(pathName, false));
         }
+        
+        //for 2BBCC
+        //adds scoresubwoofer
+        //adds follow path and intake
+        //adds scoring mode
+        //adds follow path and intake
+        //adds scoring mode
+        //then stops
+
         // setFeedback("Looks Good!", true);
       }
     

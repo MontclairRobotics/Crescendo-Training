@@ -28,6 +28,7 @@ public class IntakeCommands extends Command {
             RobotContainer.sprocketcommands.setAngleCommand(ArmConstants.SPROCKET_INTAKE_ANGLE),
             //runs the intake until there is a note in the transport
             Commands.run(() -> RobotContainer.intake.start(), RobotContainer.intake)
+            .onlyWhile(RobotContainer.getL2())
             .until(RobotContainer.intake.noteInTransport())
             .finallyDo(() -> RobotContainer.intake.stop())
         );
@@ -39,6 +40,8 @@ public class IntakeCommands extends Command {
             RobotContainer.sprocketcommands.setAngleCommand(ArmConstants.SPROCKET_OUTTAKE_ANGLE),
             //runs the outtake
             Commands.run(() -> RobotContainer.intake.reverse(), RobotContainer.intake)
+            .onlyWhile(RobotContainer.getR2())
+            .finallyDo(() -> RobotContainer.intake.stop())
         );
     }
 
@@ -51,13 +54,19 @@ public class IntakeCommands extends Command {
 
     public Command intakeSourceCommand(){
     return Commands.sequence(
-        //sets the sprocket angle
+
+        /* SETS THE SPROCKET ANGLE */
         RobotContainer.sprocketcommands.setAngleCommand(ArmConstants.SOURCE_INTAKE_ANGLE),
-        //spins up the shooter and transport until beambreak is triggered for the first time
+
+        /* THEN SPINS UP THE SHOOTER UNTIL BEAMBREAK TRIGGERS */
         Commands.run(() -> RobotContainer.shooter.intakeSource())
         .until(RobotContainer.intake.noteInTransport()),
-        /*spins up the shooter and transport until the note passes the beambreak
-        this means it will actually be in the intake*/
+
+       
+        /* 
+         * CONTINUES TO SPIN UP SHOOTER UNTIL THE NOTE EXITS THE BEAMBREAK
+         * THE NOTE WILL NOW BE IN THE TRANSPORT
+         */
         Commands.run(()-> RobotContainer.shooter.intakeSource())
         .until(RobotContainer.intake.noteOutOfTransport())
         .finallyDo(() -> {
@@ -65,5 +74,5 @@ public class IntakeCommands extends Command {
             RobotContainer.shooter.stop();
         })
         );
-  }
+    }
 }

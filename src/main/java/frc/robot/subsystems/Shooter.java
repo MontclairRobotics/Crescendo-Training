@@ -160,7 +160,7 @@ public class Shooter extends SubsystemBase {
   public static double getVelocityRPS(CANSparkMax motor){
     return motor.getEncoder().getVelocity()/60;
   }
-
+ 
   /*
    * INTAKE FROM SOURCE
    */

@@ -3,6 +3,8 @@ package frc.robot.Commands;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WrapperCommand;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ShooterConstants;
@@ -21,39 +23,38 @@ public class ShooterCommands extends Command {
     /*
      * Command sequence to score the subwoofer
      */
+   
     public Command scoreSubwoofer(){
         return Commands.parallel(
             //sets the angle to score the subwoofer
             RobotContainer.sprocketcommands.setAngleCommand(ShooterConstants.SUBWOOFER_ANGLE),
             //this sets the velocity, waits until it is at velocity, then shoots the note
-            Commands.sequence(
-                Commands.run(() -> RobotContainer.shooter.setVelocity(ShooterConstants.SHOOT_SPEAKER_VELOCITY)),
-                Commands.waitUntil(RobotContainer.shooter.isAtVelocitySupplier(ShooterConstants.SHOOT_SPEAKER_VELOCITY, ShooterConstants.SHOOT_SPEAKER_VELOCITY)),
-                Commands.run(() -> {
-                    Transport.start();
-                })
-            )
-        )
+            Commands.run(() -> RobotContainer.shooter.shootRPM(ShooterConstants.SPEAKER_SCORE_VELOCITY))
+                .until(RobotContainer.intake.noteOutOfTransport())
+                .finallyDo(() -> {
+                    RobotContainer.shooter.stopScoring();
+                    RobotContainer.sprocketcommands.returnToDefaultAngle();
+             }),
+             RobotContainer.sprocketcommands.returnToDefaultAngle()
+                .onlyWhile(RobotContainer.intake.noteOutOfTransport())
+            );
+        
         //ending conditions
-        .onlyWhile(RobotContainer.shooter.noteReadyToShoot())
-        .finallyDo(() -> {
-            RobotContainer.shooter.stopScoring();
-            RobotContainer.sprocketcommands.returnToDefaultAngle();
-        });       
-    }
+        
+        }       
 
     public Command scoreSpeaker(boolean duringAuto){
 
         /*
          * FIRST OPTION
          * 
-         * this runs if were are running auto and scoring mode
+         * this runs if we are running auto and scoring mode
          * it will wait for shooter to be at velocity and then run the transport, then end 
          */
 
-        if(duringAuto && RobotContainer.shooter.scoringMode){
+        if(duringAuto){
             return Commands.run(() -> {
-                if(RobotContainer.shooter.isAtVelocityRPM(ShooterConstants.SHOOT_SPEAKER_VELOCITY, ShooterConstants.SHOOT_SPEAKER_VELOCITY)){
+                if(RobotContainer.shooter.isAtVelocityRPM(ShooterConstants.SPEAKER_SCORE_VELOCITY, ShooterConstants.SPEAKER_SCORE_VELOCITY)){
                 Transport.start();
                 }
             })
@@ -61,8 +62,8 @@ public class ShooterCommands extends Command {
             .onlyWhile(RobotContainer.shooter.noteReadyToShoot())
             .finallyDo(() -> {
                 RobotContainer.shooter.stopScoring();
-                RobotContainer.sprocketcommands.returnToDefaultAngle();
-            });
+            })
+            .andThen(RobotContainer.sprocketcommands.returnToDefaultAngle());
 
             /* SECOND OPTION
 
@@ -72,11 +73,12 @@ public class ShooterCommands extends Command {
         } else if(RobotContainer.shooter.scoringMode && RobotContainer.operatorController.circle().getAsBoolean()){
             return Commands.run(() -> {
                 Transport.start();
-            }).onlyWhile(RobotContainer.shooter.noteReadyToShoot())
+            })
+            .onlyWhile(RobotContainer.shooter.noteReadyToShoot())
             .finallyDo(() -> {
                 RobotContainer.shooter.stopScoring();
-                RobotContainer.sprocketcommands.returnToDefaultAngle();
-            });
+            })
+            .andThen(RobotContainer.sprocketcommands.returnToDefaultAngle());
         }
 
         /*
@@ -89,18 +91,29 @@ public class ShooterCommands extends Command {
         }
     }
   
+  
+    /*
+     * 
+     * SCORE AMP
+     * 
+     */
+
     public Command scoreAmp(){
         return Commands.sequence(
             RobotContainer.sprocketcommands.setAngleCommand(ShooterConstants.AMP_SCORE_ANGLE),
             Commands.waitUntil(RobotContainer.sprocket.isAtAngle()),
             Commands.run(() -> RobotContainer.shooter.shootRPM(ShooterConstants.AMP_TOP_SPEED, ShooterConstants.AMP_BOTTOM_SPEED))
-        ).finallyDo(() -> RobotContainer.sprocketcommands.returnToDefaultAngle());
+        )
+        .until(RobotContainer.intake.noteOutOfTransport())
+        .finallyDo(() -> RobotContainer.shooter.stopScoring())
+        .andThen(RobotContainer.sprocketcommands.returnToDefaultAngle());
     }
 
     public Command stop(){
         return Commands.runOnce(() -> RobotContainer.shooter.stop());
       }
 
+      /* SPINS WHEELS BUT NOT TRANSPORT */
     public Command spinWheels(double vel){
         return Commands.run(() -> RobotContainer.shooter.spinWheels(vel, vel), RobotContainer.shooter);
     }

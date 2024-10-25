@@ -30,17 +30,16 @@ public class AutoCommands extends Command{
   /** FOLLOWS AN AUTO PATH 
    * @param pathString this is a pathstring file name
    * i.e. (A-B)
-   * this will be run hopefully
   */
   public Command followPath(String pathString) {
       PathPlannerPath path = PathPlannerPath.fromPathFile(pathString);
-      return Commands.runOnce(() -> {AutoBuilder.followPath(path);}, RobotContainer.auto, RobotContainer.drivetrain);
+      return Commands.runOnce(() -> {AutoBuilder.followPath(path);}, RobotContainer.drivetrain);
   }
   
   /* FOLLOWS PATH AND THEN INTAKES */
   public Command followPathAndIntake(String pathString){
       return Commands.sequence(
-        this.followPath(pathString),
+        followPath(pathString),
         RobotContainer.intakecommands.intake()
       );
   }
@@ -52,11 +51,11 @@ public class AutoCommands extends Command{
   public Command followPathAndShoot(String pathString, boolean isScoringAmp){
     if(!isScoringAmp){
       return Commands.sequence(
-        this.followPath(pathString), 
+        followPath(pathString), 
         RobotContainer.drivecommands.scoringMode(false, true));
     } else {
       return Commands.sequence(
-        this.followPath(pathString), 
+        followPath(pathString), 
         RobotContainer.shootercommands.scoreAmp());
     }
   }
