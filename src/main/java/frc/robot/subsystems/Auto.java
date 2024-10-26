@@ -57,10 +57,12 @@ public class Auto extends SubsystemBase {
 
   boolean justScored;
   boolean isCurrentPathValid;
+  boolean hasNote;
   /* CHARS */
   public char previous = 'X';
   public char current;
   public char next;
+  public char previous2 = 'X';
   public String pathName;
   public String pathName2;
 
@@ -68,14 +70,14 @@ public class Auto extends SubsystemBase {
   public boolean isAutoStringValid;
   
   /* FEEDBACK */
-  public String feedback; 
+  public String feedbackString; 
+  public int feedbackCount;
 
   /* ARRAYS!!! */
   private char[] allNotes;
   private char[] closeNotes;
   public char[] scoringLocations;
   private char[] startingLocations;
-  private char[] farNotes;
   private String[] validPaths;
    
   /* SET TO 0,0 BECAUSE OUR ROBOT IS SQUARE */
@@ -114,6 +116,8 @@ public class Auto extends SubsystemBase {
 
     testAutoString = "111";
     autoString = "2BB";
+    feedbackCount = 0;
+    isAutoStringValid = true;
 
     validPaths = new String[]{
 
@@ -151,14 +155,12 @@ public class Auto extends SubsystemBase {
     /* ALL CLOSE NOTES */
     closeNotes = new char[]{'A','B','C'};
 
-    /* ALL FAR NOTES */
-    farNotes = new char[]{'D','F','H','I','J'};
-
-    feedback = "";
+  
+    feedbackString = "Errors in your input: \n";
 
     boolean isAutoValid = autoSequencer();
     Shuffleboard.getTab("Driver Station").add("Is auto valid:", isAutoValid).withPosition(1,2);
-    Shuffleboard.getTab("Driver Station").add("Feedback:", feedback).withSize(5,1);
+    Shuffleboard.getTab("Driver Station").add("Feedback:", feedbackString).withSize(5,1);
 
 
     /* sets offset center of rotation meters to 0 */
@@ -224,16 +226,17 @@ public class Auto extends SubsystemBase {
    */
 
    public boolean isValid(String path){
-    boolean ret = false;
+    boolean isValidPath = false;
     for(String i : validPaths){
-      if(i.equals(path)) ret = true;
+      if(i.equals(path)) isValidPath = true;
     }
-    return ret;
+    return isValidPath;
    }
 
   /* SETS THE FEEDBACK */
-  public void setFeedback(String theFeedbackInput) {
-    feedback += "\n" + theFeedbackInput;
+  public void setFeedbackString(String input) {
+    feedbackCount++;
+    feedbackString += "\n" + ("" + feedbackCount) + ". " + input;
   }
 
   /*
@@ -306,13 +309,12 @@ public class Auto extends SubsystemBase {
     if(autoString.length() > 0) {
     if(isIn(autoString.charAt(0), startingLocations)) ;
     else {
-      setFeedback("That's not a real starting location");
+      setFeedbackString("\"" + autoString.charAt(0) + "\"" + " is not a real starting location");
       isAutoStringValid = false;
-      return isAutoStringValid;
     }
   }
 
-    isAutoStringValid = true;
+    //isAutoStringValid = true;
 
     for(int i=0; i<autoString.length()-1; i++){
  
@@ -320,6 +322,9 @@ public class Auto extends SubsystemBase {
       //System.out.println(i + " " + current );
       if(i != 0) previous = autoString.charAt(i-1);
       else previous = 'X';
+
+      if(i>1) previous2 = autoString.charAt(i-2);
+      else previous2 = 'X';
       
       if(i < autoString.length() -1) next = autoString.charAt(i+1);
       else next = 'X';
@@ -328,9 +333,9 @@ public class Auto extends SubsystemBase {
 
       isCurrentPathValid = isValid(pathName);
       if(!isCurrentPathValid) {
-        setFeedback("The path " + pathName + " is not a valid path");
+        setFeedbackString("The path " + pathName + " is not a valid path");
         isAutoStringValid = false;
-    }
+      } 
 
 
       isFromScoringLocation = isIn(current, scoringLocations);
@@ -347,12 +352,29 @@ public class Auto extends SubsystemBase {
       shouldIntake = isGoingToNote && (isFromScoringLocation || isFromNoteScoringLocation);
       if(current == next) shouldIntake = false;
       shouldShoot = isFromNote && (isGoingToScoringLocation || isGoingToNoteScoringLocation);
+      if(justScored) shouldShoot = false;
 
-      justScored = false;
+
+      // System.out.println("" + "\t"+ previous + "\t"+ current + "\t"+ next);
+      // System.out.println("Is from scoring location? " + isFromScoringLocation);
+      // System.out.println("Is from close note? "+ isFromCloseNote);
+      // System.out.println("Is from note? " + isFromNote);
+      // System.out.println("is the previous a note? " + isIn(previous, allNotes));
+      // System.out.println("\n");
+      // System.out.println("Is going to scoring location? " + isGoingToScoringLocation);
+      // System.out.println("Is going to close note? "+ isGoingToCloseNote);
+      // System.out.println("Is going to note? " + isGoingToNote);
+      // System.out.println("\n");
+      // System.out.println("Is going to note scoring location? " + isGoingToNoteScoringLocation);
+      // System.out.println("Is from note scoring location? " + isFromNoteScoringLocation);
+      // System.out.println("\n");
+      // System.out.println("Should shoot? " + shouldShoot);
+      // System.out.println("Should intake? " + shouldIntake);
+      // System.out.println("just scored? " + justScored);
+      //System.out.println("has a note? " + hasNote);
+
       //System.out.println("From scoring location: " + isFromScoringLocation);
       //System.out.println("Going to scoring location: " + isGoingToScoringLocation);
-
-      System.out.println(previous + current + next + "\n");
 
       
 
@@ -366,27 +388,33 @@ public class Auto extends SubsystemBase {
       if(isAutoStringValid && isValid(pathName)){
         if(i == 0) {
           autoCommandGroup = new SequentialCommandGroup(RobotContainer.shootercommands.scoreSubwoofer());
-          System.out.println("scoring subwoofer auto \n");
+          System.out.println("The robot will score subwoofer at the scoring location of \"" + autoString.charAt(0) + "\"\n");
           justScored = true;
         }
         if(shouldIntake){
           autoCommandGroup.addCommands(this.followPathAndIntake(pathName));
-          System.out.println("Following path " + pathName + " and intaking after following that path \n");
+          System.out.println("The robot will follow the path \"" + pathName + "\" and intake the note at \"" + next + "\"\n");
+          hasNote = true;
+          justScored = false;
         } 
         else if(shouldShoot){
           if(current == next) {
             autoCommandGroup.addCommands(RobotContainer.drivecommands.scoringMode(false, true));
-            System.out.println("Scoring mode without following a path \n ");
+            if(isGoingToNoteScoringLocation) System.out.println("The robot will score using scoring mode at the note scoring location at \"" + next + "\"\n");
+            else System.out.println("The robot will score using scoring mode at the scoring location \"" + next + "\"\n");
             justScored = true;
+            //hasNote = false;
           }
           else if(next == '4') {
             autoCommandGroup.addCommands(this.followPathAndShoot(pathName, true));
             justScored = true;
+            //hasNote = false;
           }
           else {
             autoCommandGroup.addCommands(this.followPathAndShoot(pathName, false));
-            System.out.println("following path " + pathName + " and shooting with scoring mode afterwards \n");
+            System.out.println("The robot will follow the path \"" + pathName + "\" and will shoot using scoring mode afterwards \n");
             justScored = true;
+            //hasNote = false;
           }
         }
 
@@ -404,28 +432,34 @@ public class Auto extends SubsystemBase {
        * validator part
        * 
        */
-
+        
 
         if (isFromNote && isGoingToNote){
         if (!justScored && !isFromNoteScoringLocation) {
           isAutoStringValid = false;
-          setFeedback("Don't go between two notes when you are not scoring at one of them.");
+          setFeedbackString("Don't try and intake the note at \"" + next + "\" when you intaked the note at \"" +
+          current + "\" because you already have a note.");
         } 
+        }
+      
+      if ((isFromNoteScoringLocation || isFromScoringLocation) && isGoingToScoringLocation && justScored &&!hasNote ){  
+        isAutoStringValid = false;
+        setFeedbackString("Don't try to go between the scoring location \"" + current + "\" and the scoring location \"" +
+        next + "\" because you will not have another note to score.");   
       }
 
-      if (isFromScoringLocation && isGoingToScoringLocation ){
-        isAutoStringValid = false;
-        setFeedback("Don't go between two scoring locations");   
-      }
+      if(shouldShoot) hasNote = false;
+      
       
       }
     
-   } 
-   if(isAutoStringValid) setFeedback("looks good!");
-  System.out.println("feedback: " + feedback +"\n");
+   }
+
+   if(isAutoStringValid) feedbackString = "Looks Good!";
+  System.out.println("feedback: " + feedbackString +"\n");
   System.out.println("is the string valid:" + isAutoStringValid +"\n");
 
-
+   feedbackCount = 0;
    return isAutoStringValid; 
   
   } /* END OF AUTOSEQUENCER */

@@ -84,7 +84,7 @@ public class Sprocket extends SubsystemBase {
         currentSetPoint = angle.getDegrees();
 
         isUsingPID = true;
-        System.out.println("isUsingPid is being set to true");
+       // System.out.println("isUsingPid is being set to true");
     }
 
     /* STOPS THE SPROCKET MOTORS */
