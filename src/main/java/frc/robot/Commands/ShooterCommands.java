@@ -33,11 +33,10 @@ public class ShooterCommands extends Command {
                 .until(RobotContainer.intake.noteOutOfTransport())
                 .finallyDo(() -> {
                     RobotContainer.shooter.stopScoring();
-                    RobotContainer.sprocketcommands.returnToDefaultAngle();
-             }),
-             RobotContainer.sprocketcommands.returnToDefaultAngle()
-                .onlyWhile(RobotContainer.intake.noteOutOfTransport())
-            );
+             })
+            )
+            .andThen(RobotContainer.sprocketcommands.returnToDefaultAngle()
+            .onlyWhile(RobotContainer.intake.noteOutOfTransport()));
         
         //ending conditions
         

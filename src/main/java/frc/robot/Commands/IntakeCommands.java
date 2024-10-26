@@ -34,6 +34,17 @@ public class IntakeCommands extends Command {
         );
     }
 
+    public Command intakeAuto(){
+        return Commands.parallel(
+            //sets the sprocket to the intake angle
+            RobotContainer.sprocketcommands.setAngleCommand(ArmConstants.SPROCKET_INTAKE_ANGLE),
+            //runs the intake until there is a note in the transport
+            Commands.run(() -> RobotContainer.intake.start(), RobotContainer.intake)
+            .until(RobotContainer.intake.noteInTransport())
+            .finallyDo(() -> RobotContainer.intake.stop())
+        );
+    }
+
     public Command outtake(){
         return Commands.parallel(
             //sets the sprocket to the outtake angel

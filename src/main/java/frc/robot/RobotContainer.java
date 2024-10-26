@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
-import frc.robot.Commands.AutoCommands;
 import frc.robot.Commands.DriveCommands;
 import frc.robot.Commands.IntakeCommands;
 import frc.robot.Commands.ShooterCommands;
@@ -53,10 +52,10 @@ public class RobotContainer {
     public static SprocketCommands sprocketcommands = new SprocketCommands();
     public static Drivetrain drivetrain = new Drivetrain();
     public static DriveCommands drivecommands = new DriveCommands();
-    public static Auto auto = new Auto();
     //public static AutoCommands autocommands = new AutoCommands();
 
 
+    public static Auto auto = new Auto();
     //INSTANTIATING THE CONTROLLERS
     public static CommandPS5Controller driverController = new CommandPS5Controller(0);
     public static CommandPS5Controller operatorController = new CommandPS5Controller(1);
@@ -172,6 +171,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     auto.autoSequencer();
-    return Commands.runOnce(() -> RobotContainer.auto.autocommands.runAutoSequentialCommandGroup());
+    return Commands.runOnce(() -> auto.runAutoSequentialCommandGroup());
   }
 }

@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
 import frc.robot.subsystems.Auto;
 import frc.robot.subsystems.Shooter;
 import frc.robot.vision.Limelight;
@@ -77,9 +78,9 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    System.out.println("feedback: " + RobotContainer.auto.feedback);
-    System.out.println(RobotContainer.auto.isAutoStringValid);
-    System.out.println(RobotContainer.auto.autoString);
+    //System.out.println("feedback: " + AutoCommands.auto.feedback);
+    //System.out.println(AutoCommands.auto.isAutoStringValid);
+    //System.out.println(AutoCommands.auto.autoString);
   }
 
   @Override

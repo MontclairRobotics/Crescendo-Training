@@ -74,10 +74,11 @@ public class DriveCommands extends Command {
         //ramps up flywheels and shoots automatically if during auto
         RobotContainer.shootercommands.spinWheels(ShooterConstants.SPEAKER_SCORE_VELOCITY),
 
-        RobotContainer.shootercommands.scoreSpeaker(duringAuto))
-
-        .until(RobotContainer.intake.noteOutOfTransport())
-        .finallyDo(() -> RobotContainer.shooter.stopScoring());
+        RobotContainer.shootercommands.scoreSpeaker(duringAuto)
+        
+        )
+            .until(RobotContainer.intake.noteOutOfTransport())
+            .finallyDo(() -> RobotContainer.shooter.stopScoring());
 
         } else return Commands.runOnce(() -> {});
     }
