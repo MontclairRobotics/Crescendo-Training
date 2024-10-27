@@ -53,7 +53,9 @@ public class ShooterCommands extends Command {
 
         if(duringAuto){
             return Commands.run(() -> {
-                if(RobotContainer.shooter.isAtVelocityRPM(ShooterConstants.SPEAKER_SCORE_VELOCITY, ShooterConstants.SPEAKER_SCORE_VELOCITY)){
+                if(RobotContainer.shooter.isAtVelocityRPM(ShooterConstants.SPEAKER_SCORE_VELOCITY, ShooterConstants.SPEAKER_SCORE_VELOCITY)
+                    && RobotContainer.sprocket.isAtAngle()
+                    && RobotContainer.drivetrain.isAlignedTX()){
                 Transport.start();
                 }
             })
@@ -100,7 +102,7 @@ public class ShooterCommands extends Command {
     public Command scoreAmp(){
         return Commands.sequence(
             RobotContainer.sprocketcommands.setAngleCommand(ShooterConstants.AMP_SCORE_ANGLE),
-            Commands.waitUntil(RobotContainer.sprocket.isAtAngle()),
+            Commands.waitUntil(RobotContainer.sprocket.isAtAngleSupplier()),
             Commands.run(() -> RobotContainer.shooter.shootRPM(ShooterConstants.AMP_TOP_SPEED, ShooterConstants.AMP_BOTTOM_SPEED))
         )
         .until(RobotContainer.intake.noteOutOfTransport())

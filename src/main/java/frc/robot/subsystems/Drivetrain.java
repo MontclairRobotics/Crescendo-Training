@@ -152,7 +152,7 @@ public class Drivetrain extends SubsystemBase {
     wrappedSetPoint = wrapAngle(odometryHeading + angle);
     thetaController.setSetpoint(wrappedSetPoint);
   }
-  
+
   /* ALIGNS TO THE ANGLE DURING SCORING MODE */
   public void alignScoringMode(boolean lockDrive){
     if(RobotContainer.shooter.scoringMode){
@@ -172,6 +172,11 @@ public class Drivetrain extends SubsystemBase {
   public void stopScoringMode(){
     RobotContainer.shooter.stop();
     RobotContainer.sprocket.stop();
+  }
+
+  public boolean isAlignedTX(){
+    if(Limelight.getTX() < .5) return true;
+    else return false;
   }
  
   /* ALIGN TO ANGLE ROBOT RELATIVE */

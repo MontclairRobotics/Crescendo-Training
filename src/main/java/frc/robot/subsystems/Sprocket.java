@@ -112,8 +112,12 @@ public class Sprocket extends SubsystemBase {
     }
    
     /* BOOLEAN SUPPLIER FOR CHECKING THAT THE SPROCKET IS AT THE ANGLE IT IS SET TO */
-    public BooleanSupplier isAtAngle(){
+    public BooleanSupplier isAtAngleSupplier(){
         return () -> isAtSetPoint;
+    }
+
+    public boolean isAtAngle(){
+        return isAtSetPoint;
     }
 
     /*
