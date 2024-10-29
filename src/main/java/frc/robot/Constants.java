@@ -45,7 +45,9 @@ public final class Constants {
   }
 
   public static class DriveConstants {
+    public static final double VELOCITY_DEADBAND = 5; //degrees per second
 
+    public static final double ANGLE_DEADBAND = 2.5;
     //todo: get real width
     public static final double BUMPER_WIDTH = Units.inchesToMeters(3); 
 
@@ -55,7 +57,7 @@ public final class Constants {
     //max speed of the robot
     public static final double MAX_SPEED = Units.feetToMeters(13);
 
-    //this is in radians. for those who don't know, 2pi radians = 360 degrees
+    //this is in radians. fosr those who don't know, 2pi radians = 360 degrees
     //our max rotation speed is therefore 360degrees/s or 2pi radians/second
     public static final double MAX_ROT_SPEED = 2 * Math.PI;
 
@@ -190,7 +192,7 @@ public final class Constants {
 
     public static final double SUBWOOFER_ANGLE = 51.5; //need to actually change this to the actual value
     public static final double SPEAKER_SPEED_RPS = 25;
-    public static final double SPEAKER_SCORE_VELOCITY = 2000;
+    public static final double SPEAKER_SCORE_VELOCITY = 1500;
 
     public static final double AMP_TOP_SPEED = 600;
     public static final double AMP_BOTTOM_SPEED = 800;

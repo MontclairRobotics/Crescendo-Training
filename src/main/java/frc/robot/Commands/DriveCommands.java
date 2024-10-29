@@ -54,6 +54,7 @@ public class DriveCommands extends Command {
         return Commands.run(() -> RobotContainer.drivetrain.alignScoringMode(lockDrive), RobotContainer.drivetrain);
     }
 
+
     public Command alignToAngleFieldRelative(double angle, boolean lockDrive){
         return Commands.sequence(
             Commands.runOnce(() -> {RobotContainer.drivetrain.setFieldRelativeAngle(angle);}, RobotContainer.drivetrain),
@@ -64,13 +65,13 @@ public class DriveCommands extends Command {
     public Command scoringModeTeleop(boolean lockDrive) {
         return Commands.parallel(
 
-        //sets sprocket. to be replaced with function to align angle
+        //requires only sprocket
         RobotContainer.sprocketcommands.setAngleContinousCommand(RobotContainer.limelight::bestFit),
 
-        //turns toward april tag
+        //requires only drivetrain
         RobotContainer.drivecommands.alignScoringModeCommand(lockDrive),
 
-        //spins wheels for operator to shoot
+        //requires only shooter
         RobotContainer.shootercommands.spinWheels(ShooterConstants.SPEAKER_SCORE_VELOCITY)
         )
         .onlyWhile(() -> RobotContainer.driverController.R2().getAsBoolean())
@@ -79,12 +80,15 @@ public class DriveCommands extends Command {
 
     public Command scoringModeAuto(boolean lockDrive) {
         return Commands.parallel(
-         //sets sprocket. to be replaced with function to align angle
+         //requires sprocket
         RobotContainer.sprocketcommands.setAngleContinousCommand(RobotContainer.limelight::bestFit),
 
-        //turns toward april tag
+        //requires drivetrain
         RobotContainer.drivecommands.alignScoringModeCommand(lockDrive),
 
+        //requires shooter
+        //uses sprocket, intake, drivetrain, and shooter methods but does not
+        //require the subsystem.
         RobotContainer.shootercommands.scoreSpeakerAuto()
         );
     }

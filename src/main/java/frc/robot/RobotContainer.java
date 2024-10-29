@@ -89,9 +89,14 @@ public class RobotContainer {
   
     //SCORES SPEAKER (SUBWOOFER OR SCORING MODE)
    
-        RobotContainer.operatorController.circle()
-        .whileTrue(RobotContainer.shootercommands.scoreSpeakerDecider())
-        .onFalse(RobotContainer.shootercommands.stop());
+    
+      RobotContainer.operatorController.cross()
+      .whileTrue(RobotContainer.shootercommands.scoreSpeakerTeleop())
+      .onFalse(RobotContainer.shootercommands.stop());
+
+      RobotContainer.operatorController.circle()
+      .whileTrue(RobotContainer.shootercommands.scoreSubwoofer())
+      .onFalse(RobotContainer.shootercommands.stop());
     
     
     //SCORES AMP

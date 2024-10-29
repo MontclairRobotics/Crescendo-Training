@@ -50,6 +50,7 @@ public class Sprocket extends SubsystemBase {
         leftMotor.setInverted(true);
         rightMotor.setInverted(true);
         pidController.setTolerance(1);
+        setBrakeMode();
     }
 
     /*

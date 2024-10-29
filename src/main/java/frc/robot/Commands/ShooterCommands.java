@@ -26,7 +26,8 @@ public class ShooterCommands extends Command {
      */
    
     public Command scoreSubwoofer(){
-     
+        
+        if(RobotContainer.intake.bbTriggered){
         return Commands.parallel(
             //sets the angle to score the subwoofer
             RobotContainer.sprocketcommands.setAngleCommand(ShooterConstants.SUBWOOFER_ANGLE),
@@ -39,38 +40,66 @@ public class ShooterCommands extends Command {
             )
             .andThen(RobotContainer.sprocketcommands.returnToDefaultAngle()
             .onlyWhile(RobotContainer.intake.noteOutOfTransport()));
-        
         //ending conditions
+        } 
         
+        
+        else return Commands.parallel(
+            //sets the angle to score the subwoofer
+            RobotContainer.sprocketcommands.setAngleCommand(ShooterConstants.SUBWOOFER_ANGLE),
+            //this sets the velocity, waits until it is at velocity, then shoots the note
+            Commands.run(() -> RobotContainer.shooter.shootRPM(ShooterConstants.SPEAKER_SCORE_VELOCITY))
+                .withTimeout(1)
+                .finallyDo(() -> {
+                    RobotContainer.shooter.stopScoring();
+             })
+            )
+            .andThen(RobotContainer.sprocketcommands.returnToDefaultAngle()
+            .onlyWhile(RobotContainer.intake.noteOutOfTransport()));  
     }   
+
+
 
         //scores speaker during auto   
         public Command scoreSpeakerAuto(){
+            if(RobotContainer.intake.bbTriggered){
             return Commands.run(() -> {
                 RobotContainer.shooter.spinWheels(ShooterConstants.SPEAKER_SCORE_VELOCITY, ShooterConstants.SPEAKER_SCORE_VELOCITY);
-                if(RobotContainer.shooter.isAtVelocityRPM(ShooterConstants.SPEAKER_SCORE_VELOCITY, ShooterConstants.SPEAKER_SCORE_VELOCITY)
-                    && RobotContainer.sprocket.isAtAngle()
-                    && RobotContainer.drivetrain.isAlignedTX()){
-                Transport.start();
-                }
+                //if shooter is at the right velocity
+                if(RobotContainer.shooter.isAtVelocityRPM(
+                ShooterConstants.SPEAKER_SCORE_VELOCITY, 
+                ShooterConstants.SPEAKER_SCORE_VELOCITY)
+                //and if the sprocket is aligned
+                && RobotContainer.sprocket.isAtAngle()
+                //and if the drivetrain is aligned
+                && RobotContainer.drivetrain.isAlignedTX()
+                //it will run the transport
+                ) Transport.start();
             }, RobotContainer.shooter)
-            .withTimeout(0.5)
+            .until(RobotContainer.intake.noteOutOfTransport())
             .finallyDo(() -> RobotContainer.shooter.stopScoring());
+        } else return Commands.runOnce(() -> {});
         } 
 
-        //scores speaker teleop 
+
+
+        //scores speaker teleop SCORING MODE ONLY
         public Command scoreSpeakerTeleop(){
             return Commands.run(() -> Transport.start())
             .withTimeout(0.2)
             .finallyDo(() -> RobotContainer.shooter.stopScoring());
         }
 
+        
+        //METHOD FOR DECIDING WHICH COMMAND TO RUN, TO AVOID COMMAND REQUIRING SUBSYSTEM ERROR
         public Command scoreSpeakerDecider(){
-            if(RobotContainer.shooter.scoringMode) return scoreSpeakerTeleop();
+            if(RobotContainer.operatorController.circle().getAsBoolean()) {
+            return scoreSpeakerTeleop();
+            }
             else return scoreSubwoofer();
         }
   
-  
+
     /*
      * 
      * SCORE AMP

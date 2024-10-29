@@ -25,6 +25,7 @@ import edu.wpi.first.math.util.Units;
 // import edu.wpi.first.wpilibj2.command.Commands;
 // import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.DriveConstants;
 // import frc.robot.Robot;
 import frc.robot.RobotContainer;
 // import frc.robot.Constants.DriveConstants;
@@ -62,12 +63,21 @@ public class Drivetrain extends SubsystemBase {
    * 
    */
   public Drivetrain() {
+//to convert back, comment this out until
+    double kp = swerveDrive.getSwerveController().thetaController.getP();
+    double ki = swerveDrive.getSwerveController().thetaController.getI();
+    double kd = swerveDrive.getSwerveController().thetaController.getD();
+    thetaController = new PIDController(kp, ki, kd);
 
-  
+    thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+    thetaController.setTolerance(DriveConstants.ANGLE_DEADBAND * ((Math.PI ) / 180 ), DriveConstants.VELOCITY_DEADBAND * ((Math.PI ) / 180 ));
+    //end comment here
   /* FOR AUTO ALIGN TO ANGLE */
-  thetaController = new PIDController(.82, .8, 0.045);
-  thetaController.setTolerance(1);
-  thetaController.enableContinuousInput(-180, 180);
+  //comment this in
+  // thetaController = new PIDController(.87, .4, 0.05);
+  // thetaController.setTolerance(1);
+  // thetaController.enableContinuousInput(-180, 180);
 
   FieldRelative = true;
 
@@ -148,8 +158,12 @@ public class Drivetrain extends SubsystemBase {
   }
 
   /* ROBOT RELATIVE SETPOINT METHOD */
-  public void setSetpoint(double angle){
-    wrappedSetPoint = wrapAngle(odometryHeading + angle);
+  public void setSetpoint(double angleRadians){
+    //comment the math.toRadians part out
+    wrappedSetPoint = Math.toRadians(
+      wrapAngle(odometryHeading + angleRadians)
+      )
+      ;
     thetaController.setSetpoint(wrappedSetPoint);
   }
 
@@ -161,7 +175,10 @@ public class Drivetrain extends SubsystemBase {
 
     setSetpoint(Limelight.getTX());
 
-    response = -thetaController.calculate(odometryHeading) * Math.PI /180;
+    response = -thetaController.calculate(odometryHeading) 
+    //comment this in
+    //*Math.PI /180
+    ;
 
     if(lockDrive) swerveDrive.drive(translation, response, false, true);
     else swerveDrive.drive(returnDefaultDriveTranslation(), response, true, true);
@@ -185,7 +202,10 @@ public class Drivetrain extends SubsystemBase {
     Translation2d translation = new Translation2d(0, 0);
     //calculates the input for the drive function (NO IDEA IF I SHOULD MULTIPLY THIS BY SOMETHING)
     //inputs field relative angle (set point is also converted to field relative)
-    response = thetaController.calculate(odometryHeading) * Math.PI / 180;
+    response = thetaController.calculate(odometryHeading) 
+    //* Math.PI / 180
+    //comment this back in
+    ;
     //calls the drive function with no translation but with turning
     //should work maybe idk
     if(lockDrive) swerveDrive.drive(translation, response, false, true);
@@ -219,14 +239,18 @@ public class Drivetrain extends SubsystemBase {
 
   /* SETS THE FIELD RELATIVE SET POINT ANGLE */
   public void setFieldRelativeAngle(double angle){
-    double wrappedAngle = wrapAngle(angle);
+    //comment out math.toRadians
+    double wrappedAngle = Math.toRadians(wrapAngle(angle));
     thetaController.setSetpoint(wrappedAngle);
   }
 
   /* ALIGNS TO ANGLE FIELD RELATIVE */
   public void alignToAngleFieldRelative(boolean lockDrive){
     Translation2d translation = new Translation2d(0,0);
-    double response = thetaController.calculate(odometryHeading) *Math.PI/180;
+    double response = thetaController.calculate(odometryHeading) 
+    //*Math.PI/180
+    //comment this back in
+    ;
     if(lockDrive) swerveDrive.drive(translation, response, true, true);
     else swerveDrive.drive(returnDefaultDriveTranslation(), response, true, true);
   }
@@ -269,7 +293,8 @@ public class Drivetrain extends SubsystemBase {
     // This method will be called once per scheduler run
     shouldStop = !isRobotAtAngleSetPoint && Math.abs(response) < 0.05;
     swerveDrive.getPose();
-    odometryHeading = swerveDrive.getPose().getRotation().getDegrees();
+    //comment this get radians to getdegrees
+    odometryHeading = swerveDrive.getPose().getRotation().getRadians();
     isRobotAtAngleSetPoint = thetaController.atSetpoint();
   }
   

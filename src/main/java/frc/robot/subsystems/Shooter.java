@@ -197,7 +197,8 @@ public class Shooter extends SubsystemBase {
    */
 
   public void periodic() {
-  
+
+
     scoringMode = RobotContainer.driverController.R2().getAsBoolean();
     
   }

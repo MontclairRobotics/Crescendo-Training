@@ -37,14 +37,15 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putNumber("bottomMotor Velocity RPM", Shooter.getVelocityRPM(Shooter.bottomMotor));
     Shuffleboard.getTab("Debug").addDouble("Sprocket angle", RobotContainer.sprocket.getRawPositionSupplier());
     Shuffleboard.getTab("Debug").addDouble("TX", Limelight.txSupplier()).withSize(2,1);
-    Shuffleboard.getTab("Debug").addDouble("setPoint", RobotContainer.drivetrain.setPointSupplier()).withSize(2,1);
-    Shuffleboard.getTab("Debug").addDouble("response", RobotContainer.drivetrain.responseSupplier()).withSize(2,1);
-    Shuffleboard.getTab("Debug").addBoolean("Is Robot At Set Point", RobotContainer.drivetrain.isRobotAtAngleSetPoint()).withSize(2,1);
+    //Shuffleboard.getTab("Debug").addDouble("setPoint", RobotContainer.drivetrain.setPointSupplier()).withSize(2,1);
+    //Shuffleboard.getTab("Debug").addDouble("response", RobotContainer.drivetrain.responseSupplier()).withSize(2,1);
+    //Shuffleboard.getTab("Debug").addBoolean("Is Robot At Set Point", RobotContainer.drivetrain.isRobotAtAngleSetPoint()).withSize(2,1);
     Shuffleboard.getTab("Debug").addDouble("Odometry Heading", RobotContainer.drivetrain.odometryHeadingDoubleSupplier()).withSize(2,1);
-    Shuffleboard.getTab("Debug").addDouble("wrapped setpoint", RobotContainer.drivetrain.wrappedSetPointSupplier()).withSize(2,1);
-    Shuffleboard.getTab("Debug").addDouble("ty", Limelight.tySupplier()).withSize(2,1);
+    //Shuffleboard.getTab("Debug").addDouble("wrapped setpoint", RobotContainer.drivetrain.wrappedSetPointSupplier()).withSize(2,1);
+    //Shuffleboard.getTab("Debug").addDouble("ty", Limelight.tySupplier()).withSize(2,1);
     Shuffleboard.getTab("Debug").addDouble("best fit angle", RobotContainer.limelight.bestFitAngleSupplier()).withSize(2,1);
-
+    Shuffleboard.getTab("Debug").addBoolean("Sprocket at angle?", RobotContainer.sprocket.isAtAngleSupplier());
+    Shuffleboard.getTab("Debug").addBoolean("Is robot aligned tx", () -> RobotContainer.drivetrain.isAlignedTX());
   }
 
   @Override

@@ -362,11 +362,12 @@ public class Auto extends SubsystemBase {
   
   /* FOLLOWS PATH AND THEN INTAKES */
   public Command followPathAndIntake(String pathString){
-      return Commands.parallel(
-        followPath(pathString),
-        RobotContainer.intakecommands.intakeAuto()
+      return Commands.race(
+        RobotContainer.intakecommands.intakeAuto(),
+        followPath(pathString)
       )
-      .until(RobotContainer.intake.noteInTransport());
+      .andThen(RobotContainer.intakecommands.intakeAuto())
+      .withTimeout(0.5);
   }
 
   /* FOLLOWS PATH AND SCORES RESPECTIVELY */
