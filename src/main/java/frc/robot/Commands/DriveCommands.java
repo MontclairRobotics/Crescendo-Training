@@ -61,8 +61,7 @@ public class DriveCommands extends Command {
         );
     }
 
-    public Command scoringMode(boolean lockDrive, boolean duringAuto) {
-        if(RobotContainer.limelight.isTargetInView()){
+    public Command scoringModeTeleop(boolean lockDrive) {
         return Commands.parallel(
 
         //sets sprocket. to be replaced with function to align angle
@@ -71,15 +70,22 @@ public class DriveCommands extends Command {
         //turns toward april tag
         RobotContainer.drivecommands.alignScoringModeCommand(lockDrive),
 
-        //ramps up flywheels and shoots automatically if during auto
-        RobotContainer.shootercommands.spinWheels(ShooterConstants.SPEAKER_SCORE_VELOCITY),
-
-        RobotContainer.shootercommands.scoreSpeaker(duringAuto)
-        
+        //spins wheels for operator to shoot
+        RobotContainer.shootercommands.spinWheels(ShooterConstants.SPEAKER_SCORE_VELOCITY)
         )
-            .until(RobotContainer.intake.noteOutOfTransport())
-            .finallyDo(() -> RobotContainer.shooter.stopScoring());
+        .onlyWhile(() -> RobotContainer.driverController.R2().getAsBoolean())
+        .finallyDo(() -> RobotContainer.shooter.stopScoring());
+    }
 
-        } else return Commands.runOnce(() -> {});
+    public Command scoringModeAuto(boolean lockDrive) {
+        return Commands.parallel(
+         //sets sprocket. to be replaced with function to align angle
+        RobotContainer.sprocketcommands.setAngleContinousCommand(RobotContainer.limelight::bestFit),
+
+        //turns toward april tag
+        RobotContainer.drivecommands.alignScoringModeCommand(lockDrive),
+
+        RobotContainer.shootercommands.scoreSpeakerAuto()
+        );
     }
 }

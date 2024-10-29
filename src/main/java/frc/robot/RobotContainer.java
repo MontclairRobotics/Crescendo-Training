@@ -4,18 +4,13 @@
 
 package frc.robot;
 
-import java.util.EnumSet;
+
 import java.util.function.BooleanSupplier;
 
-import javax.swing.TransferHandler.TransferSupport;
+
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.NetworkTableEvent.Kind;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
@@ -23,7 +18,6 @@ import frc.robot.Commands.DriveCommands;
 import frc.robot.Commands.IntakeCommands;
 import frc.robot.Commands.ShooterCommands;
 import frc.robot.Commands.SprocketCommands;
-import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.Auto;
 import frc.robot.subsystems.Climbers;
 import frc.robot.subsystems.Drivetrain;
@@ -31,8 +25,6 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Sprocket;
 import frc.robot.subsystems.Transport;
-import frc.robot.util.ControllerTools;
-import frc.robot.util.ControllerTools.DPad;
 import frc.robot.vision.Limelight;
 import frc.robot.vision.LimelightHelpers;
 
@@ -96,9 +88,11 @@ public class RobotContainer {
     */
   
     //SCORES SPEAKER (SUBWOOFER OR SCORING MODE)
-    operatorController.circle()
-      .whileTrue(shootercommands.scoreSpeaker(false))
-      .onFalse(shootercommands.stop());
+   
+        RobotContainer.operatorController.circle()
+        .whileTrue(RobotContainer.shootercommands.scoreSpeakerDecider())
+        .onFalse(RobotContainer.shootercommands.stop());
+    
     
     //SCORES AMP
     operatorController.triangle()
@@ -142,7 +136,7 @@ public class RobotContainer {
 
     //SCORING MODE
     driverController.R2().and(()->LimelightHelpers.getTV(Limelight.llname))
-      .whileTrue(drivecommands.scoringMode(false, false))
+      .onTrue(drivecommands.scoringModeTeleop(false))
       .onFalse(drivecommands.stopScoringModeCommand());
 
     //ALIGN FIELD RELATIVE TO 90 DEGREES (INTAKE POINT TO THE LEFT)
@@ -163,6 +157,7 @@ public class RobotContainer {
 
     
   }
+
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

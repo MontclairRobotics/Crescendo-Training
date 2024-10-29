@@ -4,8 +4,8 @@
 
 package frc.robot.subsystems;
 
-import java.util.EnumSet;
-import java.util.Map;
+// import java.util.EnumSet;
+// import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
@@ -18,34 +18,42 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.networktables.BooleanEntry;
+// import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEvent.Kind;
-import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.networktables.NetworkTableType;
+// import edu.wpi.first.networktables.NetworkTable;
+// import edu.wpi.first.networktables.NetworkTableEvent.Kind;
+// import edu.wpi.first.util.sendable.SendableBuilder;
+// import edu.wpi.first.networktables.NetworkTableInstance;
+// import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
+// import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
-import edu.wpi.first.wpilibj.shuffleboard.WidgetType;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+// import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
+// import edu.wpi.first.wpilibj.shuffleboard.WidgetType;
+// import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+// import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Robot;
+// import frc.robot.Robot;
 import frc.robot.RobotContainer;
 
 import frc.robot.Constants.DriveConstants;
 
 public class Auto extends SubsystemBase {
 
+  /* command group to be run for the auto */
   public SequentialCommandGroup autoCommandGroup;
 
+  /* this recieves the value for the autostring of type generic entry */
   public GenericEntry autoStringInput;
 
   /* INSTANCE VARIABLES */
@@ -57,8 +65,6 @@ public class Auto extends SubsystemBase {
   public boolean isFromScoringLocation;
   public boolean isFromCloseNote;
   public boolean isFromNote;
-
-  /* MORE NOTE BOOLEANS */
   public boolean isGoingToNoteScoringLocation;
   public boolean isGoingToScoringLocation;
   public boolean isGoingToCloseNote;
@@ -69,19 +75,24 @@ public class Auto extends SubsystemBase {
   public boolean shouldShoot;
 
   public GenericEntry toggleSwitch;
-  /* OTHER NECESSARY BOOLEANS */
-  boolean justScored;
-  boolean isCurrentPathValid;
-  boolean hasNote;
+  public NetworkTable table;
+  
+  /* tells me whether it just scored or has a note */
+  public boolean justScored;
+  public boolean hasNote;
+
+  /* boolean to store if the current path is valid or not */
+  public boolean isCurrentPathValid;
 
   /* CHARS */
-  public char previous = 'X';
+  public char previous = 'X'; //protecting for domain errors
   public char current;
   public char next;
-  public char previous2 = 'X';
+  public char previous2 = 'X'; //protecting for domain errors
   public String pathName;
 
   public boolean ignoringSafety;
+
   /* IS AUTO STRING VALID */
   public boolean isAutoStringValid;
   
@@ -104,6 +115,10 @@ public class Auto extends SubsystemBase {
    
   /* SET TO 0,0 BECAUSE OUR ROBOT IS SQUARE */
   Translation2d centerOfRotationMeters;
+
+  private boolean isToggled;
+
+  private NetworkTableInstance nt;
 
   /* RETURNS POSE2D OF THE ROBOT */
   public Pose2d getPose2d(){
@@ -189,14 +204,15 @@ public class Auto extends SubsystemBase {
     /* CALLS AUTOSEQUENCER */
     Shuffleboard.getTab("Driver Station").addBoolean("Is auto valid:", isAutoStringValidSupplier()).withPosition(1, 0);
     Shuffleboard.getTab("Driver Station").addString("Feedback:", feedbackStringSupplier()).withSize(7,  1).withPosition(2, 0);
-    Shuffleboard.getTab("Driver Station").addString("Feedback (cont.)", feedbackString2Supplier()).withSize(8,  1).withPosition(1,1);
+    Shuffleboard.getTab("Driver Station").addString("Feedback (cont.)", feedbackString2Supplier()).withSize(9,  1).withPosition(0,1);
     Shuffleboard.getTab("Driver Station").addString("Commands", commandStringSupplier()).withSize(9,  1).withPosition(0, 2);
     Shuffleboard.getTab("Driver Station").addString("Commands (cont.)", commandString2Supplier()).withSize(9,  1).withPosition(0, 3);
-    try {
-    toggleSwitch = Shuffleboard.getTab("Driver Station").add("Ignore Safeties", false).withWidget(BuiltInWidgets.kToggleSwitch).withPosition(0, 1).getEntry();
-    } catch (NullPointerException e) {
-      System.err.println("Error initializing toggle switch: " + e.getMessage());
-  }
+    try{
+    Shuffleboard.getTab("Debug").add("Toggle Switch",false).withWidget(BuiltInWidgets.kToggleSwitch);
+    } catch(Exception e){
+
+    }
+
     /* sets offset center of rotation meters to 0 */
     centerOfRotationMeters = new Translation2d(0,0);
 
@@ -281,17 +297,18 @@ public class Auto extends SubsystemBase {
   /* SETS THE FEEDBACK */
   public void setFeedbackString(String input) {
     String s = feedbackString + "\t" + input + ".";
-    if(s.length()<140) feedbackString += "\t" + input + ".";
+    if(s.length()<140 && feedbackString2.length() < 1) feedbackString += "\t" + input + ".";
     else feedbackString2 += "\t" + input + ".";
   }
 
   public void setCommandString(String input){
+    
     String s = commandString + input;
-    if(s.length()<180) commandString += input;
+    if(s.length()<180 && commandString2.length() < 1) commandString += input;
     else commandString2 += input;
   }
 
-
+  
   public Supplier<String> feedbackStringSupplier(){
     return () -> feedbackString;
   }
@@ -360,7 +377,7 @@ public class Auto extends SubsystemBase {
     if(!isScoringAmp){
       return Commands.sequence(
         followPath(pathString), 
-        RobotContainer.drivecommands.scoringMode(false, true));
+        RobotContainer.drivecommands.scoringModeAuto(false));
     } else {
       return Commands.sequence(
         followPath(pathString), 
@@ -385,8 +402,7 @@ public class Auto extends SubsystemBase {
   public boolean autoSequencer() {
 
     boolean isTriggered;
-    if(toggleSwitch != null) isTriggered = toggleSwitch.getBoolean(false);
-    else isTriggered = false;
+  
     notesScoredAt = new char[50];
     intakedNotes = new char[50];
     commandString = "";
@@ -493,14 +509,14 @@ public class Auto extends SubsystemBase {
           justScored = false;
 
           
-          if(!isTriggered && isIn(next, intakedNotes)){
+          if(isIn(next, intakedNotes)){
           isAutoStringValid = false;
           setFeedbackString(" You have already intaked note " + next); 
           }
 
           intakedNotes[i] = next;
 
-          if(!isTriggered && isIn(next, notesScoredAt)){
+          if(isIn(next, notesScoredAt)){
             isAutoStringValid = false;
             setFeedbackString(" You have previously scored at " + next + " before intaking that note and now it is bumped out of the way, so you won't be able to intake it");
           }
@@ -509,7 +525,7 @@ public class Auto extends SubsystemBase {
         } 
         else if(shouldShoot){
           if(current == next) {
-            autoCommandGroup.addCommands(RobotContainer.drivecommands.scoringMode(false, true));
+            autoCommandGroup.addCommands(RobotContainer.drivecommands.scoringModeAuto(false));
             if(isGoingToNoteScoringLocation) {
               //System.out.println("The robot will score using scoring mode at the note scoring location at \"" + next + "\"\n");
               setCommandString("Scoring mode at " + next + ". ");
@@ -583,6 +599,7 @@ public class Auto extends SubsystemBase {
    }
 
    if(isAutoStringValid) feedbackString = "Looks Good!";
+   System.out.println(commandString + "\n" + commandString2);
   //System.out.println("feedback: " + feedbackString +"\n");
  // System.out.println("is the string valid:" + isAutoStringValid +"\n");
 

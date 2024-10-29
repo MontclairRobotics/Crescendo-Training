@@ -4,19 +4,14 @@
 
 package frc.robot;
 
-import edu.wpi.first.util.datalog.DataLog;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-import frc.robot.subsystems.Auto;
 import frc.robot.subsystems.Shooter;
 import frc.robot.vision.Limelight;
 
-import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.LoggedRobot;
 

@@ -1,14 +1,15 @@
 package frc.robot.Commands;
 
-import edu.wpi.first.math.geometry.Rotation2d;
+// import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WrapperCommand;
+import frc.robot.Robot;
+// import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+// import edu.wpi.first.wpilibj2.command.WrapperCommand;
 import frc.robot.RobotContainer;
-import frc.robot.Constants.ArmConstants;
+// import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.subsystems.Shooter;
+// import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Transport;
 
 public class ShooterCommands extends Command {
@@ -25,6 +26,7 @@ public class ShooterCommands extends Command {
      */
    
     public Command scoreSubwoofer(){
+     
         return Commands.parallel(
             //sets the angle to score the subwoofer
             RobotContainer.sprocketcommands.setAngleCommand(ShooterConstants.SUBWOOFER_ANGLE),
@@ -40,57 +42,33 @@ public class ShooterCommands extends Command {
         
         //ending conditions
         
-        }       
+    }   
 
-    public Command scoreSpeaker(boolean duringAuto){
-
-        /*
-         * FIRST OPTION
-         * 
-         * this runs if we are running auto and scoring mode
-         * it will wait for shooter to be at velocity and then run the transport, then end 
-         */
-
-        if(duringAuto){
+        //scores speaker during auto   
+        public Command scoreSpeakerAuto(){
             return Commands.run(() -> {
+                RobotContainer.shooter.spinWheels(ShooterConstants.SPEAKER_SCORE_VELOCITY, ShooterConstants.SPEAKER_SCORE_VELOCITY);
                 if(RobotContainer.shooter.isAtVelocityRPM(ShooterConstants.SPEAKER_SCORE_VELOCITY, ShooterConstants.SPEAKER_SCORE_VELOCITY)
                     && RobotContainer.sprocket.isAtAngle()
                     && RobotContainer.drivetrain.isAlignedTX()){
                 Transport.start();
                 }
-            })
-            //ending conditions
-            .onlyWhile(RobotContainer.shooter.noteReadyToShoot())
-            .finallyDo(() -> {
-                RobotContainer.shooter.stopScoring();
-            })
-            .andThen(RobotContainer.sprocketcommands.returnToDefaultAngle());
+            }, RobotContainer.shooter)
+            .withTimeout(0.5)
+            .finallyDo(() -> RobotContainer.shooter.stopScoring());
+        } 
 
-            /* SECOND OPTION
-
-             * this will run if scoring mode is not during auto and operator is pressing circle
-            */
-
-        } else if(RobotContainer.shooter.scoringMode && RobotContainer.operatorController.circle().getAsBoolean()){
-            return Commands.run(() -> {
-                Transport.start();
-            })
-            .onlyWhile(RobotContainer.shooter.noteReadyToShoot())
-            .finallyDo(() -> {
-                RobotContainer.shooter.stopScoring();
-            })
-            .andThen(RobotContainer.sprocketcommands.returnToDefaultAngle());
+        //scores speaker teleop 
+        public Command scoreSpeakerTeleop(){
+            return Commands.run(() -> Transport.start())
+            .withTimeout(0.2)
+            .finallyDo(() -> RobotContainer.shooter.stopScoring());
         }
 
-        /*
-         * LAST OPTION
-         * if those don't run than score subwoofer
-         */
-        
-        else {
-            return scoreSubwoofer();
+        public Command scoreSpeakerDecider(){
+            if(RobotContainer.shooter.scoringMode) return scoreSpeakerTeleop();
+            else return scoreSubwoofer();
         }
-    }
   
   
     /*
@@ -100,12 +78,16 @@ public class ShooterCommands extends Command {
      */
 
     public Command scoreAmp(){
-        return Commands.sequence(
+        return Commands.parallel(
+            Commands.run(() -> RobotContainer.shooter.spinWheels(ShooterConstants.AMP_TOP_SPEED, ShooterConstants.AMP_BOTTOM_SPEED), RobotContainer.shooter),
+            
             RobotContainer.sprocketcommands.setAngleCommand(ShooterConstants.AMP_SCORE_ANGLE),
-            Commands.waitUntil(RobotContainer.sprocket.isAtAngleSupplier()),
-            Commands.run(() -> RobotContainer.shooter.shootRPM(ShooterConstants.AMP_TOP_SPEED, ShooterConstants.AMP_BOTTOM_SPEED))
+            
+            Commands.waitUntil(RobotContainer.sprocket.isAtAngleSupplier())
+            .andThen(Commands.run(() -> RobotContainer.shooter.shootRPM(ShooterConstants.AMP_TOP_SPEED, ShooterConstants.AMP_BOTTOM_SPEED))
+)
         )
-        .until(RobotContainer.intake.noteOutOfTransport())
+        .withTimeout(.7)
         .finallyDo(() -> RobotContainer.shooter.stopScoring())
         .andThen(RobotContainer.sprocketcommands.returnToDefaultAngle());
     }
