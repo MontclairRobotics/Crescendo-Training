@@ -116,10 +116,6 @@ public class Auto extends SubsystemBase {
   /* SET TO 0,0 BECAUSE OUR ROBOT IS SQUARE */
   Translation2d centerOfRotationMeters;
 
-  private boolean isToggled;
-
-  private NetworkTableInstance nt;
-
   /* RETURNS POSE2D OF THE ROBOT */
   public Pose2d getPose2d(){
     return RobotContainer.drivetrain.swerveDrive.getPose();
@@ -402,7 +398,6 @@ public class Auto extends SubsystemBase {
    */
   public boolean autoSequencer() {
 
-    boolean isTriggered;
   
     notesScoredAt = new char[50];
     intakedNotes = new char[50];

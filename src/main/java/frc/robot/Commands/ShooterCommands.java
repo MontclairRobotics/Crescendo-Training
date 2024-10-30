@@ -1,8 +1,12 @@
 package frc.robot.Commands;
 
+import java.util.function.BooleanSupplier;
+
+import edu.wpi.first.networktables.BooleanSubscriber;
 // import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import frc.robot.Robot;
 // import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 // import edu.wpi.first.wpilibj2.command.WrapperCommand;
@@ -90,13 +94,14 @@ public class ShooterCommands extends Command {
             .finallyDo(() -> RobotContainer.shooter.stopScoring());
         }
 
-        
+        public BooleanSupplier getR2(){
+            return () -> RobotContainer.driverController.R2().getAsBoolean();
+        }
+
         //METHOD FOR DECIDING WHICH COMMAND TO RUN, TO AVOID COMMAND REQUIRING SUBSYSTEM ERROR
         public Command scoreSpeakerDecider(){
-            if(RobotContainer.operatorController.circle().getAsBoolean()) {
-            return scoreSpeakerTeleop();
-            }
-            else return scoreSubwoofer();
+            ConditionalCommand c = new ConditionalCommand(scoreSpeakerTeleop(), scoreSubwoofer(), getR2());
+            return c;
         }
   
 

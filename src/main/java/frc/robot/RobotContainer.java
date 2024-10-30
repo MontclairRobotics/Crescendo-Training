@@ -95,8 +95,12 @@ public class RobotContainer {
       .onFalse(RobotContainer.shootercommands.stop());
 
       RobotContainer.operatorController.circle()
-      .whileTrue(RobotContainer.shootercommands.scoreSubwoofer())
+      .whileTrue(RobotContainer.shootercommands.scoreSpeakerDecider())
       .onFalse(RobotContainer.shootercommands.stop());
+
+      RobotContainer.operatorController.square()
+      .whileTrue(shootercommands.scoreSubwoofer())
+      .onFalse(shootercommands.stop());
     
     
     //SCORES AMP

@@ -45,6 +45,17 @@ public final class Constants {
   }
 
   public static class DriveConstants {
+
+    //for angle alignment
+    public static final double P1 = .87;
+    public static final double I1 = .4;
+    public static final double D1 = .05;
+
+    //for scoring mode
+    public static final double P2 = 0;
+    public static final double I2 = 0;
+    public static final double D2 = 0;
+
     public static final double VELOCITY_DEADBAND = 5; //degrees per second
 
     public static final double ANGLE_DEADBAND = 2.5;
