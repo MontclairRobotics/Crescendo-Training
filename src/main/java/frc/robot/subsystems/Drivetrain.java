@@ -163,6 +163,7 @@ public class Drivetrain extends SubsystemBase {
       wrapAngle(odometryHeading + angleRadians)
       
       ;
+      setPIDRelativeTurning();
     thetaController.setSetpoint(wrappedSetPoint);
   }
 
@@ -173,7 +174,7 @@ public class Drivetrain extends SubsystemBase {
     Translation2d translation = new Translation2d(0,0);
 
     setSetpoint(Limelight.getTX());
-
+      setPIDScoringMode();
     response = -thetaController.calculate(odometryHeading) 
     //comment this in
     *Math.PI /180
@@ -201,6 +202,7 @@ public class Drivetrain extends SubsystemBase {
     Translation2d translation = new Translation2d(0, 0);
     //calculates the input for the drive function (NO IDEA IF I SHOULD MULTIPLY THIS BY SOMETHING)
     //inputs field relative angle (set point is also converted to field relative)
+    setPIDRelativeTurning();
     response = thetaController.calculate(odometryHeading) 
     * Math.PI / 180
     //comment this back in
@@ -216,6 +218,17 @@ public class Drivetrain extends SubsystemBase {
   * VARIOUS LOGGING TOOLS 
   *
   */
+  public void setPIDScoringMode(){
+    thetaController.setP(DriveConstants.P2);
+    thetaController.setI(DriveConstants.I2);
+    thetaController.setD(DriveConstants.D2);
+  }
+
+  public void setPIDRelativeTurning(){
+    thetaController.setP(DriveConstants.P1);
+    thetaController.setI(DriveConstants.I1);
+    thetaController.setD(DriveConstants.D1);
+  }
 
   public BooleanSupplier isRobotNOTAtAngleSetPoint(){
     return () -> !isRobotAtAngleSetPoint;
@@ -240,12 +253,14 @@ public class Drivetrain extends SubsystemBase {
   public void setFieldRelativeAngle(double angle){
     //comment out math.toRadians
     double wrappedAngle = wrapAngle(angle);
+    setPIDRelativeTurning();
     thetaController.setSetpoint(wrappedAngle);
   }
 
   /* ALIGNS TO ANGLE FIELD RELATIVE */
   public void alignToAngleFieldRelative(boolean lockDrive){
     Translation2d translation = new Translation2d(0,0);
+    setPIDRelativeTurning();
     double response = thetaController.calculate(odometryHeading) 
     *Math.PI/180
     //comment this back in
