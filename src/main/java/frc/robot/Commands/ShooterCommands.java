@@ -104,6 +104,7 @@ public class ShooterCommands extends Command {
             return c;
         }
   
+     
 
     /*
      * 
@@ -129,6 +130,7 @@ public class ShooterCommands extends Command {
     public Command stop(){
         return Commands.runOnce(() -> RobotContainer.shooter.stop());
       }
+
 
       /* SPINS WHEELS BUT NOT TRANSPORT */
     public Command spinWheels(double vel){
