@@ -12,7 +12,7 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Ports;
 
 public class Intake extends SubsystemBase {
-    CANSparkMax topIntakeMotor = new CANSparkMax(Constants.Ports.INTAKE_TOP_MOTOR,MotorType.kBrushless);
+    CANSparkMax topIntakeMotor = new CANSparkMax(Constants.Ports.INTAKE_TOP_MOTOR, MotorType.kBrushless);
     CANSparkMax bottomIntakeMotor = new CANSparkMax(Constants.Ports.INTAKE_BOTTOM_MOTOR, MotorType.kBrushless);
     
     public DigitalInput beambreak = new DigitalInput(Ports.TRANSPORT_BEAM_BREAK);

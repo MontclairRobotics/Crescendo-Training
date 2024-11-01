@@ -79,17 +79,18 @@ public class DriveCommands extends Command {
     }
 
     public Command scoringModeAuto(boolean lockDrive) {
-        return Commands.parallel(
+        return Commands.deadline(
+         
+         //requires shooter
+        //uses sprocket, intake, drivetrain, and shooter methods but does not
+        //require the subsystem.
+        RobotContainer.shootercommands.scoreSpeakerAuto(),
          //requires sprocket
         RobotContainer.sprocketcommands.setAngleContinousCommand(RobotContainer.limelight::bestFit),
 
         //requires drivetrain
-        RobotContainer.drivecommands.alignScoringModeCommand(lockDrive),
-
-        //requires shooter
-        //uses sprocket, intake, drivetrain, and shooter methods but does not
-        //require the subsystem.
-        RobotContainer.shootercommands.scoreSpeakerAuto()
+        RobotContainer.drivecommands.alignScoringModeCommand(lockDrive)
+        
         );
     }
 }

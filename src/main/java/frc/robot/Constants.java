@@ -52,9 +52,9 @@ public final class Constants {
     public static final double D1 = .05;
 
     //for scoring mode
-    public static final double P2 = 0;
-    public static final double I2 = 0;
-    public static final double D2 = 0;
+    public static final double P2 = .6;
+    public static final double I2 = .5;
+    public static final double D2 = .05;
 
     public static final double VELOCITY_DEADBAND = 5; //degrees per second
 

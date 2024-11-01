@@ -45,7 +45,7 @@ public class Robot extends LoggedRobot {
     //Shuffleboard.getTab("Debug").addDouble("ty", Limelight.tySupplier()).withSize(2,1);
     Shuffleboard.getTab("Debug").addDouble("best fit angle", RobotContainer.limelight.bestFitAngleSupplier()).withSize(2,1);
     Shuffleboard.getTab("Debug").addBoolean("Sprocket at angle?", RobotContainer.sprocket.isAtAngleSupplier());
-    Shuffleboard.getTab("Debug").addBoolean("Is robot aligned tx", () -> RobotContainer.drivetrain.isAlignedTX());
+    Shuffleboard.getTab("Debug").addBoolean("Is robot aligned tx",  () -> RobotContainer.drivetrain.isAlignedTX());
   }
 
   @Override
@@ -64,7 +64,6 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
@@ -95,11 +94,11 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    System.out.println("Sprocket: "+ RobotContainer.sprocket.getRawPositionSupplier());
+    //System.out.println("Sprocket: "+ RobotContainer.sprocket.getRawPositionSupplier());
     // System.out.println("From:" + RobotContainer.auto.isFromScoringLocation);
     // System.out.println("Going to:" + RobotContainer.auto.isGoingToScoringLocation);
     // System.out.println(RobotContainer.auto.isIn(Auto.autoString.charAt(0), RobotContainer.auto.scoringLocations));
-    System.out.println(RobotContainer.intake.beambreak.get());
+    //System.out.println(RobotContainer.intake.beambreak.get());
   }
 
   @Override
