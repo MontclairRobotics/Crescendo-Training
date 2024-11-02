@@ -192,7 +192,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public boolean isAlignedTX(){
-    if(Limelight.getTX() < .5) return true;
+    if(Limelight.getTX() < 1) return true;
     else return false;
   }
  

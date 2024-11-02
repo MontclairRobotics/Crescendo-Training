@@ -91,6 +91,8 @@ public class DriveCommands extends Command {
         //requires drivetrain
         RobotContainer.drivecommands.alignScoringModeCommand(lockDrive)
         
-        );
+        )
+        .andThen(Commands.runOnce(() -> System.out.println("\n\n\n\nSCORING MODE AUTO BABBBYYYYY!!!!!!!!!!\n\n\n\n")));
+
     }
 }

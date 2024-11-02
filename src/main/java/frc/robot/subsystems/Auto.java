@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 // import java.util.EnumSet;
 // import java.util.Map;
 import java.util.function.BooleanSupplier;
@@ -50,6 +53,10 @@ import frc.robot.RobotContainer;
 import frc.robot.Constants.DriveConstants;
 
 public class Auto extends SubsystemBase {
+
+  public String[] pathsToLoad;
+  /* list to hold all of the preloaded paths needed to be loaded before running autonomous */
+  private List<PathPlannerPath> preloadedPaths;
 
   /* command group to be run for the auto */
   public SequentialCommandGroup autoCommandGroup;
@@ -150,6 +157,7 @@ public class Auto extends SubsystemBase {
    * 
    */
   public Auto() {
+
     /* sets offset center of rotation meters to 0 */
     centerOfRotationMeters = new Translation2d(0,0);
 
@@ -309,6 +317,21 @@ public class Auto extends SubsystemBase {
     else commandString2 += input;
   }
 
+  //adds all of the paths to an array of path planner paths
+  public void preloadPaths(String[] pathNames) {
+    for (String pathName : pathNames) {
+        if(isValid(pathName)){
+        PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
+        if (path != null) {
+            preloadedPaths.add(path);
+            System.out.println("Loaded path: " + pathName);
+        } else {
+            System.out.println("Failed to load path: " + pathName);
+        }
+      }
+    }
+  }
+
   /*
    * 
    * Various suppliers for logging purposes
@@ -353,10 +376,25 @@ public class Auto extends SubsystemBase {
    * i.e. (A-B)
   */
   public Command followPath(String pathString) {
+    //if the path is in the preloadedPaths array, which it should be, it will find the path that equals
+    //the path from the pathString and returns the command that follows that path
+    for (PathPlannerPath path : preloadedPaths) {
+        if (path.equals(PathPlannerPath.fromPathFile(pathString))) {
+            System.out.println("\nFollowing path " + pathString + " with the preloaded path\n");
+            return AutoBuilder.followPath(path);
+        } 
+    }
+    //otherwise, it will load the path here 
+    System.out.println("\nFollowing path "+ pathString + " with NOT preloaded path\n");
+    PathPlannerPath path = PathPlannerPath.fromPathFile(pathString);
+    return AutoBuilder.followPath(path);
+}
+
+  public Command oldFollowPath(String pathString) {
     PathPlannerPath path = PathPlannerPath.fromPathFile(pathString);
     return AutoBuilder.followPath(path);
   }
-  
+
   /* FOLLOWS PATH AND THEN INTAKES */
   public Command followPathAndIntake(String pathString){
       return Commands.race(
@@ -365,7 +403,8 @@ public class Auto extends SubsystemBase {
       )
       .andThen(RobotContainer.intakecommands.intakeAuto())
       .onlyWhile(RobotContainer.intake.noteOutOfTransport())
-      .withTimeout(0.7);
+      .withTimeout(0.7)
+      .andThen(Commands.runOnce(() -> System.out.println(" \n \n\n\n FOLLOWING A PATH AND INTAKE FOR REAL\n\n\n\n")));
       
   }
 
@@ -374,14 +413,17 @@ public class Auto extends SubsystemBase {
    * this will score amp if needed or speaker if needed
    */
   public Command followPathAndShoot(String pathString, boolean isScoringAmp){
+    System.out.println("\n\n\n the follow path and shoot command is being called \n\n\n");
     if(!isScoringAmp){
       return Commands.sequence(
+        Commands.runOnce(() -> System.out.println("\n\n\nSCORING MODE AFTER FOLLOWING A PATH\n\n\n")),
         followPath(pathString), 
         RobotContainer.drivecommands.scoringModeAuto(false));
     } else {
       return Commands.sequence(
         followPath(pathString), 
-        RobotContainer.shootercommands.scoreAmp());
+        RobotContainer.shootercommands.scoreAmp())
+        .andThen(Commands.runOnce(() -> System.out.println("\n\n\nScoring amp after following a path\n\n\n")));
     }
   }
 
@@ -415,6 +457,9 @@ public class Auto extends SubsystemBase {
   public boolean autoSequencer() {
 
     /* instantiates some variables that need to be reset every time autoSequencer is run */
+
+    pathsToLoad = new String[50]; //creates the array of preload PATH STRING NAMES
+    preloadedPaths = new ArrayList<>(); //creates the array of preloaded paths
     notesScoredAt = new char[50]; //we don't want notes we scored at in previous autos to carry over to a new auto
     intakedNotes = new char[50]; //same logic 
     commandString = ""; //resets the String to hold commands every time
@@ -482,6 +527,7 @@ public class Auto extends SubsystemBase {
        */
 
       if(isValid(pathName)){ //checks if path is valid
+        
         if(i == 0) {
           autoCommandGroup.addCommands(RobotContainer.shootercommands.scoreSubwoofer());
           setCommandString("Scoring subwoofer. ");
@@ -501,6 +547,9 @@ public class Auto extends SubsystemBase {
           hasNote = true;
           justScored = false;
 
+          /* adds paths to the ones we need to load */
+          pathsToLoad[i] = pathName;
+
           //checks if we already intake that not
           if(isIn(next, intakedNotes)){
           isAutoStringValid = false;
@@ -515,14 +564,13 @@ public class Auto extends SubsystemBase {
             isAutoStringValid = false;
             setFeedbackString(" You have previously scored at " + next + " before intaking that note and now it is bumped out of the way, so you won't be able to intake it");
           }
-
+        } 
           /*
            * 
            * if shooting ->
            * 
            * 
            */
-        } 
         else if(shouldShoot){
           //scoring mode without moving (note scoring location)
           if(current == next) { 
@@ -540,6 +588,7 @@ public class Auto extends SubsystemBase {
             justScored = true;
             hasNote = false;
             setCommandString("Following " + pathName + " and scoring amp. ");
+            pathsToLoad[i] = pathName;
           }
           //scoring at any other scoring location
           else {
@@ -548,6 +597,7 @@ public class Auto extends SubsystemBase {
             hasNote = false;
             setCommandString("Following " + pathName + " and then shoot using scoring mode. ");
             notesScoredAt[i] = next;
+            pathsToLoad[i] = pathName;
           }
         }
 

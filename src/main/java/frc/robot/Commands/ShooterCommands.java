@@ -7,6 +7,7 @@ import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.Robot;
 // import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 // import edu.wpi.first.wpilibj2.command.WrapperCommand;
@@ -29,6 +30,7 @@ public class ShooterCommands extends Command {
      * Command sequence to score the subwoofer
      */
    
+     //fully works during teleop and autonomous, ends properly
     public Command scoreSubwoofer(){
         
         if(RobotContainer.intake.bbTriggered){
@@ -43,7 +45,8 @@ public class ShooterCommands extends Command {
              })
             )
             .andThen(RobotContainer.sprocketcommands.returnToDefaultAngle()
-            .onlyWhile(RobotContainer.intake.noteOutOfTransport()));
+            .onlyWhile(RobotContainer.intake.noteOutOfTransport()))
+            .andThen(Commands.runOnce(() -> System.out.println("\n\n\n SCORING SUBWOOFER RAN!!!!!!!!!\n\n\n")));
         //ending conditions
         } 
         
@@ -59,7 +62,9 @@ public class ShooterCommands extends Command {
              })
             )
             .andThen(RobotContainer.sprocketcommands.returnToDefaultAngle()
-            .onlyWhile(RobotContainer.intake.noteOutOfTransport()));  
+            .onlyWhile(RobotContainer.intake.noteOutOfTransport()))
+            .andThen(Commands.runOnce(() -> System.out.println("Scoring Subwoofer ran")));
+
     }   
 
 
@@ -98,7 +103,13 @@ public class ShooterCommands extends Command {
             return () -> RobotContainer.driverController.R2().getAsBoolean();
         }
 
-        //METHOD FOR DECIDING WHICH COMMAND TO RUN, TO AVOID COMMAND REQUIRING SUBSYSTEM ERROR
+        //does not work, crashes the robot when used during scoring mode
+
+        //ideass to fix
+        //make getR2() always return true or false and see what happens
+        //replace scoreSpeakerTeleop with like a command that waits for two seconds
+        //test scoreSpeakerTeleop without scoringModeTeleop running
+
         public Command scoreSpeakerDecider(){
             ConditionalCommand c = new ConditionalCommand(scoreSpeakerTeleop(), scoreSubwoofer(), getR2());
             return c;
