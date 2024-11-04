@@ -49,7 +49,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 // import frc.robot.Robot;
 import frc.robot.RobotContainer;
-
+import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 
 public class Auto extends SubsystemBase {
@@ -141,7 +141,7 @@ public class Auto extends SubsystemBase {
 
   /* DRIVES ROBOT WITH CHASSIS SPEEDS */
   public void driveRobotRelative(ChassisSpeeds chassisSpeeds){
-    RobotContainer.drivetrain.swerveDrive.drive(chassisSpeeds, false, centerOfRotationMeters);
+    RobotContainer.drivetrain.swerveDrive.drive(chassisSpeeds, true, centerOfRotationMeters);
    }
 
   /* RETURNS CHASSIS SPEEDS */
@@ -223,16 +223,13 @@ public class Auto extends SubsystemBase {
     /* CONFIGURES AUTO SO IT ACTUALLY WORKS */
       AutoBuilder.configureHolonomic(
             this::getPose2d, // Robot pose supplier
-            this::resetPose2d, // Method to reset odometry (will be called if your auto has a starting pose)
-            this::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            this::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-            new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                    new PIDConstants(8.12, 0.0, 0.0), // Translation PID constants
-                    new PIDConstants(.01, 0.0, 0.07), // Rotation PID constants
-                    RobotContainer.drivetrain.maximumSpeed, // Max module speed, in m/s
-                    DriveConstants.DRIVE_BASE_RADIUS, // Drive base radius in meters. Distance from robot center to furthest module.
-                    new ReplanningConfig() // Default path replanning config. See the API for the options here
-            ),
+            this::resetPose2d,
+            this::getChassisSpeeds, // Method to reset odometry (will be called if your auto has a starting pose)
+            (ChassisSpeeds x) -> {
+              RobotContainer.drivetrain.getSwerveDrive().drive(new ChassisSpeeds(x.vxMetersPerSecond, x.vyMetersPerSecond, x.omegaRadiansPerSecond), false, centerOfRotationMeters);
+            }, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+            //this::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+            AutoConstants.PATH_FOLLOWER_CONFIG,
             () -> {
               // Boolean supplier that controls when the path will be mirrored for the red alliance
               // This will flip the path being followed to the red side of the field.
@@ -244,7 +241,8 @@ public class Auto extends SubsystemBase {
               }
               return false;
             },
-            this // Reference to this subsystem to set requirements
+            RobotContainer.drivetrain
+            // Rference to this subsystem to set requirements
     );  // public Auto auto = new Auto();
 
 
@@ -397,14 +395,15 @@ public class Auto extends SubsystemBase {
 
   /* FOLLOWS PATH AND THEN INTAKES */
   public Command followPathAndIntake(String pathString){
-      return Commands.race(
+      return Commands.parallel(
         RobotContainer.intakecommands.intakeAuto(),
         followPath(pathString)
       )
-      .andThen(RobotContainer.intakecommands.intakeAuto())
-      .onlyWhile(RobotContainer.intake.noteOutOfTransport())
-      .withTimeout(0.7)
-      .andThen(Commands.runOnce(() -> System.out.println(" \n \n\n\n FOLLOWING A PATH AND INTAKE FOR REAL\n\n\n\n")));
+      .withTimeout(2);
+      //.andThen(RobotContainer.intakecommands.intakeAuto())
+      //.onlyWhile(RobotContainer.intake.noteOutOfTransport())
+     // .withTimeout(0.7)
+      //.andThen(Commands.runOnce(() -> System.out.println(" \n \n\n\n FOLLOWING A PATH AND INTAKE FOR REAL\n\n\n\n")));
       
   }
 

@@ -195,6 +195,9 @@ public class Drivetrain extends SubsystemBase {
     if(Limelight.getTX() < 1) return true;
     else return false;
   }
+  public SwerveDrive getSwerveDrive() {
+    return this.swerveDrive;
+  }
  
   /* ALIGN TO ANGLE ROBOT RELATIVE */
   public void alignToAngleRobotRelative(boolean lockDrive) {

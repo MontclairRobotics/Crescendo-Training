@@ -10,6 +10,7 @@ import java.util.function.BooleanSupplier;
 
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -175,6 +176,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
   // return auto.autoCommandGroup;
-  return auto.autoCommandGroup;
+  //return auto.autoCommandGroup;
+  return AutoBuilder.followPath(PathPlannerPath.fromPathFile("2-B"));
   }
 }

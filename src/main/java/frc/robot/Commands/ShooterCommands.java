@@ -63,7 +63,7 @@ public class ShooterCommands extends Command {
             )
             .andThen(RobotContainer.sprocketcommands.returnToDefaultAngle()
             .onlyWhile(RobotContainer.intake.noteOutOfTransport()))
-            .andThen(Commands.runOnce(() -> System.out.println("Scoring Subwoofer ran")));
+            .andThen(Commands.runOnce(() -> System.out.println("\n\n\nScoring Subwoofer ran\n\n\n")));
 
     }   
 
@@ -79,9 +79,9 @@ public class ShooterCommands extends Command {
                 ShooterConstants.SPEAKER_SCORE_VELOCITY, 
                 ShooterConstants.SPEAKER_SCORE_VELOCITY)
                 //and if the sprocket is aligned
-                && RobotContainer.sprocket.isAtAngle()
+                //&& RobotContainer.sprocket.isAtAngle()
                 //and if the drivetrain is aligned
-                && RobotContainer.drivetrain.isAlignedTX()
+                //&& RobotContainer.drivetrain.isAlignedTX()
                 //it will run the transport
                 ) Transport.start();
             }, RobotContainer.shooter)

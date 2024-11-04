@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
+
 // import animation2.AnimationReel;
 // import animation2.CircusAnimation;
 // import animation2.MagicAnimation;
@@ -43,7 +47,17 @@ public final class Constants {
     public static final Pose2d BLUE_SPEAKER_POSE = new Pose2d(Units.inchesToMeters(-1.5 + SPEAKER_SCORE_X_OFFSET), Units.inchesToMeters(218.42), new Rotation2d());
     
   }
-
+  public static class AutoConstants{
+    public static final PIDConstants ANGULAR_PID_CONSTANTS = new PIDConstants(8.12, 0.0, 0.0);
+    public static final PIDConstants TRANSLATION_PID_CONSTANTS = new PIDConstants(.01, 0.0, 0);
+    public static final HolonomicPathFollowerConfig PATH_FOLLOWER_CONFIG =
+        new HolonomicPathFollowerConfig(
+            TRANSLATION_PID_CONSTANTS,
+            ANGULAR_PID_CONSTANTS,
+            DriveConstants.MAX_SPEED,
+            DriveConstants.DRIVE_BASE_RADIUS, // TODO: (CHOREO) pp docs says this is from the center of the robot to the furthest module, which this is not.
+            new ReplanningConfig());
+  }
   public static class DriveConstants {
 
     //for angle alignment
