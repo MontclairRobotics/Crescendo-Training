@@ -7,18 +7,25 @@ package frc.robot.subsystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 // import java.util.EnumSet;
 // import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
+
+import com.google.flatbuffers.Constants;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.GeometryUtil;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 // import edu.wpi.first.networktables.BooleanEntry;
@@ -33,6 +40,7 @@ import edu.wpi.first.networktables.NetworkTableType;
 // import edu.wpi.first.networktables.NetworkTableInstance;
 // import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 // import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -222,30 +230,32 @@ public class Auto extends SubsystemBase {
 
     /* CONFIGURES AUTO SO IT ACTUALLY WORKS */
       AutoBuilder.configureHolonomic(
-            this::getPose2d, // Robot pose supplier
-            this::resetPose2d,
-            this::getChassisSpeeds, // Method to reset odometry (will be called if your auto has a starting pose)
+            RobotContainer.drivetrain.getSwerveDrive()::getPose, // Robot pose supplier
+            RobotContainer.drivetrain.getSwerveDrive()
+                ::resetOdometry, // Method to reset odometry (will be called if your auto has a starting 
+            // pose)
+            RobotContainer.drivetrain.getSwerveDrive()
+                ::getRobotVelocity, //ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
             (ChassisSpeeds x) -> {
-              RobotContainer.drivetrain.getSwerveDrive().drive(new ChassisSpeeds(x.vxMetersPerSecond, x.vyMetersPerSecond, x.omegaRadiansPerSecond), false, centerOfRotationMeters);
-            }, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            //this::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+              RobotContainer.drivetrain.getSwerveDrive().drive(new ChassisSpeeds(x.vxMetersPerSecond, x.vyMetersPerSecond, x.omegaRadiansPerSecond), false, new Translation2d());
+            }, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             AutoConstants.PATH_FOLLOWER_CONFIG,
             () -> {
-              // Boolean supplier that controls when the path will be mirrored for the red alliance
-              // This will flip the path being followed to the red side of the field.
-              // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+            Optional<Alliance> alliance = DriverStation.getAlliance();
+            return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
+          },
+          RobotContainer.drivetrain);  
 
-              var alliance = DriverStation.getAlliance();
-              if (alliance.isPresent()) {
-                return alliance.get() == DriverStation.Alliance.Red;
-              }
-              return false;
-            },
-            RobotContainer.drivetrain
-            // Rference to this subsystem to set requirements
-    );  // public Auto auto = new Auto();
+          PathPlannerLogging.setLogActivePathCallback(
+        (activePath) -> {
+          Logger.recordOutput(
+              "Auto/ActivePath", activePath.toArray(new Pose2d[activePath.size()]));
+        });
 
-
+    PathPlannerLogging.setLogTargetPoseCallback(
+        (targetPose) -> {
+          Logger.recordOutput("Auto/TargetPose", targetPose);
+        });
   }
 
   /*
@@ -368,6 +378,64 @@ public class Auto extends SubsystemBase {
      * 
      */
 
+  
+    /**
+     * 
+     * 
+     * THIS SETS THE AUTO POSE SO HOPEFULLY ITS CORRECT
+     * @param autoString
+     * @return
+     */
+
+     public static Command setAutoPose(String autoString) {
+      return Commands.runOnce(() -> {
+        Pose2d startPose = new Pose2d();
+        // if (RobotContainer.shooterLimelight.hasValidTarget() &&
+        // RobotContainer.shooterLimelight.getPipelineType() == DetectionType.APRIL_TAG)
+        // {
+        // startPose = RobotContainer.shooterLimelight.getBotPose();
+        // RobotContainer.field.setRobotPose(startPose);
+        // } else if (RobotContainer.intakeLimelight.hasValidTarget() &&
+        // RobotContainer.intakeLimelight.getPipelineType() == DetectionType.APRIL_TAG)
+        // {
+        // startPose = RobotContainer.intakeLimelight.getBotPose();
+        // }
+        // else {
+        if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
+          switch (autoString.charAt(0)) {
+            case '1':
+              startPose = AutoConstants.POSE_1_RED;
+              break;
+            case '2':
+              startPose = AutoConstants.POSE_2_RED;
+              break;
+            case '3':
+              startPose = AutoConstants.POSE_3_RED;
+              break;
+            case '4':
+              startPose = AutoConstants.POSE_4_RED;
+              break;
+          }
+        } else {
+          switch (autoString.charAt(0)) {
+            case '1':
+              startPose = AutoConstants.POSE_1;
+              break;
+            case '2':
+              startPose = AutoConstants.POSE_2;
+              break;
+            case '3':
+              startPose = AutoConstants.POSE_3;
+              break;
+            case '4':
+              startPose = AutoConstants.POSE_4;
+              break;
+          }
+        }
+      // }
+        RobotContainer.drivetrain.getSwerveDrive().resetOdometry(startPose);
+      });
+    }
 
   /** FOLLOWS AN AUTO PATH 
    * @param pathString this is a pathstring file name
@@ -395,11 +463,12 @@ public class Auto extends SubsystemBase {
 
   /* FOLLOWS PATH AND THEN INTAKES */
   public Command followPathAndIntake(String pathString){
-      return Commands.parallel(
-        RobotContainer.intakecommands.intakeAuto(),
-        followPath(pathString)
+      return Commands.deadline(
+        followPath(pathString),
+        RobotContainer.intakecommands.intakeAuto()
       )
-      .withTimeout(2);
+      .until(RobotContainer.intake.noteInTransport());
+      //.withTimeout(2);
       //.andThen(RobotContainer.intakecommands.intakeAuto())
       //.onlyWhile(RobotContainer.intake.noteOutOfTransport())
      // .withTimeout(0.7)
@@ -528,6 +597,8 @@ public class Auto extends SubsystemBase {
       if(isValid(pathName)){ //checks if path is valid
         
         if(i == 0) {
+          //sets the autoPose. THIS WAS COPIED FROM Crescendo-duelPrep
+          autoCommandGroup.addCommands(setAutoPose(autoString));
           autoCommandGroup.addCommands(RobotContainer.shootercommands.scoreSubwoofer());
           setCommandString("Scoring subwoofer. ");
           justScored = true;
@@ -573,8 +644,34 @@ public class Auto extends SubsystemBase {
         else if(shouldShoot){
           //scoring mode without moving (note scoring location)
           if(current == next) { 
-            autoCommandGroup.addCommands(RobotContainer.drivecommands.scoringModeAuto(false));
-            
+    
+        Rotation2d angle = new Rotation2d();
+        if (next == 'A') {
+          angle = Rotation2d.fromDegrees(-30);
+        }
+        else if (next == 'B') {
+          angle = Rotation2d.fromDegrees(0);
+        }
+        else if (next == 'C') {
+          angle = Rotation2d.fromDegrees(26.57);
+        }
+        else if (next == '5') {
+          angle = Rotation2d.fromDegrees(-26.57);
+        }
+        else if (next == '6') {
+          angle = Rotation2d.fromDegrees(-35);
+        }
+        else if (next == '7') {
+          angle = Rotation2d.fromDegrees(0);
+        }
+        if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
+          angle = GeometryUtil.flipFieldRotation(angle);
+        }
+
+        autoCommandGroup.addCommands(RobotContainer.drivecommands.alignToAngleFieldRelative(angle.getDegrees(), false)
+        .withTimeout(1));
+        autoCommandGroup.addCommands(RobotContainer.drivecommands.scoringModeAuto(false));
+
               setCommandString("Scoring mode at " + next + ". ");
               justScored = true;
               hasNote = false;

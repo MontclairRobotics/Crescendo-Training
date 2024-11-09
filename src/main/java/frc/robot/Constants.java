@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.util.GeometryUtil;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -57,6 +58,18 @@ public final class Constants {
             DriveConstants.MAX_SPEED,
             DriveConstants.DRIVE_BASE_RADIUS, // TODO: (CHOREO) pp docs says this is from the center of the robot to the furthest module, which this is not.
             new ReplanningConfig());
+
+
+
+    public static final Pose2d POSE_1 = new Pose2d(0.68, 4.38, Rotation2d.fromDegrees(-59.50)); //TODO check angles
+    public static final Pose2d POSE_2 = new Pose2d(1.37, 5.55, Rotation2d.fromDegrees(0));
+    public static final Pose2d POSE_3 = new Pose2d(0.72, 6.72, Rotation2d.fromDegrees(59.50));
+    public static final Pose2d POSE_4 = new Pose2d(1.82, 7.23, Rotation2d.fromDegrees(-90.00));
+
+    public static final Pose2d POSE_1_RED = GeometryUtil.flipFieldPose(POSE_1);
+    public static final Pose2d POSE_2_RED = GeometryUtil.flipFieldPose(POSE_2);
+    public static final Pose2d POSE_3_RED = GeometryUtil.flipFieldPose(POSE_3);
+    public static final Pose2d POSE_4_RED = GeometryUtil.flipFieldPose(POSE_4);
   }
   public static class DriveConstants {
 
@@ -80,7 +93,7 @@ public final class Constants {
     public static final double MAX_VOLTAGE_V = 12.0;
 
     //max speed of the robot
-    public static final double MAX_SPEED = Units.feetToMeters(13);
+    public static final double MAX_SPEED = Units.feetToMeters(10.944);
 
     //this is in radians. fosr those who don't know, 2pi radians = 360 degrees
     //our max rotation speed is therefore 360degrees/s or 2pi radians/second
