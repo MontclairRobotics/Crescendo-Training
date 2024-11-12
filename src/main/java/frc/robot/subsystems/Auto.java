@@ -28,6 +28,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 // import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
@@ -205,7 +206,6 @@ public class Auto extends SubsystemBase {
         /*F*/ "F-1","F-2","F-3","F-4","F-5",                  "F-B",                                      
         /*G*/ "G-1","G-2","G-3","G-4","G-5",      "G-7",      "G-B","G-C",                                
         /*H*/ "H-1","H-2","H-3","H-4","H-5",      "H-7",            "H-C",                                
-
 
     };
 

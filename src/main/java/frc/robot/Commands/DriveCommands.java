@@ -71,11 +71,16 @@ public class DriveCommands extends Command {
         //requires only drivetrain
         RobotContainer.drivecommands.alignScoringModeCommand(lockDrive),
 
+        Commands.runOnce(() -> RobotContainer.isDriverMode = true),
+
         //requires only shooter
         RobotContainer.shootercommands.spinWheels(ShooterConstants.SPEAKER_SCORE_VELOCITY)
         )
         .onlyWhile(() -> RobotContainer.driverController.R2().getAsBoolean())
-        .finallyDo(() -> RobotContainer.shooter.stopScoring());
+        .finallyDo(() -> {
+            RobotContainer.shooter.stopScoring();
+            RobotContainer.isDriverMode = false;
+        });
     }
 
     public Command scoringModeAuto(boolean lockDrive) {
@@ -92,7 +97,7 @@ public class DriveCommands extends Command {
         RobotContainer.drivecommands.alignScoringModeCommand(lockDrive)
         
         )
-        .andThen(Commands.runOnce(() -> System.out.println("\n\n\n\nSCORING MODE AUTO BABBBYYYYY!!!!!!!!!!\n\n\n\n")));
+        .andThen(Commands.runOnce(() -> System.out.println("\n\n\n\nSCORING MODE AUTO!!!!!!!!!!\n\n\n\n")));
 
     }
 }

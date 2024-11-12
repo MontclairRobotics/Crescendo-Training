@@ -54,6 +54,8 @@ public class RobotContainer {
     public static CommandPS5Controller operatorController = new CommandPS5Controller(1);
     public static CommandPS5Controller testingController = new CommandPS5Controller(2);
   
+    public static boolean isDriverMode = false;
+
     //the measely constructor
     public RobotContainer() {
     //configures bindings
@@ -95,9 +97,12 @@ public class RobotContainer {
       .whileTrue(RobotContainer.shootercommands.scoreSpeakerTeleop())
       .onFalse(RobotContainer.shootercommands.stop());
 
-      RobotContainer.operatorController.circle()
-      .whileTrue(RobotContainer.shootercommands.scoreSpeakerDecider())
-      .onFalse(RobotContainer.shootercommands.stop());
+      // RobotContainer.operatorController.circle()
+      // .whileTrue(RobotContainer.shootercommands.scoreSpeakerDecider())
+      // .onFalse(RobotContainer.shootercommands.stop());
+
+      operatorController.circle().and(() -> !isDriverMode).whileTrue(shootercommands.scoreSubwoofer());
+      operatorController.circle().and(() -> isDriverMode).whileTrue(shootercommands.runTransportManual());
 
       RobotContainer.operatorController.square()
       .whileTrue(shootercommands.scoreSubwoofer())
@@ -177,6 +182,14 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
   // return auto.autoCommandGroup;
   //return auto.autoCommandGroup;
-  return AutoBuilder.followPath(PathPlannerPath.fromPathFile("2-B"));
+  //return AutoBuilder.followPath(PathPlannerPath.fromPathFile("2-B"));
+  PathPlannerPath path = PathPlannerPath.fromPathFile("2-B");
+    
+    return Commands.sequence(
+      Commands.runOnce(() -> {
+        RobotContainer.drivetrain.getSwerveDrive().resetOdometry(path.getPreviewStartingHolonomicPose());
+      }),
+      AutoBuilder.followPath(path)
+    );
   }
 }

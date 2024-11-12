@@ -90,7 +90,10 @@ public class ShooterCommands extends Command {
         } else return Commands.runOnce(() -> {});
         } 
 
-
+        public Command runTransportManual(){
+            return Commands.run(() -> Transport.start())
+            .finallyDo(() -> Transport.stop());
+        }
 
         //scores speaker teleop SCORING MODE ONLY
         public Command scoreSpeakerTeleop(){

@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.util.GeometryUtil;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
@@ -48,29 +49,7 @@ public final class Constants {
     public static final Pose2d BLUE_SPEAKER_POSE = new Pose2d(Units.inchesToMeters(-1.5 + SPEAKER_SCORE_X_OFFSET), Units.inchesToMeters(218.42), new Rotation2d());
     
   }
-  public static class AutoConstants{
-    public static final PIDConstants ANGULAR_PID_CONSTANTS = new PIDConstants(8.12, 0.0, 0.0);
-    public static final PIDConstants TRANSLATION_PID_CONSTANTS = new PIDConstants(.01, 0.0, 0);
-    public static final HolonomicPathFollowerConfig PATH_FOLLOWER_CONFIG =
-        new HolonomicPathFollowerConfig(
-            TRANSLATION_PID_CONSTANTS,
-            ANGULAR_PID_CONSTANTS,
-            DriveConstants.MAX_SPEED,
-            DriveConstants.DRIVE_BASE_RADIUS, // TODO: (CHOREO) pp docs says this is from the center of the robot to the furthest module, which this is not.
-            new ReplanningConfig());
-
-
-
-    public static final Pose2d POSE_1 = new Pose2d(0.68, 4.38, Rotation2d.fromDegrees(-59.50)); //TODO check angles
-    public static final Pose2d POSE_2 = new Pose2d(1.37, 5.55, Rotation2d.fromDegrees(0));
-    public static final Pose2d POSE_3 = new Pose2d(0.72, 6.72, Rotation2d.fromDegrees(59.50));
-    public static final Pose2d POSE_4 = new Pose2d(1.82, 7.23, Rotation2d.fromDegrees(-90.00));
-
-    public static final Pose2d POSE_1_RED = GeometryUtil.flipFieldPose(POSE_1);
-    public static final Pose2d POSE_2_RED = GeometryUtil.flipFieldPose(POSE_2);
-    public static final Pose2d POSE_3_RED = GeometryUtil.flipFieldPose(POSE_3);
-    public static final Pose2d POSE_4_RED = GeometryUtil.flipFieldPose(POSE_4);
-  }
+  
   public static class DriveConstants {
 
     //for angle alignment
@@ -93,7 +72,7 @@ public final class Constants {
     public static final double MAX_VOLTAGE_V = 12.0;
 
     //max speed of the robot
-    public static final double MAX_SPEED = Units.feetToMeters(10.944);
+    public static final double MAX_SPEED = Units.feetToMeters(13);
 
     //this is in radians. fosr those who don't know, 2pi radians = 360 degrees
     //our max rotation speed is therefore 360degrees/s or 2pi radians/second
@@ -271,6 +250,32 @@ public final class Constants {
     public static final double TRANSPORT_PID_KI = 0;
     public static final double TRANSPORT_PID_KD = 0;
 
+  }
+  public static class AutoConstants{
+    public static final PIDConstants ANGULAR_PID_CONSTANTS = new PIDConstants(5, 0.0, 0.0);
+    public static final PIDConstants TRANSLATION_PID_CONSTANTS = new PIDConstants(5, 0.0, 0);
+    public static final HolonomicPathFollowerConfig PATH_FOLLOWER_CONFIG =
+        new HolonomicPathFollowerConfig(
+            TRANSLATION_PID_CONSTANTS,
+            ANGULAR_PID_CONSTANTS,
+            DriveConstants.MAX_SPEED,
+            DriveConstants.DRIVE_BASE_RADIUS, 
+            new ReplanningConfig());
+
+    public static final PathConstraints PATH_CONSTRAINTS =
+        new PathConstraints(
+            DriveConstants.MAX_SPEED, DriveConstants.MAX_ACCELERATION,
+            DriveConstants.MAX_ROT_SPEED, DriveConstants.MAX_ANGULAR_ACCELERATION);
+
+    public static final Pose2d POSE_1 = new Pose2d(0.68, 4.38, Rotation2d.fromDegrees(-59.50)); //TODO check angles
+    public static final Pose2d POSE_2 = new Pose2d(1.37, 5.55, Rotation2d.fromDegrees(0));
+    public static final Pose2d POSE_3 = new Pose2d(0.72, 6.72, Rotation2d.fromDegrees(59.50));
+    public static final Pose2d POSE_4 = new Pose2d(1.82, 7.23, Rotation2d.fromDegrees(-90.00));
+
+    public static final Pose2d POSE_1_RED = GeometryUtil.flipFieldPose(POSE_1);
+    public static final Pose2d POSE_2_RED = GeometryUtil.flipFieldPose(POSE_2);
+    public static final Pose2d POSE_3_RED = GeometryUtil.flipFieldPose(POSE_3);
+    public static final Pose2d POSE_4_RED = GeometryUtil.flipFieldPose(POSE_4);
   }
   
 }
