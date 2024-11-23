@@ -1,6 +1,7 @@
 plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2024.3.2"
+    id "com.peterabeles.gversion" version "1.10"
 }
 
 java {
@@ -72,6 +73,17 @@ task(checkAkitInstall, dependsOn: "classes", type: JavaExec) {
 compileJava.finalizedBy checkAkitInstall
 
 dependencies {
+
+    project.compileJava.dependsOn(createVersionFile)
+        gversion {
+            srcDir       = "src/main/java/"
+            classPackage = "frc.robot"
+            className    = "BuildConstants"
+            dateFormat   = "yyyy-MM-dd HH:mm:ss z"
+            timeZone     = "America/New_York" // Use preferred time zone
+            indent       = "  "
+        }
+
     implementation wpi.java.deps.wpilib()
     implementation wpi.java.vendor.java()
 

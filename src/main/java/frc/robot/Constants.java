@@ -72,7 +72,8 @@ public final class Constants {
     public static final double MAX_VOLTAGE_V = 12.0;
 
     //max speed of the robot
-    public static final double MAX_SPEED = Units.feetToMeters(13);
+    public static final double MAX_SPEED = 13; //feet per second 
+    //this is the part that is possibly not working and I'm pretty sure its a max speed issue
 
     //this is in radians. fosr those who don't know, 2pi radians = 360 degrees
     //our max rotation speed is therefore 360degrees/s or 2pi radians/second

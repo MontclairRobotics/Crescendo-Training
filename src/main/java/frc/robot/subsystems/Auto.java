@@ -736,7 +736,9 @@ public class Auto extends SubsystemBase {
    */
   @Override
   public void periodic() {
+    if(DriverStation.isDisabled()){
     autoString = getAutoString();
+    }
     if(hasAutoStringChanged()) autoSequencer();
   }
 

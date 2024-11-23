@@ -181,15 +181,15 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
   // return auto.autoCommandGroup;
-  //return auto.autoCommandGroup;
+  return auto.autoCommandGroup;
   //return AutoBuilder.followPath(PathPlannerPath.fromPathFile("2-B"));
-  PathPlannerPath path = PathPlannerPath.fromPathFile("2-B");
+  // PathPlannerPath path = PathPlannerPath.fromPathFile("2-B");
     
-    return Commands.sequence(
-      Commands.runOnce(() -> {
-        RobotContainer.drivetrain.getSwerveDrive().resetOdometry(path.getPreviewStartingHolonomicPose());
-      }),
-      AutoBuilder.followPath(path)
-    );
+  //   return Commands.sequence(
+  //     Commands.runOnce(() -> {
+  //       RobotContainer.drivetrain.getSwerveDrive().resetOdometry(path.getPreviewStartingHolonomicPose());
+  //     }),
+  //     AutoBuilder.followPath(path)
+  //   );
   }
 }
